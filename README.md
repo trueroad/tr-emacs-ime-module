@@ -131,6 +131,57 @@ $ make install
 [w32-ime-for-tr-ime-module.el](./w32-ime/w32-ime-for-tr-ime-module.el)
 の 3 ファイルを Emacs の load-path が通っているディレクトリに置いてください。
 
+## autorebase （Cygwin のみ）
+
+Cygwin の場合は Autotools でインストールしても手動でインストールしても、
+どちらにしろ rebase が必要です。
+手動で rebase した場合は autorebase の対象にならないため、
+Cygwin インストーラの autorebase が走ると衝突してしまう可能性があります。
+そこで、手動で rebase するのではなく autorebase の設定をします。
+（Cygwin パッケージとしてインストールした場合は、
+いちいち設定しなくても autorebase の対象になってくれます。）
+
+### ホームディレクトリ以外にインストールした場合
+
+インストール先が `/usr/share/emacs/site-lisp/tr-emacs-ime-module`
+として説明します。適宜お使いの環境に読み替えてください。
+
+`/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
+モジュール DLL を置いてある*ディレクトリ*をフルパスを書いた 1 行を追加します。
+
+```
+$ cd /var/lib/rebase/dynpath.d
+$ touch tr-emacs-ime-module
+$ echo '/usr/share/emacs/site-lisp/tr-emacs-ime-module' >> tr-emacs-ime-module
+```
+
+autorebase を手動で実行します。
+
+```
+$ /etc/postinstall/0p_000_autorebase.dash
+```
+
+### ホームディレクトリの下にインストールした場合
+
+以下、ユーザ名 `foobar` で、
+インストール先が `/home/foobar/.emacs.d/site-lisp`
+として説明します。適宜お使いの環境に読み替えてください。
+
+`/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
+モジュール DLL の*ファイル名*をフルパスを書いた 1 行を追加します。
+
+```
+$ cd /var/lib/rebase/user.d
+$ touch foobar
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-module.dll' >> foobar
+```
+
+autorebase を手動で実行します。
+
+```
+$ /etc/postinstall/0p_000_autorebase.dash
+```
+
 ## 設定
 
 以下のようにするとロードできます。
