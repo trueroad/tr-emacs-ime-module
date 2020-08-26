@@ -15,7 +15,12 @@ IME パッチが当たっている Emacs と当たっていない Emacs で
 の配布する IME パッチに含まれていた
 [w32-ime.el](https://github.com/trueroad/w32-ime.el/tree/20200815_TANE)
 をもとに、
-IME 全バッファ同期（w32-ime-buffer-switch-p が nil）設定時に
-IM 状態も正しく同期できるように修正した
-[w32-ime.el](https://github.com/trueroad/w32-ime.el/tree/20200824_Hosoda)
-です。
+
+* IME 全バッファ同期（w32-ime-buffer-switch-p が nil）設定時に、
+  IM 状態も正しく同期できるように
+  [修正](https://github.com/trueroad/w32-ime.el/tree/20200824_Hosoda)
+* IME 全バッファ同期（w32-ime-buffer-switch-p が nil）設定時に、
+  他のフレームのモードラインも同期できるように
+  [修正](https://github.com/trueroad/w32-ime.el/tree/20200826_Hosoda)
+
+したものです。

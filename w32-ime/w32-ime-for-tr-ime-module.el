@@ -114,15 +114,16 @@ If SUFFIX is nil, \"-original\" is added. "
 	      (ime-force-off nil)
 	      (run-hooks 'w32-ime-off-hook))))))
     (let ((ime-state (ime-get-mode)))
-      (dolist (win (window-list))
-	(with-current-buffer (window-buffer win)
-	  (cond
-	   ((and (not ime-state)
-		 current-input-method)
-	    (toggle-input-method))
-	   ((and ime-state
-		 (not current-input-method))
-	    (toggle-input-method))))))))
+      (dolist (frame (frame-list))
+	(dolist (win (window-list frame))
+	  (with-current-buffer (window-buffer win)
+	    (cond
+	     ((and (not ime-state)
+		   current-input-method)
+	      (deactivate-input-method))
+	     ((and ime-state
+		   (not current-input-method))
+	      (activate-input-method "W32-IME")))))))))
 
 (defun w32-ime-set-selected-window-buffer-hook (oldbuf newwin newbuf)
   (w32-ime-sync-state newwin))
