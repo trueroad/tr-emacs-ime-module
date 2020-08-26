@@ -14,4 +14,4 @@ IME パッチが当たっている Emacs と当たっていない Emacs で
 [TANE 氏](http://tanehp.ec-net.jp/heppoko-lab/prog/zakki/emacs/emacs.html)
 の配布する IME パッチに含まれていた
 [w32-ime.el](https://github.com/trueroad/w32-ime.el/tree/20200815_TANE)
-をベースに少し手を入れたものです。
+です。
