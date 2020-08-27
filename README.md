@@ -63,11 +63,13 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
         * IME パッチ無しでも「とりあえず」IME が使える必要があります
     * ダイナミックモジュールが有効になっている必要があります
         * GNU Emacs 27.1 からデフォルトで有効です
-    * Cygwin
+    * Cygwin 64 bit
       [emacs-w32](https://cygwin.com/packages/summary/emacs-w32.html)
       27.1-1 で動作確認しています
     * MinGW でダイナミックモジュールをビルドすれば、
-      GNU 公式バイナリでも動作するかもしれません（未確認）
+      GNU 公式バイナリの 27.1 (64 bit) で動作しました
+        * MinGW は常用していないので
+          気が付いていない不具合があるかもしれません
 
 ### ビルド環境
 
@@ -80,6 +82,9 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
     * 普通の GCC など
 * emacs-module.h
     * Emacs についているはずです
+        * Cygwin は emacs-w32 パッケージをインストールすると一緒に入ります
+        * MinGW は GNU 公式バイナリに入ってないようなので、
+          Emacs のソースから持ってきてください
     * ビルド時に使った emacs-module.h の Emacs バージョンが新しくて、
       動作環境の Emacs バージョンが古い場合は、動作しません
 * Autotools (autoconf, automake, libtool)
@@ -92,6 +97,7 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 ### Autotools
 
 以下のようにすればビルドできます。
+インストール先に応じて `--prefix` オプションの値を変えてください。
 
 ```
 $ ./autogen.sh
@@ -115,6 +121,14 @@ $ gcc -shared -o tr-ime-module.dll tr-ime-module.c -limm32
 config.h は空で構いません。gcc のオプションなどは適宜調整してください。
 
 ## インストール
+
+モジュールの DLL は、Cygwin 向け、MinGW 向け、64 bit 用、32 bit 用、
+いずれもファイル名が `tr-ime-module.dll` なので、
+インストール先には十分注意してください。
+Cygwin 用のモジュールを MinGW の Emacs でロードしたり、
+その逆をしたりすると Emacs が丸ごと落ちたりします。
+両方の Emacs を併用したい場合はインストール先や
+load-path を工夫するなどしてください。
 
 ### Autotools
 
