@@ -267,7 +267,8 @@ $ /etc/postinstall/0p_000_autorebase.dash
         * w32-imeadv はメッセージ処理をサブクラス化で奪い取り、
           さらに別プロセスを経由して通知するという、
           かなり大がかりで複雑な機構を採用しています
-* IME ON の状態で C-x, C-c, C-h などをしても自動的に IME OFF にならず、
+* IME ON の状態で C-x, C-c, C-h など、コマンドのキーシーケンスになる
+  最初の文字を入力しても自動的に IME OFF にならず、
   そのあとのキー入力が通常文字だと IME に吸われ未確定文字になってしまう
     * M-x などは wrap-function-to-control-ime で設定することにより
       自動的に IME OFF にできますが、C-x などについてはできません
