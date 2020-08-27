@@ -92,6 +92,45 @@ set-selected-window-buffer-functions を呼ぶ。
 ;; ほとんどのコマンドの動作後に関数が呼ばれるようになる。
 (add-hook 'post-command-hook 'w32-tr-ime-module-post-command-hook)
 
+(defvar w32-tr-ime-module-check-prefix-key-flag t)
+(defvar w32-tr-ime-module-check-prefix-key-before-ime-mode nil)
+(defvar w32-tr-ime-module-check-prefix-key-timer nil)
+(defvar w32-tr-ime-module-check-prefix-key-polling-time 0.1)
+
+(defun w32-tr-ime-module-check-prefix-key ()
+  (when w32-tr-ime-module-check-prefix-key-flag
+    (let ((key (this-single-command-keys)))
+      (when (or (equal key [24])
+                (equal key [8])
+                (equal key [3]))
+        (setq w32-tr-ime-module-check-prefix-key-before-ime-mode
+              (ime-get-mode))
+        (ime-force-off)
+        (setq w32-tr-ime-module-check-prefix-key-flag nil)))))
+
+(defun w32-tr-ime-module-check-prefix-key-post-command-hook ()
+  (when (not w32-tr-ime-module-check-prefix-key-flag)
+    (setq w32-tr-ime-module-check-prefix-key-flag t)
+    (when w32-tr-ime-module-check-prefix-key-before-ime-mode
+      (ime-force-on))))
+
+(defun w32-tr-ime-module-check-prefix-key-on ()
+  (setq w32-tr-ime-module-check-prefix-key-flag t)
+  (add-hook 'post-command-hook
+            'w32-tr-ime-module-check-prefix-key-post-command-hook)
+  (if w32-tr-ime-module-check-prefix-key-timer
+      (cancel-timer w32-tr-ime-module-check-prefix-key-timer))
+  (setq w32-tr-ime-module-check-prefix-key-timer
+        (run-at-time t w32-tr-ime-module-check-prefix-key-polling-time
+                     'w32-tr-ime-module-check-prefix-key)))
+
+(defun w32-tr-ime-module-check-prefix-key-off ()
+  (remove-hook 'post-command-hook
+               'w32-tr-ime-module-check-prefix-key-post-command-hook)
+  (if w32-tr-ime-module-check-prefix-key-timer
+      (cancel-timer w32-tr-ime-module-check-prefix-key-timer))
+  (setq w32-tr-ime-module-check-prefix-key-timer nil))
+
 ;; Alt + 半角全角で IME だけでなく IM も切り替わるようにする
 (define-key global-map [M-kanji] 'toggle-input-method)
 
