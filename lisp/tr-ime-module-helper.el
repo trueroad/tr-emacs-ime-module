@@ -23,6 +23,14 @@
 ;; If not, see <https://www.gnu.org/licenses/>.
 
 ;;
+;; ユーザ設定用
+;;
+
+(defgroup w32-tr-ime-module nil
+  "Simple IME module for GNU Emacs (tr-emacs-ime-module)"
+  :group 'W32-IME)
+
+;;
 ;; C 実装による DLL をロードする
 ;;
 
@@ -102,6 +110,104 @@ set-selected-window-buffer-functions を呼ぶ。
 ;; フックのエミュレーション用関数を post-command-hook に登録
 ;; ほとんどのコマンドの動作後に関数が呼ばれるようになる。
 (add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
+
+;;
+;; プレフィックスキー（C-x など）を検出して IME OFF するワークアラウンド
+;;
+
+(defcustom w32-tr-ime-module-workaround-prefix-key-polling-time 0.1
+  "プレフィックスキー検出用ポーリング時間（秒）"
+  :type 'float
+  :group 'w32-tr-ime-module)
+(defcustom w32-tr-ime-module-workaround-prefix-key-list
+  '(?\C-x ?\C-h ?\C-c ?\e)
+  "プレフィックスキー検出検出対象リスト"
+  :type '(repeat integer)
+  :group 'w32-tr-ime-module)
+
+(defvar w32-tr-ime-module-workaround-prefix-key-undetected-flag t
+  "プレフィックスキー未検出フラグ")
+(defvar w32-tr-ime-module-workaround-prefix-key-before-ime-mode nil
+  "プレフィックスキー検出時の IME 状態保存用")
+(defvar w32-tr-ime-module-workaround-prefix-key-timer nil
+  "プレフィックスキー検出用タイマ")
+
+(defun w32-tr-ime-module-workaround-prefix-key ()
+  "プレフィックスキー検出のためのポーリングで呼ばれる関数
+
+未検出かつ最後に押されたキーが検出対象リストのいずれかだったら、
+IME 状態を保存してから IME OFF にし、フラグを検出済にする。"
+  (when w32-tr-ime-module-workaround-prefix-key-undetected-flag
+    (let ((key (car (append (this-single-command-keys) nil))))
+      (when (member key w32-tr-ime-module-workaround-prefix-key-list)
+        (setq w32-tr-ime-module-workaround-prefix-key-before-ime-mode
+              (ime-get-mode))
+        (ime-force-off)
+        (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag
+	      nil)))))
+
+(defun w32-tr-ime-module-workaround-prefix-key-restore-ime-mode ()
+  "プレフィックスキー検出による自動 IME OFF から IME 状態を復帰させる関数
+
+Emacs の標準的なフックの一つ post-command-hook に登録する。
+post-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
+
+この関数の動作は、
+プレフィックスキー検出済であったら未検出に変え、
+検出時の IME 状態が ON であれば IME ON に復帰する。
+未検出であったら何もしない。"
+  (when (not w32-tr-ime-module-workaround-prefix-key-undetected-flag)
+    (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag t)
+    (when w32-tr-ime-module-workaround-prefix-key-before-ime-mode
+      (ime-force-on))))
+
+(defun w32-tr-ime-module-workaround-prefix-key-on (&optional periodic)
+  "プレフィックスキーで自動 IME OFF するワークアラウンドを動作させる
+
+periodic が nil ならアイドル状態検出タイマ、non-nil なら周期的タイマで、
+プレフィックスキーを検出し自動的に IME を OFF にする。
+あわせて post-command-hook をフックしてコマンドの終了を検知し
+IME 状態を復帰させる。"
+  (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag t)
+  (add-hook 'post-command-hook
+            'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
+  (if w32-tr-ime-module-workaround-prefix-key-timer
+      (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
+  (setq w32-tr-ime-module-workaround-prefix-key-timer
+	(if periodic
+	    (run-at-time t
+			 w32-tr-ime-module-workaround-prefix-key-polling-time
+			 'w32-tr-ime-module-workaround-prefix-key)
+          (run-with-idle-timer
+	   w32-tr-ime-module-workaround-prefix-key-polling-time t
+           'w32-tr-ime-module-workaround-prefix-key))))
+
+(defun w32-tr-ime-module-workaround-prefix-key-off ()
+  "プレフィックスキーで自動 IME OFF するワークアラウンドを停止させる
+
+タイマを停止させ、フックも削除することでワークアラウンドを停止させる。"
+  (remove-hook 'post-command-hook
+               'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
+  (if w32-tr-ime-module-workaround-prefix-key-timer
+      (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
+  (setq w32-tr-ime-module-workaround-prefix-key-timer nil))
+
+(defun w32-tr-ime-module-workaround-prefix-key-p-set (dummy bool)
+  "プレフィックスキー検出ワークアラウンドを動作させるか否か設定する
+
+bool が non-nil なら動作させる。nil なら停止させる。"
+  (if bool (w32-tr-ime-module-workaround-prefix-key-on nil)
+    (w32-tr-ime-module-workaround-prefix-key-off))
+  (setq w32-tr-ime-module-workaround-prefix-key-p bool))
+
+(defcustom w32-tr-ime-module-workaround-prefix-key-p t
+  "プレフィックスキー検出ワークアラウンドを動作させるか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+		 (const :tag "Disable" nil))
+  :set 'w32-tr-ime-module-workaround-prefix-key-p-set
+  :group 'w32-tr-ime-module)
 
 ;;
 ;; キー設定
