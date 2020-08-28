@@ -107,9 +107,25 @@ set-selected-window-buffer-functions を呼ぶ。
                         (current-buffer))
     (setq w32-tr-ime-module-last-current-buffer (current-buffer)))))
 
-;; フックのエミュレーション用関数を post-command-hook に登録
-;; ほとんどのコマンドの動作後に関数が呼ばれるようになる。
-(add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
+(defun w32-tr-ime-module-hook-emulator-p-set (dummy bool)
+  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
+
+bool が non-nil ならエミュレーションさせる。
+これにより post-command-hook にエミュレーション関数を追加することで、
+ほとんどのコマンドの動作後に関数が呼ばれるようになる。
+bool が nil なら停止させる（post-command-hook から削除する）。"
+  (if bool (add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
+    (remove-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator))
+  (setq w32-tr-ime-module-hook-emulator-p bool))
+
+(defcustom w32-tr-ime-module-hook-emulator-p t
+  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+		 (const :tag "Disable" nil))
+  :set 'w32-tr-ime-module-hook-emulator-p-set
+  :group 'w32-tr-ime-module)
 
 ;;
 ;; プレフィックスキー（C-x など）を検出して IME OFF するワークアラウンド
