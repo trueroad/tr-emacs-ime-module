@@ -114,8 +114,8 @@ bool が non-nil ならエミュレーションさせる。
 これにより post-command-hook にエミュレーション関数を追加することで、
 ほとんどのコマンドの動作後に関数が呼ばれるようになる。
 bool が nil なら停止させる（post-command-hook から削除する）。"
-  (if bool (add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
-    (remove-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator))
+  (if bool (add-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator)
+    (remove-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator))
   (setq w32-tr-ime-module-hook-emulator-p bool))
 
 (defcustom w32-tr-ime-module-hook-emulator-p t
@@ -124,7 +124,7 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
 		 (const :tag "Disable" nil))
-  :set 'w32-tr-ime-module-hook-emulator-p-set
+  :set #'w32-tr-ime-module-hook-emulator-p-set
   :group 'w32-tr-ime-module)
 
 ;;
@@ -186,24 +186,24 @@ periodic が nil ならアイドル状態検出タイマ、non-nil なら周期�
 IME 状態を復帰させる。"
   (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag t)
   (add-hook 'post-command-hook
-            'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
+            #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
   (setq w32-tr-ime-module-workaround-prefix-key-timer
 	(if periodic
 	    (run-at-time t
 			 w32-tr-ime-module-workaround-prefix-key-polling-time
-			 'w32-tr-ime-module-workaround-prefix-key)
+			 #'w32-tr-ime-module-workaround-prefix-key)
           (run-with-idle-timer
 	   w32-tr-ime-module-workaround-prefix-key-polling-time t
-           'w32-tr-ime-module-workaround-prefix-key))))
+           #'w32-tr-ime-module-workaround-prefix-key))))
 
 (defun w32-tr-ime-module-workaround-prefix-key-off ()
   "プレフィックスキーで自動 IME OFF するワークアラウンドを停止させる
 
 タイマを停止させ、フックも削除することでワークアラウンドを停止させる。"
   (remove-hook 'post-command-hook
-               'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
+               #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
   (setq w32-tr-ime-module-workaround-prefix-key-timer nil))
@@ -222,7 +222,7 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
 		 (const :tag "Disable" nil))
-  :set 'w32-tr-ime-module-workaround-prefix-key-p-set
+  :set #'w32-tr-ime-module-workaround-prefix-key-p-set
   :group 'w32-tr-ime-module)
 
 ;;
@@ -262,7 +262,7 @@ bool が nil なら停止させる。"
     (setq w32-tr-ime-module-workaround-inconsistent-ime-timer
 	  (run-at-time
 	   t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
-	   'w32-tr-ime-module-workaround-inconsistent-ime)))
+	   #'w32-tr-ime-module-workaround-inconsistent-ime)))
   (setq w32-tr-ime-module-workaround-inconsistent-ime-p bool))
 
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
@@ -271,7 +271,7 @@ bool が nil なら停止させる。"
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
 		 (const :tag "Disable" nil))
-  :set 'w32-tr-ime-module-workaround-inconsistent-ime-p-set
+  :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set
   :group 'w32-tr-ime-module)
 
 ;;
