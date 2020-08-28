@@ -226,6 +226,55 @@ bool が non-nil なら動作させる。nil なら停止させる。"
   :group 'w32-tr-ime-module)
 
 ;;
+;; IME 状態の食い違いを検出して修正するワークアラウンド
+;;
+
+(defcustom w32-tr-ime-module-workaround-inconsistent-ime-polling-time 1.0
+  "IME 状態食い違い検出修正用ポーリング時間（秒）"
+  :type 'float
+  :group 'w32-tr-ime-module)
+
+(defvar w32-tr-ime-module-workaround-inconsistent-ime-timer nil
+  "IME 状態食い違い検出修正用タイマ")
+
+(defun w32-tr-ime-module-workaround-inconsistent-ime ()
+  "IME 状態食い違い検出修正のためのポーリングで呼ばれる関数
+
+IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
+これにより、IME 側トリガの状態変更を IM に反映させる。"
+  (let ((ime-status (ime-get-mode)))
+    (cond ((and ime-status
+	       (not current-input-method))
+	   (activate-input-method "W32-IME"))
+	  ((and (not ime-status)
+		current-input-method)
+	   (deactivate-input-method)))))
+
+(defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (dummy bool)
+  "IME 状態食い違い検出修正のためのポーリングをするか否か設定する
+
+bool が non-nil ならポーリングさせる。
+bool が nil なら停止させる。"
+  (when w32-tr-ime-module-workaround-inconsistent-ime-timer
+    (cancel-timer w32-tr-ime-module-workaround-inconsistent-ime-timer)
+    (setq w32-tr-ime-module-workaround-inconsistent-ime-timer nil))
+  (when bool
+    (setq w32-tr-ime-module-workaround-inconsistent-ime-timer
+	  (run-at-time
+	   t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
+	   'w32-tr-ime-module-workaround-inconsistent-ime)))
+  (setq w32-tr-ime-module-workaround-inconsistent-ime-p bool))
+
+(defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
+  "IME 状態食い違い検出修正のためのポーリングをするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+		 (const :tag "Disable" nil))
+  :set 'w32-tr-ime-module-workaround-inconsistent-ime-p-set
+  :group 'w32-tr-ime-module)
+
+;;
 ;; キー設定
 ;;
 
