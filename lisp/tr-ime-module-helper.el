@@ -22,8 +22,15 @@
 ;; along with tr-emacs-ime-module.
 ;; If not, see <https://www.gnu.org/licenses/>.
 
+;;
 ;; C 実装による DLL をロードする
+;;
+
 (load "tr-ime-module" t)
+
+;;
+;; IME 状態変更・状態取得関数のエミュレーション
+;;
 
 (defun ime-force-on (&rest dummy)
   "IME を ON にする関数
@@ -46,6 +53,10 @@ IME パッチの ime-get-mode をエミュレーションする。
 IME が OFF なら nil を、ON ならそれ以外を返す。"
   (w32-tr-ime-getopenstatus
    (string-to-number (frame-parameter (selected-frame) 'window-id))))
+
+;;
+;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション
+;;
 
 (defvar select-window-functions nil
   "ウィンドウが変更されると呼ばれるアブノーマルフック
@@ -92,7 +103,15 @@ set-selected-window-buffer-functions を呼ぶ。
 ;; ほとんどのコマンドの動作後に関数が呼ばれるようになる。
 (add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
 
+;;
+;; キー設定
+;;
+
 ;; Alt + 半角全角で IME だけでなく IM も切り替わるようにする
 (define-key global-map [M-kanji] 'toggle-input-method)
+
+;;
+;; provide
+;;
 
 (provide 'tr-ime-module-helper)
