@@ -64,7 +64,7 @@ Lisp でエミュレーションする。")
 (defvar w32-tr-ime-module-last-current-buffer nil
   "カレントバッファの変更検出用変数")
 
-(defun w32-tr-ime-module-post-command-hook ()
+(defun w32-tr-ime-module-hook-emulator ()
   "IME パッチ特有のアブノーマルフックをエミュレーションする関数
 
 Emacs の標準的なフックの一つ post-command-hook に登録する。
@@ -90,7 +90,7 @@ set-selected-window-buffer-functions を呼ぶ。
 
 ;; フックのエミュレーション用関数を post-command-hook に登録
 ;; ほとんどのコマンドの動作後に関数が呼ばれるようになる。
-(add-hook 'post-command-hook 'w32-tr-ime-module-post-command-hook)
+(add-hook 'post-command-hook 'w32-tr-ime-module-hook-emulator)
 
 ;; Alt + 半角全角で IME だけでなく IM も切り替わるようにする
 (define-key global-map [M-kanji] 'toggle-input-method)
