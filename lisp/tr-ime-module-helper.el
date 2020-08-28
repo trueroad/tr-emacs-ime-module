@@ -1,4 +1,4 @@
-;; -*- mode: emacs-lisp; coding: utf-8 -*-
+;; -*- mode: emacs-lisp; coding: utf-8; lexical-binding: t -*-
 
 ;; This file is part of
 ;; Simple IME module for GNU Emacs (tr-emacs-ime-module)
