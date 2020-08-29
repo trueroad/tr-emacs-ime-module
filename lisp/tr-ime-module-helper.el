@@ -94,18 +94,20 @@ post-command-hook によって、ほとんどのコマンドの動作後に呼�
 ウィンドウが変わらずカレントバッファが変更されていたら
 set-selected-window-buffer-functions を呼ぶ。
 どちらも変わっていなければ何もしない。"
-  (cond
-   ((not (eq (selected-window) w32-tr-ime-module-last-selected-window))
-    (run-hook-with-args 'select-window-functions
-                        w32-tr-ime-module-last-selected-window
-                        (selected-window))
-    (setq w32-tr-ime-module-last-selected-window (selected-window)))
-   ((not (eq (current-buffer) w32-tr-ime-module-last-current-buffer))
-    (run-hook-with-args 'set-selected-window-buffer-functions
-                        w32-tr-ime-module-last-current-buffer
-                        (selected-window)
-                        (current-buffer))
-    (setq w32-tr-ime-module-last-current-buffer (current-buffer)))))
+  (let ((window (selected-window))
+        (buffer (current-buffer)))
+    (cond
+     ((not (eq window w32-tr-ime-module-last-selected-window))
+      (run-hook-with-args 'select-window-functions
+                          w32-tr-ime-module-last-selected-window
+                          window)
+      (setq w32-tr-ime-module-last-selected-window window))
+     ((not (eq buffer w32-tr-ime-module-last-current-buffer))
+      (run-hook-with-args 'set-selected-window-buffer-functions
+                          w32-tr-ime-module-last-current-buffer
+                          window
+                          buffer)
+      (setq w32-tr-ime-module-last-current-buffer buffer)))))
 
 (defun w32-tr-ime-module-hook-emulator-p-set (dummy bool)
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
