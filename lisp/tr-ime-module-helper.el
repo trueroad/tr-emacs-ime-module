@@ -80,8 +80,8 @@ Lisp でエミュレーションする。")
 
 (defvar w32-tr-ime-module-last-selected-window nil
   "選択ウィンドウの変更検出用変数")
-(defvar w32-tr-ime-module-last-current-buffer nil
-  "カレントバッファの変更検出用変数")
+(defvar w32-tr-ime-module-last-selected-window-buffer nil
+  "選択ウィンドウのバッファ変更検出用変数")
 
 (defun w32-tr-ime-module-hook-emulator ()
   "IME パッチ特有のアブノーマルフックをエミュレーションする関数
@@ -91,24 +91,24 @@ post-command-hook によって、ほとんどのコマンドの動作後に呼�
 
 この関数の動作は、
 選択ウィンドウが変更されていたら select-window-functions を呼び、
-ウィンドウが変わらずカレントバッファが変更されていたら
+ウィンドウが変わらずバッファが変更されていたら
 set-selected-window-buffer-functions を呼ぶ。
 どちらも変わっていなければ何もしない。"
-  (let ((window (selected-window))
-        (buffer (current-buffer)))
+  (let* ((window (selected-window))
+         (buffer (window-buffer window)))
     (cond
      ((not (eq window w32-tr-ime-module-last-selected-window))
       (run-hook-with-args 'select-window-functions
                           w32-tr-ime-module-last-selected-window
                           window)
       (setq w32-tr-ime-module-last-selected-window window)
-      (setq w32-tr-ime-module-last-current-buffer buffer))
-     ((not (eq buffer w32-tr-ime-module-last-current-buffer))
+      (setq w32-tr-ime-module-last-selected-window-buffer buffer))
+     ((not (eq buffer w32-tr-ime-module-last-selected-window-buffer))
       (run-hook-with-args 'set-selected-window-buffer-functions
-                          w32-tr-ime-module-last-current-buffer
+                          w32-tr-ime-module-last-selected-window-buffer
                           window
                           buffer)
-      (setq w32-tr-ime-module-last-current-buffer buffer)))))
+      (setq w32-tr-ime-module-last-selected-window-buffer buffer)))))
 
 (defun w32-tr-ime-module-hook-emulator-p-set (dummy bool)
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
