@@ -298,6 +298,9 @@ bool が nil なら停止させる。"
 ;; Alt + 半角全角で IME だけでなく IM も切り替わるようにする
 (define-key global-map [M-kanji] 'toggle-input-method)
 
+;; C-s (isearch-forward) などでも Alt + 半角全角が効くようにする
+(define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
+
 ;;
 ;; provide
 ;;
