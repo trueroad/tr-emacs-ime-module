@@ -101,7 +101,8 @@ set-selected-window-buffer-functions を呼ぶ。
       (run-hook-with-args 'select-window-functions
                           w32-tr-ime-module-last-selected-window
                           window)
-      (setq w32-tr-ime-module-last-selected-window window))
+      (setq w32-tr-ime-module-last-selected-window window)
+      (setq w32-tr-ime-module-last-current-buffer buffer))
      ((not (eq buffer w32-tr-ime-module-last-current-buffer))
       (run-hook-with-args 'set-selected-window-buffer-functions
                           w32-tr-ime-module-last-current-buffer
