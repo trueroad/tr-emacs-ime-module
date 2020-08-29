@@ -237,14 +237,28 @@ bool が non-nil なら動作させる。nil なら停止させる。"
   :type 'float
   :group 'w32-tr-ime-module)
 
+(defcustom
+  w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
+  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か"
+  :type '(choice (const :tag "Enable" t)
+		 (const :tag "Disable" nil))
+  :group 'w32-tr-ime-module)
+
 (defvar w32-tr-ime-module-workaround-inconsistent-ime-timer nil
   "IME 状態食い違い検出修正用タイマ")
 
 (defun w32-tr-ime-module-workaround-inconsistent-ime ()
   "IME 状態食い違い検出修正のためのポーリングで呼ばれる関数
 
-IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
+w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
+が non-nil であれば、まずフックエミュレーション関数を呼ぶ。
+これによってウィンドウやバッファの切り替え未検出があったら、
+アブノーマルフックが呼ばれて、IME/IM 状態が整えられる。
+
+その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
 これにより、IME 側トリガの状態変更を IM に反映させる。"
+  (when w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
+    (w32-tr-ime-module-hook-emulator))
   (let ((ime-status (ime-get-mode)))
     (cond ((and ime-status
 	       (not current-input-method))
