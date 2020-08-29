@@ -1,5 +1,12 @@
 noinst_LTLIBRARIES = tr-ime-module.la
-tr_ime_module_la_SOURCES = tr-ime-module.c
+tr_ime_module_la_SOURCES = tr-ime-module.c tr-ime-module-resource.rc
+
+WINDRESFLAGS = $(DEFAULT_INCLUDES)
+
+.rc.lo:
+	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+		--tag=RC --mode=compile \
+		$(WINDRES) $(WINDRESFLAGS) -i $< -o $@
 
 pkglisp_DATA = $(objdir)/tr-ime-module$(SHREXT)
 

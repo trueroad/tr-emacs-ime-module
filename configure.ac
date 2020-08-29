@@ -10,6 +10,20 @@ AC_CONFIG_SRCDIR([src/tr-ime-module.c])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
+PACKAGE_FILEVERSION='0,0,0,0'
+PACKAGE_PRODUCTVERSION='0,0,0,0'
+PACKAGE_COPYRIGHT='Copyright (C) 2020 Masamichi Hosoda.'
+PACKAGE_LICENSE='License: GPL3+'
+
+AC_DEFINE_UNQUOTED([PACKAGE_FILEVERSION], [$PACKAGE_FILEVERSION],
+  [Define to the FILEVERSION of this package.])
+AC_DEFINE_UNQUOTED([PACKAGE_PRODUCTVERSION], [$PACKAGE_PRODUCTVERSION],
+  [Define to the PRODUCTVERSION of this package.])
+AC_DEFINE_UNQUOTED([PACKAGE_COPYRIGHT], ["$PACKAGE_COPYRIGHT"],
+  [Define to the copyright of this package.])
+AC_DEFINE_UNQUOTED([PACKAGE_LICENSE], ["$PACKAGE_LICENSE"],
+  [Define to the license of this package.])
+
 # Checks for programs.
 AC_PROG_CC_C99
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno],
