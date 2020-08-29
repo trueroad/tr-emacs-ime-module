@@ -4,6 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([Simple IME module for GNU Emacs], [0.0.0],, [tr-emacs-ime-module],
   [https://github.com/trueroad/tr-emacs-ime-module])
+AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/tr-ime-module.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -14,6 +15,11 @@ AC_PROG_CC_C99
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno],
   AC_MSG_ERROR([C99 compiler is not found.]))
 AM_PROG_AR
+AS_IF([test "x$target_alias" = x],
+  [target_alias=$target])
+AC_CHECK_TARGET_TOOL([WINDRES], [windres], [no])
+AS_IF([test "x$WINDRES" = xno],
+  AC_MSG_ERROR([windres is not found.]))
 AM_PATH_LISPDIR
 AC_ARG_WITH([pkglispdir],
   AS_HELP_STRING([--with-pkglispdir=DIR],
