@@ -248,6 +248,41 @@ $ /etc/postinstall/0p_000_autorebase.dash
 (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
 ```
 
+### isearch の設定
+
+C-s (isearch-forward) などの IME パッチ向けの設定についてです。
+よくある設定の、
+
+```el
+(defun w32-isearch-update ()
+  (interactive)
+  (isearch-update))
+(define-key isearch-mode-map [compend] 'w32-isearch-update)
+(define-key isearch-mode-map [kanji] 'isearch-toggle-input-method)
+
+(add-hook 'isearch-mode-hook
+          (lambda () (setq w32-ime-composition-window (minibuffer-window))))
+(add-hook 'isearch-mode-end-hook
+          (lambda () (setq w32-ime-composition-window nil)))
+```
+
+ですが、
+モジュール環境では `[compend]` も `[kanji]` も送られてきませんし、
+`w32-ime-composition-window` も使いませんので、
+あまり意味がありません。
+ほとんど害も無いので IME パッチ環境と共用の設定ファイルならば、
+書いておいても特に問題ないと思います。
+
+なお、isearch 中に Alt + 半角/全角で IME ON/OFF するには、
+
+```
+(define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
+```
+
+でできます。これはすでに
+[tr-ime-module-helper.el](./lisp/tr-ime-module-helper.el)
+に書いてあります。
+
 ### モジュール環境の設定
 
 モジュール環境には IME パッチの動作をエミュレーションするものがあり、
@@ -364,14 +399,19 @@ IME 状態食い違い検出修正前にフックエミュレーション関数�
           C-x が押されたら IME OFF するという
           「ad-hoc な方法」が実装されています
     * ワークアラウンドでなんとかしています（詳細は設定を参照）
-* IME ON の状態で C-s などの検索開始をすると、
+* IME ON の状態で C-s など isearch-mode の検索開始をすると、
   未確定文字列がミニバッファではなくて、元々入力していた位置に表示される
-    * IME パッチ無しのときの IME 関連メッセージ処理に
-      問題があるのではないかと思いますが、
-      この処理を置き換えるのはかなり複雑です
-        * IME パッチは C 実装で IME 関連メッセージ処理を
-          完全に置き換えています
-        * w32-imeadv はメッセージ処理を奪い取って置き換えています
+    * isearch-mode 時に選択されているウィンドウはミニバッファではないので、
+      ある意味では正しい挙動だったりします
+        * IME パッチは、 Lisp の「よくある isearch の設定」によって、
+          フックで isearch-mode の出入り時に変数へミニバッファウィンドウか
+          nil かを設定し、C 実装でその変数を参照して
+          位置を指定しているようです
+        * w32-imeadv は、使ったことが無いのでわからないですが、
+          ソースを読む限りでは何も対策しているように見えないので、
+          同じ問題を抱えていると思われます
+    * 対応するには少なくともメッセージ処理を奪い取って
+      WM_IME_STARTCOMPOSITION の処理を置き換える必要があり、困難です。
 * 未確定文字列のフォントが指定できず、
   ☃や🍣のような文字がおかしな表示（いわゆるトーフ）になる
     * 候補一覧の選択ウィンドウが出れば、その中では正しい表示になります
