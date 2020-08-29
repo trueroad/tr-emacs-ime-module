@@ -189,7 +189,8 @@ If SUFFIX is nil, \"-original\" is added. "
     (define-key global-map [kanji] 'ignore)))
 
 (defun w32-ime-exit-from-minibuffer ()
-  (deactivate-input-method)
+  (when w32-ime-buffer-switch-p
+    (deactivate-input-method))
   (when (<= (minibuffer-depth) 1)
     (remove-hook 'minibuffer-exit-hook 'w32-ime-exit-from-minibuffer)))
 
