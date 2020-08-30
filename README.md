@@ -118,17 +118,13 @@ $ gcc -shared -o tr-ime-module.dll tr-ime-module.c -limm32
 ```
 
 などのようにすればできると思います。
+`tr-ime-module.dll` のところは、
+Cygwin 64 bit であれば `tr-ime-module-x86_64-pc-cygwin.dll` に、
+MinGW 64 bit であれば `tr-ime-module-x86_64-w64-mingw32.dll` に、
+といったように環境に応じた名前を後ろに付けてください。
 config.h は空で構いません。gcc のオプションなどは適宜調整してください。
 
 ## インストール
-
-モジュールの DLL は、Cygwin 向け、MinGW 向け、64 bit 用、32 bit 用、
-いずれもファイル名が `tr-ime-module.dll` なので、
-インストール先には十分注意してください。
-Cygwin 用のモジュールを MinGW の Emacs でロードしたり、
-その逆をしたりすると Emacs が丸ごと落ちたりします。
-両方の Emacs を併用したい場合はインストール先や
-load-path を工夫するなどしてください。
 
 ### Autotools
 
@@ -140,7 +136,8 @@ $ make install
 
 ### 手動
 
-ビルドした tr-ime-module.dll と、
+ビルドした DLL
+（環境によって名前が異なって `tr-ime-module-環境名.dll` のようになります）と、
 [tr-ime-module-helper.el](./lisp/tr-ime-module-helper.el),
 [w32-ime-for-tr-ime-module.el](./w32-ime/w32-ime-for-tr-ime-module.el)
 の 3 ファイルを Emacs の load-path が通っているディレクトリに置いてください。
@@ -177,17 +174,18 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 ### ホームディレクトリの下にインストールした場合
 
-以下、ユーザ名 `foobar` で、
-インストール先が `/home/foobar/.emacs.d/site-lisp`
+以下、Cygwin 64 bit （環境名 `x86_64-pc-cygwin`）で、
+ユーザ名 `foobar` で、インストール先が `/home/foobar/.emacs.d/site-lisp`
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の*ファイル名*をフルパスを書いた 1 行を追加します。
+モジュール DLL の *ファイル名* をフルパスを書いた 1 行を追加します。
 
 ```
 $ cd /var/lib/rebase/user.d
 $ touch foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-module.dll' >> foobar
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-module-x86_64-pc-cygwin.dll' \
+    >> foobar
 ```
 
 autorebase を手動で実行します。
