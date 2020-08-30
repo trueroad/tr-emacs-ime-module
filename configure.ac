@@ -49,6 +49,10 @@ AC_SUBST([SHREXT])
 AC_SUBST([objdir])
 
 # Checks for header files.
+AC_ARG_WITH([emacs-module-hdir],
+  AS_HELP_STRING([--with-emacs-module-hdir=DIR],
+    [directory of emacs-module.h]),
+  [CPPFLAGS="${CPPFLAGS} -I ${withval}"])
 AC_CHECK_HEADERS([emacs-module.h],,
   AC_MSG_ERROR([emacs-module.h is not found.]))
 AC_CHECK_HEADERS([windows.h],,
