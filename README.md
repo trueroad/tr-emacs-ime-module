@@ -107,6 +107,19 @@ $ ../configure --prefix=/usr
 $ make
 ```
 
+Cygwin 環境で MinGW 用バイナリをクロスコンパイルしたいような場合には、
+
+```
+$ ./autogen.sh
+$ mkdir build
+$ cd build
+$ cp /usr/include/emacs-module.h .
+$ ../configure --host=x86_64-w64-mingw32 --with-emacs-module-hdir=`pwd`
+# make
+```
+
+のような感じでやればできます。オプションは適宜変更してください。
+
 ### 手動
 
 [tr-ime-module.c](./src/tr-ime-module.c)
