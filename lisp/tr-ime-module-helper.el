@@ -60,19 +60,19 @@ GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-off をエミュレーションする。"
         (w32-set-ime-open-status nil)))
 
-  ((defun ime-force-on (&rest _dummy)
-     "IME を ON にする関数
+  (defun ime-force-on (&rest _dummy)
+    "IME を ON にする関数
 
 モジュールで IME パッチの ime-force-on をエミュレーションする。"
-     (w32-tr-ime-setopenstatus
-      (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
+    (w32-tr-ime-setopenstatus
+     (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
 
-   (defun ime-force-off (&rest _dummy)
-     "IME を OFF にする関数
+  (defun ime-force-off (&rest _dummy)
+    "IME を OFF にする関数
 
 IME パッチの ime-force-off をエミュレーションする。"
-     (w32-tr-ime-setopenstatus
-      (string-to-number (frame-parameter (selected-frame) 'window-id)) nil))))
+    (w32-tr-ime-setopenstatus
+     (string-to-number (frame-parameter (selected-frame) 'window-id)) nil)))
 
 (if (fboundp #'w32-get-ime-open-status)
     (defalias #'ime-get-mode #'w32-get-ime-open-status
@@ -153,7 +153,7 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
 
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
-		 (const :tag "Disable" nil))
+                 (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set
   :group 'w32-tr-ime-module)
 
@@ -190,7 +190,7 @@ IME 状態を保存してから IME OFF にし、フラグを検出済にする�
               (ime-get-mode))
         (ime-force-off)
         (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag
-	      nil)))))
+              nil)))))
 
 (defun w32-tr-ime-module-workaround-prefix-key-restore-ime-mode ()
   "プレフィックスキー検出による自動 IME OFF から IME 状態を復帰させる関数
@@ -220,12 +220,12 @@ IME 状態を復帰させる。"
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
   (setq w32-tr-ime-module-workaround-prefix-key-timer
-	(if periodic
-	    (run-at-time t
-			 w32-tr-ime-module-workaround-prefix-key-polling-time
-			 #'w32-tr-ime-module-workaround-prefix-key)
+        (if periodic
+            (run-at-time t
+                         w32-tr-ime-module-workaround-prefix-key-polling-time
+                         #'w32-tr-ime-module-workaround-prefix-key)
           (run-with-idle-timer
-	   w32-tr-ime-module-workaround-prefix-key-polling-time t
+           w32-tr-ime-module-workaround-prefix-key-polling-time t
            #'w32-tr-ime-module-workaround-prefix-key))))
 
 (defun w32-tr-ime-module-workaround-prefix-key-off ()
@@ -251,7 +251,7 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
-		 (const :tag "Disable" nil))
+                 (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-prefix-key-p-set
   :group 'w32-tr-ime-module)
 
@@ -268,7 +268,7 @@ bool が non-nil なら動作させる。nil なら停止させる。"
   w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
   "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か"
   :type '(choice (const :tag "Enable" t)
-		 (const :tag "Disable" nil))
+                 (const :tag "Disable" nil))
   :group 'w32-tr-ime-module)
 
 (defvar w32-tr-ime-module-workaround-inconsistent-ime-timer nil
@@ -288,11 +288,11 @@ w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
     (w32-tr-ime-module-hook-emulator))
   (let ((ime-status (ime-get-mode)))
     (cond ((and ime-status
-	       (not current-input-method))
-	   (activate-input-method "W32-IME"))
-	  ((and (not ime-status)
-		current-input-method)
-	   (deactivate-input-method)))))
+                (not current-input-method))
+           (activate-input-method "W32-IME"))
+          ((and (not ime-status)
+                current-input-method)
+           (deactivate-input-method)))))
 
 (defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (symb bool)
   "IME 状態食い違い検出修正のためのポーリングをするか否か設定する
@@ -304,9 +304,9 @@ bool が nil なら停止させる。"
     (setq w32-tr-ime-module-workaround-inconsistent-ime-timer nil))
   (when bool
     (setq w32-tr-ime-module-workaround-inconsistent-ime-timer
-	  (run-at-time
-	   t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
-	   #'w32-tr-ime-module-workaround-inconsistent-ime)))
+          (run-at-time
+           t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
+           #'w32-tr-ime-module-workaround-inconsistent-ime)))
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
@@ -314,7 +314,7 @@ bool が nil なら停止させる。"
 
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
-		 (const :tag "Disable" nil))
+                 (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set
   :group 'w32-tr-ime-module)
 
