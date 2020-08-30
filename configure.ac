@@ -51,6 +51,7 @@ AC_MSG_NOTICE([where to install emacs dynamic modules is ${pkglispdir}])
 
 # Checks for libraries.
 LT_INIT([disable-static shared win32-dll])
+LT_LANG([Windows Resource])
 SHREXT=${shrext_cmds}
 AC_SUBST([SHREXT])
 
