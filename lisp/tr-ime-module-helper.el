@@ -34,7 +34,8 @@
 ;; C 実装による DLL をロードする
 ;;
 
-(load "tr-ime-module" t)
+(unless (featurep 'tr-ime-module)
+  (load (concat "tr-ime-module-" system-configuration) t))
 
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション

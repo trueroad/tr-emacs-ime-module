@@ -8,9 +8,13 @@ WINDRESFLAGS = $(DEFAULT_INCLUDES)
 		--tag=RC --mode=compile \
 		$(WINDRES) $(WINDRESFLAGS) -i $< -o $@
 
-pkglisp_DATA = $(objdir)/tr-ime-module$(SHREXT)
+pkglisp_DATA = tr-ime-module-$(host)$(SHREXT)
+CLEANFILES = tr-ime-module-$(host)$(SHREXT)
 
 $(objdir)/tr-ime-module$(SHREXT): tr-ime-module.la
+
+tr-ime-module-$(host)$(SHREXT): $(objdir)/tr-ime-module$(SHREXT)
+	cp -p $< $@
 
 tr_ime_module_la_LIBADD = -limm32
 
