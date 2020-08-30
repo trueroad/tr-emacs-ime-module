@@ -25,6 +25,9 @@ AC_DEFINE_UNQUOTED([PACKAGE_COPYRIGHT], ["$PACKAGE_COPYRIGHT"],
 AC_DEFINE_UNQUOTED([PACKAGE_LICENSE], ["$PACKAGE_LICENSE"],
   [Define to the license of this package.])
 
+AC_DEFINE_UNQUOTED([HOST_PLATFORM], ["$host"],
+  [Define to the host platform name.])
+
 # Checks for programs.
 AC_PROG_CC_C99
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno],
