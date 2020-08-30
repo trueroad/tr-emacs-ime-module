@@ -44,6 +44,19 @@
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
+(defcustom w32-tr-ime-module-set-ime-open-check-counter 3
+  "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限
+
+GNU Emacs 28 では IME 状態変更関数 w32-set-ime-open-status を使うが、
+これを呼んだ直後に IME 状態確認関数 w32-get-ime-open-status を呼んでも、
+状態変更前を示す返り値が得られることがある。
+そこで、ここで設定した回数を上限として状態変更が完了するまで確認する。
+デフォルト値の 3 であれば最大で 3 回確認するが、
+1 回目や 2 回目で完了していたらそこで打ち切る。
+0 を設定した場合は一切完了確認しない。"
+  :type 'integer
+  :group 'w32-tr-ime-module)
+
 (if (fboundp #'w32-set-ime-open-status)
     (progn
       (defun ime-force-on (&rest _dummy)
@@ -51,14 +64,24 @@
 
 GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-on をエミュレーションする。"
-        (w32-set-ime-open-status t))
+        (w32-set-ime-open-status t)
+        (let ((counter 0))
+          (while
+              (and (< counter w32-tr-ime-module-set-ime-open-check-counter)
+                   (not (ime-get-mode)))
+            (setq counter (1+ counter)))))
 
       (defun ime-force-off (&rest _dummy)
         "IME を OFF にする関数
 
 GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-off をエミュレーションする。"
-        (w32-set-ime-open-status nil)))
+        (w32-set-ime-open-status nil)
+        (let ((counter 0))
+          (while
+              (and (< counter w32-tr-ime-module-set-ime-open-check-counter)
+                   (ime-get-mode))
+            (setq counter (1+ counter))))))
 
   (defun ime-force-on (&rest _dummy)
     "IME を ON にする関数
