@@ -34,34 +34,60 @@
 ;; C 実装による DLL をロードする
 ;;
 
-(unless (featurep 'tr-ime-module)
+;; Emacs 28 で導入された関数がある場合、
+;; もしくは既に DLL モジュールがある場合はロードしない
+(unless (or (fboundp #'w32-get-ime-open-status)
+            (featurep 'tr-ime-module))
   (load (concat "tr-ime-module-" system-configuration) t))
 
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(defun ime-force-on (&rest _dummy)
-  "IME を ON にする関数
+(if (fboundp #'w32-set-ime-open-status)
+    (progn
+      (defun ime-force-on (&rest _dummy)
+        "IME を ON にする関数
 
+GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-on をエミュレーションする。"
-  (w32-tr-ime-setopenstatus
-   (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
+        (w32-set-ime-open-status t))
 
-(defun ime-force-off (&rest _dummy)
-  "IME を OFF にする関数
+      (defun ime-force-off (&rest _dummy)
+        "IME を OFF にする関数
+
+GNU Emacs 28 の w32-set-ime-open-status で
+IME パッチの ime-force-off をエミュレーションする。"
+        (w32-set-ime-open-status nil)))
+
+  ((defun ime-force-on (&rest _dummy)
+     "IME を ON にする関数
+
+モジュールで IME パッチの ime-force-on をエミュレーションする。"
+     (w32-tr-ime-setopenstatus
+      (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
+
+   (defun ime-force-off (&rest _dummy)
+     "IME を OFF にする関数
 
 IME パッチの ime-force-off をエミュレーションする。"
-  (w32-tr-ime-setopenstatus
-   (string-to-number (frame-parameter (selected-frame) 'window-id)) nil))
+     (w32-tr-ime-setopenstatus
+      (string-to-number (frame-parameter (selected-frame) 'window-id)) nil))))
 
-(defun ime-get-mode ()
-  "IME 状態を返す関数
+(if (fboundp #'w32-get-ime-open-status)
+    (defalias #'ime-get-mode #'w32-get-ime-open-status
+      "IME 状態を返す関数
+
+GNU Emacs 28 の w32-set-ime-open-status のエイリアスとして
+IME パッチの ime-get-mode を割り当てることでエミュレーションする。")
+
+  (defun ime-get-mode ()
+    "IME 状態を返す関数
 
 IME パッチの ime-get-mode をエミュレーションする。
 IME が OFF なら nil を、ON ならそれ以外を返す。"
-  (w32-tr-ime-getopenstatus
-   (string-to-number (frame-parameter (selected-frame) 'window-id))))
+    (w32-tr-ime-getopenstatus
+     (string-to-number (frame-parameter (selected-frame) 'window-id)))))
 
 ;;
 ;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション
