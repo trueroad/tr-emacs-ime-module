@@ -40,14 +40,14 @@
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(defun ime-force-on (&rest dummy)
+(defun ime-force-on (&rest _dummy)
   "IME を ON にする関数
 
 IME パッチの ime-force-on をエミュレーションする。"
   (w32-tr-ime-setopenstatus
    (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
 
-(defun ime-force-off (&rest dummy)
+(defun ime-force-off (&rest _dummy)
   "IME を OFF にする関数
 
 IME パッチの ime-force-off をエミュレーションする。"
@@ -110,7 +110,7 @@ set-selected-window-buffer-functions を呼ぶ。
                           buffer)
       (setq w32-tr-ime-module-last-selected-window-buffer buffer)))))
 
-(defun w32-tr-ime-module-hook-emulator-p-set (dummy bool)
+(defun w32-tr-ime-module-hook-emulator-p-set (symb bool)
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
 
 bool が non-nil ならエミュレーションさせる。
@@ -119,7 +119,7 @@ bool が non-nil ならエミュレーションさせる。
 bool が nil なら停止させる（post-command-hook から削除する）。"
   (if bool (add-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator)
     (remove-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator))
-  (setq w32-tr-ime-module-hook-emulator-p bool))
+  (set-default symb bool))
 
 (defcustom w32-tr-ime-module-hook-emulator-p t
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か
@@ -211,13 +211,13 @@ IME 状態を復帰させる。"
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
   (setq w32-tr-ime-module-workaround-prefix-key-timer nil))
 
-(defun w32-tr-ime-module-workaround-prefix-key-p-set (dummy bool)
+(defun w32-tr-ime-module-workaround-prefix-key-p-set (symb bool)
   "プレフィックスキー検出ワークアラウンドを動作させるか否か設定する
 
 bool が non-nil なら動作させる。nil なら停止させる。"
   (if bool (w32-tr-ime-module-workaround-prefix-key-on nil)
     (w32-tr-ime-module-workaround-prefix-key-off))
-  (setq w32-tr-ime-module-workaround-prefix-key-p bool))
+  (set-default symb bool))
 
 (defcustom w32-tr-ime-module-workaround-prefix-key-p t
   "プレフィックスキー検出ワークアラウンドを動作させるか否か
@@ -267,7 +267,7 @@ w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
 		current-input-method)
 	   (deactivate-input-method)))))
 
-(defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (dummy bool)
+(defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (symb bool)
   "IME 状態食い違い検出修正のためのポーリングをするか否か設定する
 
 bool が non-nil ならポーリングさせる。
@@ -280,7 +280,7 @@ bool が nil なら停止させる。"
 	  (run-at-time
 	   t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
 	   #'w32-tr-ime-module-workaround-inconsistent-ime)))
-  (setq w32-tr-ime-module-workaround-inconsistent-ime-p bool))
+  (set-default symb bool))
 
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
   "IME 状態食い違い検出修正のためのポーリングをするか否か
