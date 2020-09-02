@@ -134,16 +134,19 @@ If SUFFIX is nil, \"-original\" is added. "
 (defun w32-ime-mode-line-update ()
   (if (featurep 'w32-ime)
       (progn
-        (cond
-         (w32-ime-show-mode-line
-          (unless (window-minibuffer-p (selected-window))
-            (setq w32-ime-mode-line-state-indicator
-                  (nth (if (ime-get-mode) 1 2)
-                       w32-ime-mode-line-state-indicator-list))))
-         (t
-          (setq w32-ime-mode-line-state-indicator
-                (nth 0 w32-ime-mode-line-state-indicator-list))))
-        (force-mode-line-update))
+	(cond
+	 (w32-ime-show-mode-line
+	  (if (or
+	       (not w32-ime-buffer-switch-p)
+	       (and w32-ime-buffer-switch-p
+		    (not (window-minibuffer-p (selected-window)))))
+	      (setq w32-ime-mode-line-state-indicator
+		    (nth (if (ime-get-mode) 1 2)
+			 w32-ime-mode-line-state-indicator-list))))
+	 (t
+	  (setq w32-ime-mode-line-state-indicator
+		(nth 0 w32-ime-mode-line-state-indicator-list))))
+	(force-mode-line-update))
     ))
 
 (defun w32-ime-init-mode-line-display ()

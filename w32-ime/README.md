@@ -13,8 +13,8 @@ IME パッチが当たっている Emacs と当たっていない Emacs で
 ここに置いている w32-ime.el は、
 [TANE 氏](http://tanehp.ec-net.jp/heppoko-lab/prog/zakki/emacs/emacs.html)
 の配布する IME パッチに含まれていた
-[w32-ime.el](https://github.com/trueroad/w32-ime.el/tree/20200815_TANE)
-をもとに、
+[w32-ime.el](https://github.com/trueroad/w32-ime.el/tree/20200901_TANE)
+です。これには私の修正提案を取り入れていただきました。
 
 * IME 全バッファ同期（w32-ime-buffer-switch-p が nil）設定時に、
   IM 状態も正しく同期できるように
@@ -26,5 +26,3 @@ IME パッチが当たっている Emacs と当たっていない Emacs で
   IME ON のまま C-s (isearch-forward) すると、
   未変換文字の確定時に IME OFF になってしまう事象を
   [修正](https://github.com/trueroad/w32-ime.el/tree/20200829_Hosoda)
-
-したものです。
