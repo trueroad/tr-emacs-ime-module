@@ -55,6 +55,13 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
 
 ## 環境
 
+[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+にあるバイナリ配布ファイル
+tr-emacs-ime-module-VERSION-binary.zip
+を使うのであれば、ビルド不要です。
+動作環境だけ確認してインストールへ進んでください。
+
+
 ### 動作環境
 
 * Windows 用 (MinGW/Cygwin) GNU Emacs
@@ -66,7 +73,7 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
     * Cygwin 64 bit
       [emacs-w32](https://cygwin.com/packages/summary/emacs-w32.html)
       27.1-1 で動作確認しています
-    * MinGW でダイナミックモジュールをビルドすれば、
+    * MinGW では
       GNU 公式バイナリの 27.1 (64 bit) や、GNU が配布する pretest の
       28.0.50-snapshot-2020-07-05-x86_64 バイナリで動作しました
         * MinGW は常用していないので
@@ -74,7 +81,7 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
 
 ### ビルド環境
 
-動作環境に加えて以下が必要になります。
+ビルドするには動作環境に加えて以下が必要になります。
 Cygwin の Emacs で使うならば Cygwin 環境で、
 GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で、
 それぞれ揃えてください。
@@ -91,7 +98,12 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 * Autotools (autoconf, automake, libtool)
     * [本リポジトリ](https://github.com/trueroad/tr-emacs-ime-module)
       のソースを使ってビルドする場合に必要です
-    * Autotools が無ければ手動でビルド・インストールすることも一応できます
+    * [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+      にあるソース配布ファイル
+      tr-emacs-ime-module-VERSION.tar.gz
+      を使うのであれば環境に Autotools がインストールされていなくても
+      Autotools を使ったビルドができます
+    * Autotools を使わずに手動でビルド・インストールすることも一応できます
 
 なお、Emacs 28 だと現状のモジュールに実装した機能だけであれば
 既に本体に取り込まれているため、
@@ -104,6 +116,10 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 
 以下のようにすればビルドできます。
 インストール先に応じて `--prefix` オプションの値を変えてください。
+[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+にあるソース配布ファイル
+tr-emacs-ime-module-VERSION.tar.gz
+を使うのであれば `./autogen.sh` の実行は不要です。
 
 ```
 $ ./autogen.sh
@@ -137,15 +153,36 @@ $ gcc -shared -o tr-ime-module.dll tr-ime-module.c -limm32
 ```
 
 などのようにすればできると思います。
-`tr-ime-module.dll` のところは、
-Cygwin 64 bit であれば `tr-ime-module-x86_64-pc-cygwin.dll` に、
-MinGW 64 bit であれば `tr-ime-module-x86_64-w64-mingw32.dll` に、
-といったように環境に応じた名前を後ろに付けてください。
+`tr-ime-module.dll` のところは、インストールの項にあるような
+環境名を付けた名前に変更してください。
 config.h は空で構いません。gcc のオプションなどは適宜調整してください。
 
 ## インストール
 
-### Autotools
+モジュール DLL のファイル名は、
+環境によって名前が異なって `tr-ime-module-環境名.dll` のようになります。
+具体的な環境名は以下の通りです。
+これにより、例えば Cygwin 64 bit の場合の
+モジュール DLL ファイル名は `tr-ime-module-x86_64-pc-cygwin.dll`
+になります。
+
+* Cygwin
+    * 64 bit: `x86_64-pc-cygwin`
+    * 32 bit: `i686-pc-cygwin`
+* MinGW
+    * 64 bit: `x86_64-w64-mingw32`
+    * 32 bit: `i686-w64-mingw32`
+
+### バイナリリリースを使う場合
+
+[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+にあるバイナリ配布ファイル
+tr-emacs-ime-module-VERSION-binary.zip
+をダウンロードして、中に入っているモジュール DLL ファイルと、
+`.el` ファイルを Emacs の load-path
+が通っているディレクトリに置いてください。
+
+### Autotools でビルドした場合
 
 以下のようにしてインストールできます。
 
@@ -153,23 +190,29 @@ config.h は空で構いません。gcc のオプションなどは適宜調整�
 $ make install
 ```
 
-### 手動
+### 手動でビルドした場合
 
-ビルドした DLL
-（環境によって名前が異なって `tr-ime-module-環境名.dll` のようになります）と、
+ビルドしたモジュール DLL ファイルと、
 [tr-ime-module-helper.el](./lisp/tr-ime-module-helper.el),
 [w32-ime-for-tr-ime-module.el](./w32-ime/w32-ime-for-tr-ime-module.el)
 の 3 ファイルを Emacs の load-path が通っているディレクトリに置いてください。
 
 ## autorebase （Cygwin のみ）
 
-Cygwin の場合は Autotools でインストールしても手動でインストールしても、
-どちらにしろ rebase が必要です。
+Cygwin の場合はバイナリをインストールしても
+Autotools でインストールしても手動でインストールしても、
+いずれにせよ rebase が必要です。
 手動で rebase した場合は autorebase の対象にならないため、
 Cygwin インストーラの autorebase が走ると衝突してしまう可能性があります。
 そこで、手動で rebase するのではなく autorebase の設定をします。
 （Cygwin パッケージとしてインストールした場合は、
-いちいち設定しなくても autorebase の対象になってくれます。）
+いちいち設定しなくても autorebase の対象になりますが、
+残念ながらパッケージになっていません。
+Cygwin 公式パッケージにするには、
+[
+パッケージメンテナ 5 人の賛成が必要
+](https://cygwin.com/packaging-contributors-guide.html)
+です。確保できそうならぜひ教えてください。）
 
 ### ホームディレクトリ以外にインストールした場合
 
@@ -177,7 +220,8 @@ Cygwin インストーラの autorebase が走ると衝突してしまう可能�
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
-モジュール DLL を置いてある*ディレクトリ*をフルパスを書いた 1 行を追加します。
+モジュール DLL を置いてある **ディレクトリ**
+をフルパスを書いた 1 行を追加します。
 
 ```
 $ cd /var/lib/rebase/dynpath.d
@@ -198,7 +242,7 @@ $ /etc/postinstall/0p_000_autorebase.dash
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の *ファイル名* をフルパスを書いた 1 行を追加します。
+モジュール DLL の **ファイル名** をフルパスを書いた 1 行を追加します。
 
 ```
 $ cd /var/lib/rebase/user.d
@@ -223,7 +267,7 @@ $ /etc/postinstall/0p_000_autorebase.dash
 ```el
 ;; IME パッチ無しモジュール有りならばモジュールをロードする
 (when (and (eq window-system 'w32)
-           (not (symbol-function 'ime-get-mode))
+           (not (fboundp 'ime-get-mode))
            (string= module-file-suffix ".dll")
            (locate-library "tr-ime-module-helper"))
   (require 'tr-ime-module-helper)
@@ -452,9 +496,10 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
       Emacs に設定されていれば）Emacs 上でも正しく表示されます
     * 対応するには少なくともフォント設定機構を何とかした上で、
       メッセージ処理を奪い取るなどの、かなり複雑な処理が必要です
-* 再変換 (RECONVERSION, DOCUMENTFEED) には対応できない
+* 再変換 (RECONVERSION) や前後の確定済文字列を参照した変換 (DOCUMENTFEED)
+  には対応できない
     * 対応するにはメッセージ処理を奪い取り、
-      UI スレッドのメッセージループから Lisp への通知が必要になるなど、
+      UI スレッドのメッセージループから Lisp とのやりとりが必要になるなど、
       かなり困難な処理が必要です
 * IME ON/OFF 制御や状態取得に MSDN
   などの公式なドキュメントに記載されていない非公式のメッセージを使っている
@@ -471,6 +516,12 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
       何回押してもアイコン表示がが変わらない
         * メモ帳など他の Windows アプリは押したときに表示が変わる
     * アイコンを右クリックすると、その瞬間に表示が変わる
+    * [w32-imeadv](https://github.com/maildrop/w32-imeadv)
+      や[
+      w32-imm32-on-start-enabler
+      ](https://github.com/maildrop/w32-imm32-on-start-enabler)によると
+      Emacs のメッセージループが WM_TIMER のスレッドメッセージを
+      握りつぶしてしまうのが原因のようです
 * 「IME 入力モード切替の通知（画面中央に大きく「あ」とか「A」とか出るもの）」
   が C-\ で切り替えると出ない
     * Windows 10 1909 で確認
