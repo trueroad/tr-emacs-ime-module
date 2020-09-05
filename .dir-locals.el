@@ -4,6 +4,9 @@
 ((c-mode
   (c-file-style . "gnu")
   (indent-tabs-mode . nil))
+ (c++-mode
+  (c-file-style . "gnu")
+  (indent-tabs-mode . nil))
  (emacs-lisp-mode
   (indent-tabs-mode . nil))
  (autoconf-mode

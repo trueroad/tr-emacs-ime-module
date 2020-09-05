@@ -28,10 +28,22 @@ AC_DEFINE_UNQUOTED([PACKAGE_LICENSE], ["$PACKAGE_LICENSE"],
 AC_DEFINE_UNQUOTED([HOST_PLATFORM], ["$host"],
   [Define to the host platform name.])
 
+AC_ARG_ENABLE([module2],
+  AS_HELP_STRING([--enable-module2], [enable tr-ime-module2 (experimental)]),
+  AS_CASE(["${enableval}"],
+    [yes], [module2=true],
+    [no], [module2=false],
+    [*], AC_MSG_ERROR([bad value ${enableval} for --enable-module2])),
+  [module2=false])
+AM_CONDITIONAL([ENABLE_MODULE2], [test "x$module2" = xtrue])
+
 # Checks for programs.
 AC_PROG_CC_C99
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno],
   AC_MSG_ERROR([C99 compiler is not found.]))
+
+AC_PROG_CXX
+AX_CXX_COMPILE_STDCXX([14], [ext], [mandatory])
 
 AM_PROG_AR
 
