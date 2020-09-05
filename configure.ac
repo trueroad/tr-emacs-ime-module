@@ -87,6 +87,16 @@ AC_CHECK_HEADERS([imm.h],,
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_TYPES([ptrdiff_t])
 
+AC_LANG_PUSH([C++])
+AC_MSG_CHECKING([whether the C++ compiler has __PRETTY_FUNCTION__])
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[]],[[ const char* foo = __PRETTY_FUNCTION__; ]])],
+  [AC_MSG_RESULT([yes])
+   AC_DEFINE([HAVE_CXX_PRETTY_FUNCTION], [1],
+     [Define if C++ compiler has __PRETTY_FUNCTION__])],
+  [AC_MSG_RESULT([no])])
+AC_LANG_POP([C++])
+
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile

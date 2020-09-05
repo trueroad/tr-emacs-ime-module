@@ -34,7 +34,8 @@ tr-ime-module-$(host)$(SHREXT): $(objdir)/tr-ime-module$(SHREXT)
 # For tr-ime-module2
 #
 
-tr_ime_module2_la_SOURCES = tr-ime-module2.cc tr-ime-module2-resource.rc
+tr_ime_module2_la_SOURCES = tr-ime-module2.cc tr-ime-module2-resource.rc \
+	debug-message.hh
 
 tr_ime_module2_la_LIBADD = -limm32
 

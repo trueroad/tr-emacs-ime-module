@@ -34,6 +34,8 @@
 
 #include <emacs-module.h>
 
+#include "debug-message.hh"
+
 int TR_IME_MODULE2_DLL plugin_is_GPL_compatible;
 
 namespace
@@ -52,16 +54,18 @@ namespace
 int TR_IME_MODULE2_DLL
 emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
 {
+  DEBUG_MESSAGE ("enter\n");
+
   if (ert->size < sizeof (*ert))
     {
-      OutputDebugStringA ("tr-ime-module2: ert->size < sizeof (*ert)\n");
+      WARNING_MESSAGE ("ert->size < sizeof (*ert)\n");
       return 1;
     }
 
   emacs_env *env = ert->get_environment (ert);
   if (env->size < sizeof (*env))
     {
-      OutputDebugStringA ("tr-ime-module2: env->size < sizeof (*env)\n");
+      WARNING_MESSAGE ("env->size < sizeof (*env)\n");
       return 2;
     }
 
