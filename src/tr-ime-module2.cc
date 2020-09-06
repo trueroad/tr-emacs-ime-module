@@ -35,6 +35,7 @@
 #include <emacs-module.h>
 
 #include "debug-message.hh"
+#include "lisp-in-cc.hh"
 
 int TR_IME_MODULE2_DLL plugin_is_GPL_compatible;
 
@@ -91,6 +92,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
       return 2;
     }
 
+  regist_function (env, "w32-tr-ime-subclassify-hwnd",
+                   1, 2, Fw32_tr_ime_subclassify_hwnd,
+                   doc_w32_tr_ime_subclassify_hwnd,
+                   nullptr);
   provide_feature (env, "tr-ime-module2");
 
   return 0;
