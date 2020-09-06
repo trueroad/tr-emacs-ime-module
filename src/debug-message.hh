@@ -30,6 +30,7 @@
 #endif
 
 #include <sstream>
+#include <string>
 
 #include <windows.h>
 
@@ -42,7 +43,7 @@
   do                                                                    \
     {                                                                   \
       std::stringstream ss;                                             \
-      ss << "debug: " << __PRETTY__FUNCTION__ << ": " << x;             \
+      ss << "debug: " << __PRETTY_FUNCTION__ << ": " << x;              \
       OutputDebugStringA (ss.str ().c_str ());                          \
     }                                                                   \
   while (false)
@@ -82,5 +83,27 @@
   while (false)
 
 #endif // HAVE_PRETTY_FUNCTION
+
+inline std::string
+get_format_message (DWORD dwMessageId)
+{
+  LPSTR lpbuff;
+
+  if (!FormatMessageA (FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                       FORMAT_MESSAGE_FROM_SYSTEM |
+                       FORMAT_MESSAGE_IGNORE_INSERTS,
+                       nullptr,
+                       dwMessageId,
+                       MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),
+                       reinterpret_cast<LPSTR> (&lpbuff),
+                       0,
+                       nullptr))
+    return "error";
+
+  std::string ret {lpbuff};
+  LocalFree (lpbuff);
+
+  return ret;
+}
 
 #endif // INCLUDE_GUARD_DEBUG_MESSAGE_HH
