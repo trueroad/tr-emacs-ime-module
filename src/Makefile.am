@@ -36,7 +36,7 @@ tr-ime-module-$(host)$(SHREXT): $(objdir)/tr-ime-module$(SHREXT)
 
 tr_ime_module2_la_SOURCES = tr-ime-module2.cc tr-ime-module2-resource.rc \
 	debug-message.hh lisp-in-cc.cc lisp-in-cc.hh \
-	get_msg_hook.cc get_msg_hook.hh
+	get_msg_hook.cc get_msg_hook.hh get_msg_proc.cc get_msg_proc hh
 
 tr_ime_module2_la_LIBADD = -limm32
 
