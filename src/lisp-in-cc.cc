@@ -77,3 +77,26 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
 
   return env->intern (env, "t");
 }
+
+const char *doc_w32_tr_ime_set_dispatch_thread_message =
+  "Set whether or not to dispatch thread messages\n\n"
+  "If ARG1 is non-nil, a message hook dispatches the thread messages.\n"
+  "Otherwise, it does not.";
+
+emacs_value
+Fw32_tr_ime_set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
+                                         emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  get_msg_proc::set_b_dispatch_thread_messages
+    (env->is_not_nil (env, args[0]));
+
+  return env->intern (env, "t");
+}

@@ -25,6 +25,7 @@
 #include "get_msg_proc.hh"
 
 #include <algorithm>
+#include <atomic>
 #include <unordered_set>
 
 #include <windows.h>
@@ -38,6 +39,7 @@ constexpr WCHAR get_msg_proc::target_class_name_[];
 thread_local bool get_msg_proc::bsubclassify_all_ {false};
 thread_local std::unordered_set<HWND> get_msg_proc::hwnds_;
 thread_local std::unordered_set<HWND> get_msg_proc::exclude_hwnds_;
+std::atomic<bool> get_msg_proc::ab_dispatch_thread_messages_ {false};
 
 LRESULT
 get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
@@ -115,6 +117,15 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
     {
       WARNING_MESSAGE ("msg broken\n");
       return CallNextHookEx (nullptr, code, wparam, lparam);
+    }
+
+  if (!msg->hwnd)
+    {
+      auto r = CallNextHookEx (nullptr, code, wparam, lparam);
+      if (get_b_dispatch_thread_messages () && msg->message != WM_QUIT)
+        DispatchMessageW (msg);
+
+      return r;
     }
 
   if (msg->message == u_WM_TR_IME_SUBCLASSIFY_)

@@ -25,6 +25,7 @@
 #ifndef INCLUDE_GUARD_GET_MSG_PROC_HH
 #define INCLUDE_GUARD_GET_MSG_PROC_HH
 
+#include <atomic>
 #include <unordered_set>
 
 #include <windows.h>
@@ -37,6 +38,10 @@ public:
   {
     hwnds_.erase (hwnd);
     exclude_hwnds_.erase (hwnd);
+  }
+  static void set_b_dispatch_thread_messages (bool bset)
+  {
+    ab_dispatch_thread_messages_.store (bset);
   }
 
   explicit get_msg_proc () = delete;
@@ -63,6 +68,10 @@ private:
   {
     exclude_hwnds_.insert (hwnd);
   }
+  static bool get_b_dispatch_thread_messages (void)
+  {
+    return ab_dispatch_thread_messages_.load ();
+  }
 
   static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
   static bool is_target_class (HWND);
@@ -72,6 +81,8 @@ private:
   static thread_local bool bsubclassify_all_;
   static thread_local std::unordered_set<HWND> hwnds_;
   static thread_local std::unordered_set<HWND> exclude_hwnds_;
+
+  static std::atomic<bool> ab_dispatch_thread_messages_;
 };
 
 #endif // INCLUDE_GUARD_GET_MSG_PROC_HH
