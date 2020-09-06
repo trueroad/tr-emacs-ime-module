@@ -39,7 +39,7 @@ tr_ime_module2_la_SOURCES = tr-ime-module2.cc tr-ime-module2-resource.rc \
 	get_msg_hook.cc get_msg_hook.hh get_msg_proc.cc get_msg_proc hh \
 	message.cc message.hh subclass_proc.cc subclass_proc.hh
 
-tr_ime_module2_la_LIBADD = -lcomctl32 -limm32
+tr_ime_module2_la_LIBADD = -lgdi32 -lcomctl32 -limm32
 
 tr_ime_module2_la_LDFLAGS = -no-undefined
 tr_ime_module2_la_LDFLAGS += -module

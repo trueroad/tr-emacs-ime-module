@@ -207,3 +207,41 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
 
   return env->intern (env, "t");
 }
+
+const char *doc_w32_tr_ime_get_dpi =
+  "Get DPI of the desktop\n\n"
+  "The return value is a list containing the DPI in the x and y directions.";
+
+emacs_value
+Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
+                     emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 0)
+    {
+      WARNING_MESSAGE ("nargs != 0\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hdc = GetDC (nullptr);
+  if (!hdc)
+    {
+      auto e = GetLastError ();
+      WARNING_MESSAGE ("GetDC failed: " +
+                       get_format_message (e) + "\n");
+      return env->intern (env, "nil");
+    }
+
+  auto x = GetDeviceCaps (hdc, LOGPIXELSX);
+  auto y = GetDeviceCaps (hdc, LOGPIXELSY);
+
+  ReleaseDC (nullptr, hdc);
+
+  auto list = env->intern (env, "list");
+  auto ex = env->make_integer (env, x);
+  auto ey = env->make_integer (env, y);
+  std::array<emacs_value, 2> a {ex, ey};
+
+  return env->funcall (env, list, a.size (), a.data ());
+}

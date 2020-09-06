@@ -41,4 +41,9 @@ Fw32_tr_ime_set_font (emacs_env*, ptrdiff_t,
                       emacs_value[], void*);
 extern const char *doc_w32_tr_ime_set_font;
 
+emacs_value
+Fw32_tr_ime_get_dpi (emacs_env*, ptrdiff_t,
+                     emacs_value[], void*);
+extern const char *doc_w32_tr_ime_get_dpi;
+
 #endif // INCLUDE_GUARD_LISP_IN_CC_HH
