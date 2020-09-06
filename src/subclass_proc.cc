@@ -28,6 +28,7 @@
 #include <commctrl.h>
 
 #include "debug-message.hh"
+#include "get_msg_proc.hh"
 #include "message.hh"
 
 LRESULT CALLBACK
@@ -36,6 +37,14 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 {
   if (umsg == u_WM_TR_IME_SUBCLASSIFY_)
     DEBUG_MESSAGE ("WM_TR_IME_SUBCLASSIFY\n");
+
+  switch (umsg)
+    {
+    case WM_NCDESTROY:
+      DEBUG_MESSAGE ("WM_NCDESTROY\n");
+      get_msg_proc::destroy (hwnd);
+      break;
+    }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }

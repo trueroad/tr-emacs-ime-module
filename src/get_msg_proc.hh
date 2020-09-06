@@ -25,12 +25,19 @@
 #ifndef INCLUDE_GUARD_GET_MSG_PROC_HH
 #define INCLUDE_GUARD_GET_MSG_PROC_HH
 
+#include <unordered_set>
+
 #include <windows.h>
 
 class get_msg_proc final
 {
 public:
   static LRESULT CALLBACK proc (int, WPARAM, LPARAM);
+  static void destroy (HWND hwnd)
+  {
+    hwnds_.erase (hwnd);
+    exclude_hwnds_.erase (hwnd);
+  }
 
   explicit get_msg_proc () = delete;
   ~get_msg_proc () = delete;
@@ -40,7 +47,31 @@ public:
   get_msg_proc& operator = (get_msg_proc &&) = delete;
 
 private:
+  static bool find_hwnd (HWND hwnd)
+  {
+    return (hwnds_.find (hwnd) != hwnds_.end ());
+  }
+  static void add_hwnd (HWND hwnd)
+  {
+    hwnds_.insert (hwnd);
+  }
+  static bool find_exclude_hwnd (HWND hwnd)
+  {
+    return (exclude_hwnds_.find (hwnd) != exclude_hwnds_.end ());
+  }
+  static void add_exclude_hwnd (HWND hwnd)
+  {
+    exclude_hwnds_.insert (hwnd);
+  }
+
   static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
+  static bool is_target_class (HWND);
+
+  static constexpr WCHAR target_class_name_[] {L"Emacs"};
+
+  static thread_local bool bsubclassify_all_;
+  static thread_local std::unordered_set<HWND> hwnds_;
+  static thread_local std::unordered_set<HWND> exclude_hwnds_;
 };
 
 #endif // INCLUDE_GUARD_GET_MSG_PROC_HH
