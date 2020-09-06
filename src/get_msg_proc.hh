@@ -40,6 +40,7 @@ public:
   get_msg_proc& operator = (get_msg_proc &&) = delete;
 
 private:
+  static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
 };
 
 #endif // INCLUDE_GUARD_GET_MSG_PROC_HH

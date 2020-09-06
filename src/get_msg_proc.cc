@@ -25,8 +25,33 @@
 #include "get_msg_proc.hh"
 
 #include <windows.h>
+#include <commctrl.h>
 
 #include "debug-message.hh"
+#include "message.hh"
+#include "subclass_proc.hh"
+
+LRESULT
+get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  auto msg = reinterpret_cast<MSG*> (lparam);
+
+  if (SetWindowSubclass (msg->hwnd, &subclass_proc::proc,
+                         subclass_proc::get_subclass_id (), 0))
+    {
+      DEBUG_MESSAGE ("SetWindowSubclass succeeded");
+    }
+  else
+    {
+      auto e = GetLastError ();
+      WARNING_MESSAGE ("SetWindowSubclass failed: " +
+                       get_format_message (e) + "\n");
+    }
+
+  return CallNextHookEx (nullptr, code, wparam, lparam);
+}
 
 LRESULT
 get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
@@ -41,8 +66,8 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
       return CallNextHookEx (nullptr, code, wparam, lparam);
     }
 
-  if (msg->message == WM_PAINT)
-    DEBUG_MESSAGE ("WM_PAINT\n");
+  if (msg->message == u_WM_TR_IME_SUBCLASSIFY_)
+    return wm_tr_ime_subclassify (code, wparam, lparam);
 
   return CallNextHookEx (nullptr, code, wparam, lparam);
 }
