@@ -41,6 +41,28 @@ int TR_IME_MODULE2_DLL plugin_is_GPL_compatible;
 namespace
 {
   void
+  regist_function (emacs_env *env,
+                   const char *name,
+                   ptrdiff_t min_arity,
+                   ptrdiff_t max_arity,
+                   emacs_value (*function) (emacs_env *env,
+                                            ptrdiff_t nargs,
+                                            emacs_value args[],
+                                            void *),
+                   const char *documentation,
+                   void *data)
+  {
+    emacs_value defalias = env->intern (env, "defalias");
+    emacs_value symbol = env->intern (env, name);
+    emacs_value func =
+      env->make_function (env, min_arity, max_arity, function,
+                          documentation, data);
+    std::array<emacs_value, 2> args {symbol, func};
+
+    env->funcall (env, defalias, args.size (), args.data ());
+  }
+
+  void
   provide_feature (emacs_env *env, const char *name)
   {
     emacs_value provide = env->intern (env, "provide");
