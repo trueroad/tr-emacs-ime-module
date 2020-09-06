@@ -29,3 +29,6 @@
 constexpr WCHAR s_WM_TR_IME_SUBCLASSIFY_[] = L"WM_TR_IME_SUBCLASSIFY";
 const UINT u_WM_TR_IME_SUBCLASSIFY_ =
   RegisterWindowMessageW (s_WM_TR_IME_SUBCLASSIFY_);
+constexpr WCHAR s_WM_TR_IME_SET_FONT_[] = L"WM_TR_IME_SET_FONT";
+const UINT u_WM_TR_IME_SET_FONT_ =
+  RegisterWindowMessageW (s_WM_TR_IME_SET_FONT_);

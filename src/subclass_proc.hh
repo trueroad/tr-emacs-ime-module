@@ -45,8 +45,12 @@ public:
     return subclass_id_;
   }
 
+  static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
+
 private:
   static constexpr UINT_PTR subclass_id_ {0};
+  static thread_local LOGFONTW lf_imefont_;
 };
 
 #endif // INCLUDE_GUARD_SUBCLASS_PROC_HH

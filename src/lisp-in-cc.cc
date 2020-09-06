@@ -24,6 +24,8 @@
 
 #include "lisp-in-cc.hh"
 
+#include <vector>
+
 #include <windows.h>
 
 #include "debug-message.hh"
@@ -97,6 +99,111 @@ Fw32_tr_ime_set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
 
   get_msg_proc::set_b_dispatch_thread_messages
     (env->is_not_nil (env, args[0]));
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_set_font =
+  "Set an IME font expressed in the LOGFONTW items to a frame\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n"
+  "ARG2 is interpreted as lfHeight of the LOGFONTW.\n"
+  "ARG3 is interpreted as lfWidth of the LOGFONTW.\n"
+  "ARG4 is interpreted as lfEscapement of the LOGFONTW.\n"
+  "ARG5 is interpreted as lfOrientation of the LOGFONTW.\n"
+  "ARG6 is interpreted as lfWeight of the LOGFONTW.\n"
+  "ARG7 is interpreted as lfItalic of the LOGFONTW.\n"
+  "ARG8 is interpreted as lfUnderline of the LOGFONTW.\n"
+  "ARG9 is interpreted as lfStrikeOut of the LOGFONTW.\n"
+  "ARG10 is interpreted as lfCharSet of the LOGFONTW.\n"
+  "ARG11 is interpreted as lfOutPrecision of the LOGFONTW.\n"
+  "ARG12 is interpreted as lfClipPrecision of the LOGFONTW.\n"
+  "ARG13 is interpreted as lfQuality of the LOGFONTW.\n"
+  "ARG14 is interpreted as lfPitchAndFamily of the LOGFONTW.\n"
+  "ARG15 is interpreted as lfFaceName of the LOGFONTW.\n\n"
+  "ARG15 is required to be a string and is internally converted to UTF-16.\n"
+  "ARG7, ARG8, and ARG9 are required to be nil or non-nil. nil means FALSE.\n"
+  "Otherwise means TRUE. Others are required to be integer and are\n"
+  "internally converted to the appropriate type. This setting is also\n"
+  "applied to other frames in the same thread as the specified frame.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-font\n"
+  "  (string-to-number (frame-parameter (selected-frame) 'window-id))\n"
+  "  50 0 0 0 0 nil nil nil 0 0 0 0 0 \"Harano Aji Mincho Heavy\")";
+
+emacs_value
+Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
+                      emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 15)
+    {
+      WARNING_MESSAGE ("nargs != 15\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  LOGFONTW logfont {0};
+
+  logfont.lfHeight =
+    static_cast<LONG> (env->extract_integer (env, args[1]));
+  logfont.lfWidth =
+    static_cast<LONG> (env->extract_integer (env, args[2]));
+  logfont.lfEscapement =
+    static_cast<LONG> (env->extract_integer (env, args[3]));
+  logfont.lfOrientation =
+    static_cast<LONG> (env->extract_integer (env, args[4]));
+  logfont.lfWeight =
+    static_cast<LONG> (env->extract_integer (env, args[5]));
+
+  logfont.lfItalic = env->is_not_nil (env, args[6]);
+  logfont.lfUnderline = env->is_not_nil (env, args[7]);
+  logfont.lfStrikeOut = env->is_not_nil (env, args[8]);
+
+  logfont.lfCharSet =
+    static_cast<BYTE> (env->extract_integer (env, args[9]));
+  logfont.lfOutPrecision =
+    static_cast<BYTE> (env->extract_integer (env, args[10]));
+  logfont.lfClipPrecision =
+    static_cast<BYTE> (env->extract_integer (env, args[11]));
+  logfont.lfQuality =
+    static_cast<BYTE> (env->extract_integer (env, args[12]));
+  logfont.lfPitchAndFamily =
+    static_cast<BYTE> (env->extract_integer (env, args[13]));
+
+  ptrdiff_t len;
+  if (!env->copy_string_contents (env, args[14], nullptr, &len))
+    {
+      WARNING_MESSAGE ("env->copy_string_contents nullptr error\n");
+      return env->intern (env, "nil");
+    }
+
+  std::vector<char> buff (len);
+  if (!env->copy_string_contents (env, args[14], buff.data (), &len))
+    {
+      WARNING_MESSAGE ("env->copy_string_contents buff.data error\n");
+      return env->intern (env, "nil");
+    }
+
+  if(!MultiByteToWideChar (CP_UTF8, 0, buff.data (), -1,
+                           logfont.lfFaceName,
+                           sizeof (logfont.lfFaceName) /
+                           sizeof (logfont.lfFaceName[0])))
+    {
+      auto e = GetLastError ();
+      WARNING_MESSAGE ("MultiByteToWideChar failed: " +
+                       get_format_message (e) + "\n");
+      return env->intern (env, "nil");
+    }
+
+  SendMessage (hwnd, u_WM_TR_IME_SET_FONT_,
+               reinterpret_cast<WPARAM> (&logfont), 0);
 
   return env->intern (env, "t");
 }

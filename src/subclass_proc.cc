@@ -31,12 +31,74 @@
 #include "get_msg_proc.hh"
 #include "message.hh"
 
+thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
+
+LRESULT
+subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
+                                   WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_SET_FONT\n");
+
+  auto *logfont = reinterpret_cast<LOGFONTW*> (wparam);
+  if (logfont->lfFaceName[0] != 0)
+    {
+      lf_imefont_ = *logfont;
+      DEBUG_MESSAGE_STATIC ("  ime font set\n");
+    }
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
+subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
+                                        WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_IME_STARTCOMPOSITION\n");
+
+  if (lf_imefont_.lfFaceName[0] != 0)
+    {
+      DEBUG_MESSAGE_STATIC ("  LOGFONTW exists, set the font\n");
+
+      auto himc = ImmGetContext (hwnd);
+      if (himc)
+        {
+          if (!ImmSetCompositionFontW (himc, &lf_imefont_))
+            {
+              auto e = GetLastError ();
+              WARNING_MESSAGE ("ImmSetCompositionFontW failed:" +
+                               get_format_message (e) + "\n");
+            }
+
+          if (!ImmReleaseContext (hwnd, himc))
+            {
+              auto e = GetLastError ();
+              WARNING_MESSAGE ("ImmReleaseContext failed: " +
+                               get_format_message (e) + "\n");
+            }
+        }
+      else
+        {
+          auto e = GetLastError ();
+          WARNING_MESSAGE ("ImmGetContext failed: " +
+                           get_format_message (e) + "\n");
+        }
+    }
+  else
+    {
+      DEBUG_MESSAGE_STATIC ("  LOGFONTW does not exist\n");
+    }
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
 LRESULT CALLBACK
 subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
                      UINT_PTR, DWORD_PTR)
 {
   if (umsg == u_WM_TR_IME_SUBCLASSIFY_)
     DEBUG_MESSAGE ("WM_TR_IME_SUBCLASSIFY\n");
+  else if (umsg == u_WM_TR_IME_SET_FONT_)
+    return wm_tr_ime_set_font (hwnd, umsg, wparam, lparam);
 
   switch (umsg)
     {
@@ -44,6 +106,9 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
       DEBUG_MESSAGE ("WM_NCDESTROY\n");
       get_msg_proc::destroy (hwnd);
       break;
+
+    case WM_IME_STARTCOMPOSITION:
+      return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);
     }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
