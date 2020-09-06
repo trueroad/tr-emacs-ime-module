@@ -27,6 +27,13 @@
 #include <windows.h>
 
 #include "debug-message.hh"
+#include "get_msg_hook.hh"
+#include "get_msg_proc.hh"
+
+namespace
+{
+  get_msg_hook gmh_ (&get_msg_proc::proc, GetModuleHandle (nullptr));
+};
 
 const char *doc_w32_tr_ime_subclassify_hwnd =
   "Subclassify a frame to controlling IME\n\n"
@@ -58,7 +65,13 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
 
   bool b_all = !env->is_not_nil (env, args[1]);
 
-  // hook and subclassify
+  if (!gmh_.install (GetWindowThreadProcessId (hwnd, nullptr)))
+    {
+      WARNING_MESSAGE ("hook install failed\n");
+      return env->intern (env, "nil");
+    }
+
+  // subclassify
 
   return env->intern (env, "t");
 }
