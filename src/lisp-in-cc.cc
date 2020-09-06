@@ -29,6 +29,7 @@
 #include "debug-message.hh"
 #include "get_msg_hook.hh"
 #include "get_msg_proc.hh"
+#include "message.hh"
 
 namespace
 {
@@ -71,7 +72,8 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  // subclassify
+  PostMessageW (hwnd, u_WM_TR_IME_SUBCLASSIFY_,
+                static_cast<WPARAM> (b_all), 0);
 
   return env->intern (env, "t");
 }
