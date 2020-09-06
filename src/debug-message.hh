@@ -84,6 +84,14 @@
 
 #endif // HAVE_PRETTY_FUNCTION
 
+#ifdef NDEBUG
+#define DEBUG_MESSAGE_STATIC(x)
+#define WARNING_MESSAGE_STATIC(x)
+#else
+#define DEBUG_MESSAGE_STATIC(x) OutputDebugStringA ((x))
+#define WARNING_MESSAGE_STATIC(x) OutputDebugStringA ((x))
+#endif
+
 inline std::string
 get_format_message (DWORD dwMessageId)
 {
