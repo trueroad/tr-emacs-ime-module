@@ -82,6 +82,122 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
              h 0 0 0 0 nil nil nil 0 0 0 0 0 family)))))))
 
 ;;
+;; isearch-mode 時の未確定文字列ウィンドウ位置設定
+;;
+
+(defvar w32-tr-ime-module-isearch-last-echo-area-0-point nil
+  "エコーエリア 0 の point 移動検出用")
+
+(defvar w32-tr-ime-module-isearch-last-echo-area-1-point nil
+  "エコーエリア 1 の point 移動検出用")
+
+(defvar w32-tr-ime-module-isearch-last-echo-area-buffer nil
+  "最後に使用されたエコーエリアバッファ")
+
+(defun w32-tr-ime-module-isearch-start ()
+  "エコーエリアのバッファのうちどちらが使われているか検出を開始する
+
+isearch-mode-hook に登録することにより、isearch-mode 中に
+どのエコーエリアが使われているか検出できるようにする。"
+  (setq w32-tr-ime-module-isearch-last-echo-area-0-point
+        (with-current-buffer (get-buffer " *Echo Area 0*")
+          (point)))
+  (setq w32-tr-ime-module-isearch-last-echo-area-1-point
+        (with-current-buffer (get-buffer " *Echo Area 1*")
+          (point))))
+
+(defun w32-tr-ime-module-isearch-detect-echo-area-buffer ()
+  "isearch-mode で使用されているエコーエリアバッファを検出して返す"
+  (let* ((point0 (with-current-buffer
+                     (get-buffer " *Echo Area 0*") (point)))
+         (point1 (with-current-buffer
+                     (get-buffer " *Echo Area 1*") (point)))
+         (buff (cond ((/= point0
+                          w32-tr-ime-module-isearch-last-echo-area-0-point)
+                      (get-buffer " *Echo Area 0*"))
+                     ((/= point1
+                          w32-tr-ime-module-isearch-last-echo-area-1-point)
+                      (get-buffer " *Echo Area 1*"))
+                     (t
+                      (if w32-tr-ime-module-isearch-last-echo-area-buffer
+                          w32-tr-ime-module-isearch-last-echo-area-buffer
+                        (get-buffer " *Echo Area 0*"))))))
+    ;; (w32-tr-ime-debug-output
+    ;;  (format-message "last point0 %s, point1 %s, buff %s"
+    ;;                  w32-tr-ime-module-isearch-last-echo-area-0-point
+    ;;                  w32-tr-ime-module-isearch-last-echo-area-1-point
+    ;;                  w32-tr-ime-module-isearch-last-echo-area-buffer))
+    ;; (w32-tr-ime-debug-output
+    ;;  (format-message " now point0 %s, point1 %s, buff %s"
+    ;;                  point0 point1 buff))
+    (setq w32-tr-ime-module-isearch-last-echo-area-0-point point0)
+    (setq w32-tr-ime-module-isearch-last-echo-area-1-point point1)
+    (setq w32-tr-ime-module-isearch-last-echo-area-buffer buff)))
+
+(defun w32-tr-ime-module-isearch-update ()
+  "isearch-mode 中の未確定文字列の表示位置を設定する
+
+isearch-update-post-hook に登録することにより、
+isearch-mode 中の未確定文字列の表示位置を
+ミニバッファ上の文字入力位置に設定する。"
+  (with-current-buffer (w32-tr-ime-module-isearch-detect-echo-area-buffer)
+    (let* ((sw
+            (string-width
+             (buffer-substring-no-properties (point-min) (point))))
+           (wc (window-width (minibuffer-window)))
+           (x (* (% sw wc) (frame-char-width)))
+           (y (* (/ sw wc) (with-selected-window (minibuffer-window)
+                             (line-pixel-height))))
+           (edges (window-inside-pixel-edges (minibuffer-window)))
+           (left (nth 0 edges))
+           (top (nth 1 edges))
+           (right (nth 2 edges))
+           (bottom (nth 3 edges))
+           (px (+ x left))
+           (py (+ y top)))
+      ;; (w32-tr-ime-debug-output
+      ;;  (format-message
+      ;;   "sw %s, wc %s, x %s, y %s, edges %s"
+      ;;   sw wc x y edges))
+      ;; (w32-tr-ime-debug-output
+      ;;  (format-message
+      ;;   "left %s, top %s, right %s, bottom %s, px %s, py %s"
+      ;;   left top right bottom px py))
+      (w32-tr-ime-set-composition-window
+       (string-to-number (frame-parameter nil 'window-id))
+       1 px py left top right bottom))))
+
+(defun w32-tr-ime-module-isearch-end ()
+  "未確定文字列の表示位置を元に戻す
+
+isearch-mode-end-hook に登録することにより、isearch-mode 終了後に
+未確定文字列の表示位置を通常のバッファ内のカーソル位置に戻す。"
+  (w32-tr-ime-set-composition-window
+   (string-to-number (frame-parameter nil 'window-id))
+   0 0 0 0 0 0 0))
+
+(defun w32-tr-ime-module-isearch-p-set (symb bool)
+  "isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か設定する
+
+BOOL が non-nil なら設定する。
+これにより isearch のフックに追加して文字入力位置を検出し設定する。
+BOOL が nil ならフックから削除して設定を停止する。"
+  (if bool (progn
+             (add-hook 'isearch-mode-hook
+                       #'w32-tr-ime-module-isearch-start)
+             (add-hook 'isearch-update-post-hook
+                       #'w32-tr-ime-module-isearch-update)
+             (add-hook 'isearch-mode-end-hook
+                       #'w32-tr-ime-module-isearch-end))
+    (remove-hook 'isearch-mode-hook
+                 #'w32-tr-ime-module-isearch-start)
+    (remove-hook 'isearch-update-post-hook
+                 #'w32-tr-ime-module-isearch-update)
+    (remove-hook 'isearch-mode-end-hook
+                 #'w32-tr-ime-module-isearch-end))
+  (set-default symb bool))
+
+;;
 ;; provide
 ;;
 
