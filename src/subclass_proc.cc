@@ -80,11 +80,7 @@ subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
   DEBUG_MESSAGE ("WM_TR_IME_SET_FONT\n");
 
   auto *logfont = reinterpret_cast<LOGFONTW*> (wparam);
-  if (logfont->lfFaceName[0] != 0)
-    {
-      lf_imefont_ = *logfont;
-      DEBUG_MESSAGE_STATIC ("  ime font set\n");
-    }
+  lf_imefont_ = *logfont;
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }
