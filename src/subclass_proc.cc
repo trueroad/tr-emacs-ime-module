@@ -33,6 +33,46 @@
 
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 
+class himc_raii final
+{
+public:
+  explicit himc_raii (HWND hwnd)
+    : hwnd_ (hwnd)
+  {
+    himc_ = ImmGetContext (hwnd_);
+    if (!himc_)
+      {
+        auto e = GetLastError ();
+        WARNING_MESSAGE ("ImmGetContext failed: " +
+                         get_format_message (e) + "\n");
+      }
+  }
+  ~himc_raii ()
+  {
+    if (!himc_)
+      return;
+
+    if (!ImmReleaseContext (hwnd_, himc_))
+      {
+        auto e = GetLastError ();
+        WARNING_MESSAGE ("ImmReleaseContext failed: " +
+                         get_format_message (e) + "\n");
+      }
+  }
+  HIMC get (void) const
+  {
+    return himc_;
+  }
+  explicit operator bool () const
+  {
+    return himc_;
+  }
+
+private:
+  const HWND hwnd_;
+  HIMC himc_;
+};
+
 LRESULT
 subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
                                    WPARAM wparam, LPARAM lparam)
@@ -59,28 +99,15 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
     {
       DEBUG_MESSAGE_STATIC ("  LOGFONTW exists, set the font\n");
 
-      auto himc = ImmGetContext (hwnd);
+      himc_raii himc (hwnd);
       if (himc)
         {
-          if (!ImmSetCompositionFontW (himc, &lf_imefont_))
+          if (!ImmSetCompositionFontW (himc.get (), &lf_imefont_))
             {
               auto e = GetLastError ();
               WARNING_MESSAGE ("ImmSetCompositionFontW failed:" +
                                get_format_message (e) + "\n");
             }
-
-          if (!ImmReleaseContext (hwnd, himc))
-            {
-              auto e = GetLastError ();
-              WARNING_MESSAGE ("ImmReleaseContext failed: " +
-                               get_format_message (e) + "\n");
-            }
-        }
-      else
-        {
-          auto e = GetLastError ();
-          WARNING_MESSAGE ("ImmGetContext failed: " +
-                           get_format_message (e) + "\n");
         }
     }
   else
