@@ -29,6 +29,10 @@
 (unless (featurep 'tr-ime-module2)
   (load (concat "tr-ime-module2-" system-configuration) t))
 
+;;
+;; IME フォント設定（未定義文字列のフォント）
+;;
+
 (defun w32-tr-ime-reflect-frame-parameter-ime-font (&optional frame)
   "フレームの ime-font 設定をモジュールのフォント設定に反映させる
 
