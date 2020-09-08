@@ -24,7 +24,7 @@
 
 #include "lisp-in-cc.hh"
 
-#include <vector>
+#include <string>
 
 #include <windows.h>
 
@@ -36,6 +36,35 @@
 namespace
 {
   get_msg_hook gmh_ (&get_msg_proc::proc, GetModuleHandle (nullptr));
+
+  std::string
+  to_string (emacs_env* env, const emacs_value &str)
+  {
+    ptrdiff_t len;
+    if (!env->copy_string_contents (env, str, nullptr, &len))
+    {
+      WARNING_MESSAGE ("env->copy_string_contents nullptr error\n");
+      return "";
+    }
+
+    if (len <= 0)
+      {
+        WARNING_MESSAGE ("env->copy_string_contents len error\n");
+        return "";
+      }
+
+    std::string buff (len, '\0');
+    if (!env->copy_string_contents (env, str, &buff[0], &len))
+    {
+      WARNING_MESSAGE ("env->copy_string_contents buff error\n");
+      return "";
+    }
+
+    if (len > 0)
+      buff.resize (len - 1);
+
+    return buff;
+  }
 };
 
 const char *doc_w32_tr_ime_subclassify_hwnd =
@@ -177,21 +206,8 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
   logfont.lfPitchAndFamily =
     static_cast<BYTE> (env->extract_integer (env, args[13]));
 
-  ptrdiff_t len;
-  if (!env->copy_string_contents (env, args[14], nullptr, &len))
-    {
-      WARNING_MESSAGE ("env->copy_string_contents nullptr error\n");
-      return env->intern (env, "nil");
-    }
-
-  std::vector<char> buff (len);
-  if (!env->copy_string_contents (env, args[14], buff.data (), &len))
-    {
-      WARNING_MESSAGE ("env->copy_string_contents buff.data error\n");
-      return env->intern (env, "nil");
-    }
-
-  if(!MultiByteToWideChar (CP_UTF8, 0, buff.data (), -1,
+  auto buff = to_string (env, args[14]);
+  if(!MultiByteToWideChar (CP_UTF8, 0, buff.data (), buff.size (),
                            logfont.lfFaceName,
                            sizeof (logfont.lfFaceName) /
                            sizeof (logfont.lfFaceName[0])))
