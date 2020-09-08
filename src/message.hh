@@ -29,5 +29,6 @@
 
 extern const UINT u_WM_TR_IME_SUBCLASSIFY_;
 extern const UINT u_WM_TR_IME_SET_FONT_;
+extern const UINT u_WM_TR_IME_SET_COMPOSITIONWINDOW_;
 
 #endif // INCLUDE_GUARD_MESSAGE_HH

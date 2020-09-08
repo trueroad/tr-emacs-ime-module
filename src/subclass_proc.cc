@@ -87,6 +87,18 @@ subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::wm_tr_ime_set_compositionwindow (HWND hwnd, UINT umsg,
+                                                WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_SET_COMPOSITIONWINDOW\n");
+
+  auto *compform = reinterpret_cast<COMPOSITIONFORM*> (wparam);
+  compform_ = *compform;
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
 subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
                                         WPARAM wparam, LPARAM lparam)
 {
@@ -145,6 +157,8 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
     DEBUG_MESSAGE ("WM_TR_IME_SUBCLASSIFY\n");
   else if (umsg == u_WM_TR_IME_SET_FONT_)
     return wm_tr_ime_set_font (hwnd, umsg, wparam, lparam);
+  else if (umsg == u_WM_TR_IME_SET_COMPOSITIONWINDOW_)
+    return wm_tr_ime_set_compositionwindow (hwnd, umsg, wparam, lparam);
 
   switch (umsg)
     {

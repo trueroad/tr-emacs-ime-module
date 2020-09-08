@@ -46,6 +46,7 @@ public:
   }
 
   static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT wm_tr_ime_set_compositionwindow (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
 
 private:
