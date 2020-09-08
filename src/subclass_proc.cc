@@ -32,6 +32,7 @@
 #include "message.hh"
 
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
+thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
 
 class himc_raii final
 {
@@ -111,7 +112,29 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
       DEBUG_MESSAGE_STATIC ("  LOGFONTW does not exist\n");
     }
 
-  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+  auto r = DefSubclassProc (hwnd, umsg, wparam, lparam);
+
+  // The composition window position is set again after Emacs sets it.
+  if (compform_.dwStyle)
+    {
+      DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM exists, set the position\n");
+      himc_raii himc (hwnd);
+      if (himc)
+        {
+          if (!ImmSetCompositionWindow (himc.get (), &compform_))
+            {
+              auto e = GetLastError ();
+              WARNING_MESSAGE ("ImmSetCompositionWindow failed:" +
+                               get_format_message (e) + "\n");
+            }
+        }
+    }
+  else
+    {
+      DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM does not exist\n");
+    }
+
+  return r;
 }
 
 LRESULT CALLBACK

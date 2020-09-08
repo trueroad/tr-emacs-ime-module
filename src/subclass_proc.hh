@@ -51,6 +51,7 @@ public:
 private:
   static constexpr UINT_PTR subclass_id_ {0};
   static thread_local LOGFONTW lf_imefont_;
+  static thread_local COMPOSITIONFORM compform_;
 };
 
 #endif // INCLUDE_GUARD_SUBCLASS_PROC_HH
