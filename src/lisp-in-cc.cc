@@ -65,6 +65,41 @@ namespace
 
     return buff;
   }
+
+  std::basic_string<WCHAR>
+  to_wstring (const std::string &str)
+  {
+    if (!str.size ())
+      return L"";
+
+    auto wsize =
+      MultiByteToWideChar (CP_UTF8, 0, str.data (), str.size (), nullptr, 0);
+    if (!wsize)
+      {
+        auto e = GetLastError ();
+        WARNING_MESSAGE ("MultiByteToWideChar (zero length) failed: " +
+                         get_format_message (e) + "\n");
+        return L"";
+      }
+
+    if (wsize <= 0)
+      {
+        WARNING_MESSAGE ("MultiByteToWideChar size error\n");
+        return L"";
+      }
+
+    std::basic_string<WCHAR> wbuff (wsize, L'\0');
+    if(!MultiByteToWideChar (CP_UTF8, 0, str.data (), str.size (),
+                             &wbuff[0], wsize))
+      {
+        auto e = GetLastError ();
+        WARNING_MESSAGE ("MultiByteToWideChar (sized) failed: " +
+                         get_format_message (e) + "\n");
+        return L"";
+      }
+
+    return wbuff;
+  }
 };
 
 const char *doc_w32_tr_ime_subclassify_hwnd =
