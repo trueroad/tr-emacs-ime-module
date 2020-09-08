@@ -313,4 +313,53 @@ Fw32_tr_ime_debug_output (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_debug_rectangle =
+  "Draw a rectangle to a frame\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n"
+  "ARG2, ARG3, ARG4, and ARG5 are interpreted as left, top, right, and"
+  "bottom of the rectangle coordinates.";
+
+emacs_value
+Fw32_tr_ime_debug_rectangle (emacs_env* env, ptrdiff_t nargs,
+                             emacs_value args[], void*)
+{
+  if (nargs != 5)
+    {
+      WARNING_MESSAGE ("nargs != 5\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  auto left = static_cast<int> (env->extract_integer (env, args[1]));
+  auto top = static_cast<int> (env->extract_integer (env, args[2]));
+  auto right = static_cast<int> (env->extract_integer (env, args[3]));
+  auto bottom = static_cast<int> (env->extract_integer (env, args[4]));
+
+  auto hdc = GetDC (hwnd);
+  if (!hdc)
+    {
+      auto e = GetLastError ();
+      WARNING_MESSAGE ("GetDC failed: " +
+                       get_format_message (e) + "\n");
+      return env->intern (env, "nil");
+    }
+
+  if (!Rectangle (hdc, left, top, right, bottom))
+    {
+      auto e = GetLastError ();
+      WARNING_MESSAGE ("Rectangle failed: " +
+                       get_format_message (e) + "\n");
+    }
+
+  ReleaseDC (hwnd, hdc);
+
+  return env->intern (env, "t");
+}
+
 #endif // NDEBUG

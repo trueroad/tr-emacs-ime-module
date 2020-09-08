@@ -53,6 +53,11 @@ Fw32_tr_ime_debug_output (emacs_env*, ptrdiff_t,
                           emacs_value[], void*);
 extern const char *doc_w32_tr_ime_debug_output;
 
+emacs_value
+Fw32_tr_ime_debug_rectangle (emacs_env*, ptrdiff_t,
+                             emacs_value[], void*);
+extern const char *doc_w32_tr_ime_debug_rectangle;
+
 #endif // NDEBUG
 
 #endif // INCLUDE_GUARD_LISP_IN_CC_HH

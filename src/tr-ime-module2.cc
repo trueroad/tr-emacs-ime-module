@@ -115,6 +115,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    1, 1, Fw32_tr_ime_debug_output,
                    doc_w32_tr_ime_debug_output,
                    nullptr);
+  regist_function (env, "w32-tr-ime-debug-rectangle",
+                   5, 5, Fw32_tr_ime_debug_rectangle,
+                   doc_w32_tr_ime_debug_rectangle,
+                   nullptr);
 
 #endif // NDEBUG
 
