@@ -252,6 +252,72 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_set_composition_window =
+  "Set a composition window expressed in the COMPOSITIONFORM items to a frame"
+  "\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n"
+  "ARG2 is interpreted as dwStyle of the COMPOSITIONFORM.\n"
+  "ARG3 is interpreted as ptCurrentPos.x of the COMPOSITIONFORM.\n"
+  "ARG4 is interpreted as ptCurrentPos.y of the COMPOSITIONFORM.\n"
+  "ARG5 is interpreted as rcArea.left the COMPOSITIONFORM.\n"
+  "ARG6 is interpreted as rcArea.top of the COMPOSITIONFORM.\n"
+  "ARG7 is interpreted as rcArea.right the COMPOSITIONFORM.\n"
+  "ARG8 is interpreted as rcArea.bottom of the COMPOSITIONFORM.\n"
+  "ARG2 to 8 are required to be integer and are internally converted to the"
+  "appropriate type. If ARG2 is 0, this module does not set the composition"
+  "window, and Emacs' settings are enabled. Otherwise, the module sets the"
+  "composition window and overrides the Emacs' settings. This setting is"
+  "also applied to other frames in the same thread as the specified frame."
+  "\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-composition-window\n"
+  "  (string-to-number (frame-parameter (selected-frame) 'window-id))\n"
+  "  1 0 0 0 0 640 32)";
+
+emacs_value
+Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
+                                    emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 8)
+    {
+      WARNING_MESSAGE ("nargs != 8\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  COMPOSITIONFORM compform {0};
+
+  compform.dwStyle =
+    static_cast<DWORD> (env->extract_integer (env, args[1]));
+
+  compform.ptCurrentPos.x =
+    static_cast<LONG> (env->extract_integer (env, args[2]));
+  compform.ptCurrentPos.y =
+    static_cast<LONG> (env->extract_integer (env, args[3]));
+
+  compform.rcArea.left =
+    static_cast<LONG> (env->extract_integer (env, args[4]));
+  compform.rcArea.top =
+    static_cast<LONG> (env->extract_integer (env, args[5]));
+  compform.rcArea.right =
+    static_cast<LONG> (env->extract_integer (env, args[6]));
+  compform.rcArea.bottom =
+    static_cast<LONG> (env->extract_integer (env, args[7]));
+
+  SendMessage (hwnd, u_WM_TR_IME_SET_COMPOSITIONWINDOW_,
+               reinterpret_cast<WPARAM> (&compform), 0);
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_get_dpi =
   "Get DPI of the desktop\n\n"
   "The return value is a list containing the DPI in the x and y directions.";
