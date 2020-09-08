@@ -242,16 +242,9 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
     static_cast<BYTE> (env->extract_integer (env, args[13]));
 
   auto buff = to_string (env, args[14]);
-  if(!MultiByteToWideChar (CP_UTF8, 0, buff.data (), buff.size (),
-                           logfont.lfFaceName,
-                           sizeof (logfont.lfFaceName) /
-                           sizeof (logfont.lfFaceName[0])))
-    {
-      auto e = GetLastError ();
-      WARNING_MESSAGE ("MultiByteToWideChar failed: " +
-                       get_format_message (e) + "\n");
-      return env->intern (env, "nil");
-    }
+  auto wbuff = to_wstring (buff);
+  wbuff.copy (logfont.lfFaceName,
+              sizeof (logfont.lfFaceName) / sizeof (logfont.lfFaceName[0]));
 
   SendMessage (hwnd, u_WM_TR_IME_SET_FONT_,
                reinterpret_cast<WPARAM> (&logfont), 0);
