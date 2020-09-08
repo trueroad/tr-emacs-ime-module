@@ -46,4 +46,13 @@ Fw32_tr_ime_get_dpi (emacs_env*, ptrdiff_t,
                      emacs_value[], void*);
 extern const char *doc_w32_tr_ime_get_dpi;
 
+#ifndef NDEBUG
+
+emacs_value
+Fw32_tr_ime_debug_output (emacs_env*, ptrdiff_t,
+                          emacs_value[], void*);
+extern const char *doc_w32_tr_ime_debug_output;
+
+#endif // NDEBUG
+
 #endif // INCLUDE_GUARD_LISP_IN_CC_HH

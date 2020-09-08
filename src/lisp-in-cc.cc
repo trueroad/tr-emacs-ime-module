@@ -289,3 +289,28 @@ Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
 
   return env->funcall (env, list, a.size (), a.data ());
 }
+
+#ifndef NDEBUG
+
+const char *doc_w32_tr_ime_debug_output =
+  "Output ARG1 string by OutputDebugStringW ()";
+
+emacs_value
+Fw32_tr_ime_debug_output (emacs_env* env, ptrdiff_t nargs,
+                          emacs_value args[], void*)
+{
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  auto buff = to_string (env, args[0]);
+  auto wbuff = to_wstring (buff);
+
+  OutputDebugStringW (wbuff.c_str ());
+
+  return env->intern (env, "t");
+}
+
+#endif // NDEBUG

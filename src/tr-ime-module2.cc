@@ -108,6 +108,16 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    0, 0, Fw32_tr_ime_get_dpi,
                    doc_w32_tr_ime_get_dpi,
                    nullptr);
+
+#ifndef NDEBUG
+
+  regist_function (env, "w32-tr-ime-debug-output",
+                   1, 1, Fw32_tr_ime_debug_output,
+                   doc_w32_tr_ime_debug_output,
+                   nullptr);
+
+#endif // NDEBUG
+
   provide_feature (env, "tr-ime-module2");
 
   return 0;
