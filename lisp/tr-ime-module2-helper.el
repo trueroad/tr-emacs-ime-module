@@ -89,6 +89,78 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
               (frame-parameter frame 'window-id))
              h 0 0 0 0 nil nil nil 0 0 0 0 0 family)))))))
 
+(defvar w32-tr-ime-module-last-ime-font nil
+  "未確定文字列フォント変更検出用")
+
+(defun w32-tr-ime-module-ime-font-emulator ()
+  "フレームパラメータ ime-font 設定をエミュレーションする関数
+
+Emacs の標準的なフックである focus-in-hook もしくは
+post-command-hook に登録する。
+
+IME パッチは、フレームパラメータの ime-font を設定すると、
+即座に未確定文字列フォントに反映されるが、モジュール環境では反映できない。
+本関数は ime-font が変更されているか確認し、変更されていたら
+変更を反映する w32-tr-ime-reflect-frame-parameter-ime-font
+関数を呼び出すことによって未確定文字列フォントを設定する。
+
+focus-in-hook に登録した場合は、フレームを変更した際に呼ばれ、
+フレームへ設定されたパラメータに応じて未確定文字列フォントが
+設定されるようになる。
+
+post-command-hook に登録した場合は、ほとんどのコマンドの動作後に呼ばれ、
+フレームパラメータの変更後すぐに未確定文字列フォントが
+設定されるようになる。"
+  (unless (string= w32-tr-ime-module-last-ime-font
+                   (frame-parameter nil 'ime-font))
+    (w32-tr-ime-reflect-frame-parameter-ime-font)
+    (setq w32-tr-ime-module-last-ime-font (frame-parameter nil 'ime-font))))
+
+(defun w32-tr-ime-module-ime-font-focus-p-set (symb bool)
+  "フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か設定
+
+BOOL が non-nil なら設定する。
+これにより focus-in-hook にエミュレーション関数を追加することで、
+フレームへ設定されたパラメータに応じて未確定文字列フォントが
+設定されるようになる。
+BOOL が nil ならフックから削除して設定を停止する。"
+  (if bool (add-hook 'focus-in-hook
+                     #'w32-tr-ime-module-ime-font-emulator)
+    (remove-hook 'focus-in-hook
+                 #'w32-tr-ime-module-ime-font-emulator))
+  (set-default symb bool))
+
+(defun w32-tr-ime-module-ime-font-post-command-p-set (symb bool)
+  "コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か設定
+
+BOOL が non-nil なら設定する。
+これにより post-command-hook にエミュレーション関数を追加することで、
+ime-font 変更後すぐに未確定文字列フォントが設定されるようになる。
+BOOL が nil ならフックから削除して設定を停止する。"
+  (if bool (add-hook 'post-command-hook
+                     #'w32-tr-ime-module-ime-font-emulator)
+    (remove-hook 'post-command-hook
+                 #'w32-tr-ime-module-ime-font-emulator))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-ime-font-focus-p nil
+  "フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-ime-font-focus-p-set
+  :group 'w32-tr-ime-module)
+
+(defcustom w32-tr-ime-module-ime-font-post-command-p nil
+  "コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-ime-font-post-command-p-set
+  :group 'w32-tr-ime-module)
+
 ;;
 ;; isearch-mode 時の未確定文字列ウィンドウ位置設定
 ;;
