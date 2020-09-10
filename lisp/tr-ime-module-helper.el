@@ -40,6 +40,17 @@
             (featurep 'tr-ime-module))
   (load (concat "tr-ime-module-" system-configuration) t))
 
+(declare-function w32-tr-ime-setopenstatus "tr-ime-module"
+                  arg1 arg2)
+(declare-function w32-tr-ime-getopenstatus "tr-ime-module"
+                  arg1)
+(declare-function w32-set-ime-open-status "w32fns.c" status) ; Emacs 28
+(declare-function w32-get-ime-open-status "w32fns.c") ; Emacs 28
+
+(declare-function ime-force-on "tr-ime-module-helper.el" &optional _dummy)
+(declare-function ime-force-off "tr-ime-module-helper.el" &optional _dummy)
+(declare-function ime-get-mode "tr-ime-module-helper.el")
+
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
