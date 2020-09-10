@@ -23,6 +23,14 @@
 ;; If not, see <https://www.gnu.org/licenses/>.
 
 ;;
+;; ユーザ設定用
+;;
+
+(defgroup w32-tr-ime-module nil
+  "Simple IME module for GNU Emacs (tr-emacs-ime-module)"
+  :group 'W32-IME)
+
+;;
 ;; C++ 実装による DLL をロードする
 ;;
 
@@ -196,6 +204,15 @@ BOOL が nil ならフックから削除して設定を停止する。"
     (remove-hook 'isearch-mode-end-hook
                  #'w32-tr-ime-module-isearch-end))
   (set-default symb bool))
+
+(defcustom w32-tr-ime-module-isearch-p t
+  "isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-isearch-p-set
+  :group 'w32-tr-ime-module)
 
 ;;
 ;; provide
