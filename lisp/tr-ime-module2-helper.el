@@ -37,6 +37,17 @@
 (unless (featurep 'tr-ime-module2)
   (load (concat "tr-ime-module2-" system-configuration) t))
 
+(declare-function w32-tr-ime-subclassify-hwnd "tr-ime-module2"
+                  arg1 &optional arg2)
+(declare-function w32-tr-ime-set-dispatch-thread-message "tr-ime-module2"
+                  arg1)
+(declare-function w32-tr-ime-set-font "tr-ime-module2"
+                  arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8)
+(declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
+                  arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
+                  arg11 arg12 arg13 arg14 arg15)
+(declare-function w32-tr-ime-get-dpi "tr-ime-module2")
+
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
 ;;
