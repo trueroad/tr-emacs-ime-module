@@ -95,8 +95,9 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
 (defun w32-tr-ime-module-ime-font-emulator ()
   "フレームパラメータ ime-font 設定をエミュレーションする関数
 
-Emacs の標準的なフックである focus-in-hook もしくは
-post-command-hook に登録する。
+Emacs の標準的なフックである post-command-hook に登録するか、
+focus-in-hook （GNU Emacs 26.3 まで）に登録／
+after-focus-change-function （GNU Emacs 27.1 以降）経由で呼び出す。
 
 IME パッチは、フレームパラメータの ime-font を設定すると、
 即座に未確定文字列フォントに反映されるが、モジュール環境では反映できない。
@@ -104,7 +105,9 @@ IME パッチは、フレームパラメータの ime-font を設定すると、
 変更を反映する w32-tr-ime-reflect-frame-parameter-ime-font
 関数を呼び出すことによって未確定文字列フォントを設定する。
 
-focus-in-hook に登録した場合は、フレームを変更した際に呼ばれ、
+focus-in-hook へ登録／
+after-focus-change-function 経由で呼び出した場合は、
+フレームを変更した際に呼ばれ、
 フレームへ設定されたパラメータに応じて未確定文字列フォントが
 設定されるようになる。
 
@@ -116,18 +119,37 @@ post-command-hook に登録した場合は、ほとんどのコマンドの動�
     (w32-tr-ime-reflect-frame-parameter-ime-font)
     (setq w32-tr-ime-module-last-ime-font (frame-parameter nil 'ime-font))))
 
+(defun w32-tr-ime-module-ime-font-after-focus-change-function ()
+  "フォーカス変更を検知して ime-font 設定エミュレーション関数を呼ぶ
+
+after-focus-change-function は呼び出された時点では
+まだ selected-frame が変わっていないことがあるので、
+全フレームに対して frame-focus-state　でフォーカスを得ているか否かを判定し、
+フォーカスを得ていたフレームで w32-tr-ime-module-ime-font-emulator
+を呼び出して未確定文字列フォントを設定する。
+
+after-focus-change-function （GNU Emacs 27.1 以降）
+に登録して使う。"
+  (dolist (f (frame-list))
+    (when (frame-focus-state f)
+      (with-selected-frame f (w32-tr-ime-module-ime-font-emulator)))))
+
 (defun w32-tr-ime-module-ime-font-focus-p-set (symb bool)
   "フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か設定
 
 BOOL が non-nil なら設定する。
-これにより focus-in-hook にエミュレーション関数を追加することで、
+これにより after-focus-change-function
+にフォーカス検知関数を追加することで、
 フレームへ設定されたパラメータに応じて未確定文字列フォントが
 設定されるようになる。
 BOOL が nil ならフックから削除して設定を停止する。"
-  (if bool (add-hook 'focus-in-hook
-                     #'w32-tr-ime-module-ime-font-emulator)
-    (remove-hook 'focus-in-hook
-                 #'w32-tr-ime-module-ime-font-emulator))
+  (if bool
+      (add-function :before
+                    after-focus-change-function
+                    #'w32-tr-ime-module-ime-font-after-focus-change-function)
+    (remove-function
+     after-focus-change-function
+     #'w32-tr-ime-module-ime-font-after-focus-change-function))
   (set-default symb bool))
 
 (defun w32-tr-ime-module-ime-font-post-command-p-set (symb bool)
