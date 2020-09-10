@@ -70,7 +70,7 @@ GNU Emacs 28 では IME 状態変更関数 w32-set-ime-open-status を使うが�
 
 (if (fboundp #'w32-set-ime-open-status)
     (progn
-      (defun ime-force-on (&rest _dummy)
+      (defun ime-force-on (&optional _dummy)
         "IME を ON にする関数
 
 GNU Emacs 28 の w32-set-ime-open-status で
@@ -82,7 +82,7 @@ IME パッチの ime-force-on をエミュレーションする。"
                    (not (ime-get-mode)))
             (setq counter (1+ counter)))))
 
-      (defun ime-force-off (&rest _dummy)
+      (defun ime-force-off (&optional _dummy)
         "IME を OFF にする関数
 
 GNU Emacs 28 の w32-set-ime-open-status で
@@ -94,14 +94,14 @@ IME パッチの ime-force-off をエミュレーションする。"
                    (ime-get-mode))
             (setq counter (1+ counter))))))
 
-  (defun ime-force-on (&rest _dummy)
+  (defun ime-force-on (&optional _dummy)
     "IME を ON にする関数
 
 モジュールで IME パッチの ime-force-on をエミュレーションする。"
     (w32-tr-ime-setopenstatus
      (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
 
-  (defun ime-force-off (&rest _dummy)
+  (defun ime-force-off (&optional _dummy)
     "IME を OFF にする関数
 
 IME パッチの ime-force-off をエミュレーションする。"
