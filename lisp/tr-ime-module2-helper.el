@@ -88,6 +88,29 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
   :group 'w32-tr-ime-module)
 
 ;;
+;; スレッドメッセージのディスパッチ
+;;
+
+(defun w32-tr-ime-module-dispatch-thread-message-p-set (symb bool)
+  "スレッドメッセージをディスパッチするか否か設定
+
+BOOL が non-nil ならスレッドメッセージをディスパッチする。
+BOOL が nil ならスレッドメッセージをディスパッチしない。"
+  (if bool
+      (w32-tr-ime-set-dispatch-thread-message t)
+    (w32-tr-ime-set-dispatch-thread-message nil))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-dispatch-thread-message-p nil
+  "スレッドメッセージをディスパッチするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-dispatch-thread-message-p-set
+  :group 'w32-tr-ime-module)
+
+;;
 ;; IME フォント設定（未定義文字列のフォント）
 ;;
 
