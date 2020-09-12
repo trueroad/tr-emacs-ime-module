@@ -24,6 +24,8 @@
 
 #include "subclass_proc.hh"
 
+#include <unordered_set>
+
 #include <windows.h>
 #include <commctrl.h>
 
@@ -33,6 +35,10 @@
 
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
+
+#ifndef NDEBUG
+thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
+#endif
 
 class himc_raii final
 {
@@ -102,11 +108,23 @@ LRESULT
 subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
                                         WPARAM wparam, LPARAM lparam)
 {
-  DEBUG_MESSAGE ("WM_IME_STARTCOMPOSITION\n");
+  bool b_extra_start = true;
+
+#ifndef NDEBUG
+  if (compositioning_hwnds_.find (hwnd) == compositioning_hwnds_.end ())
+    {
+      b_extra_start = false;
+      compositioning_hwnds_.insert (hwnd);
+    }
+#endif
+
+  if (!b_extra_start)
+    DEBUG_MESSAGE ("WM_IME_STARTCOMPOSITION: initial\n");
 
   if (lf_imefont_.lfFaceName[0] != 0)
     {
-      DEBUG_MESSAGE_STATIC ("  LOGFONTW exists, set the font\n");
+      if (!b_extra_start)
+        DEBUG_MESSAGE_STATIC ("  LOGFONTW exists, set the font\n");
 
       himc_raii himc (hwnd);
       if (himc)
@@ -121,7 +139,8 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
     }
   else
     {
-      DEBUG_MESSAGE_STATIC ("  LOGFONTW does not exist\n");
+      if (!b_extra_start)
+        DEBUG_MESSAGE_STATIC ("  LOGFONTW does not exist\n");
     }
 
   auto r = DefSubclassProc (hwnd, umsg, wparam, lparam);
@@ -129,7 +148,8 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
   // The composition window position is set again after Emacs sets it.
   if (compform_.dwStyle)
     {
-      DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM exists, set the position\n");
+      if (!b_extra_start)
+        DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM exists, set the position\n");
       himc_raii himc (hwnd);
       if (himc)
         {
@@ -143,11 +163,24 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
     }
   else
     {
-      DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM does not exist\n");
+      if (!b_extra_start)
+        DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM does not exist\n");
     }
 
   return r;
 }
+
+#ifndef NDEBUG
+LRESULT
+subclass_proc::wm_ime_endcomposition (HWND hwnd, UINT umsg,
+                                      WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_IME_ENDCOMPOSITION\n");
+  compositioning_hwnds_.erase (hwnd);
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+#endif
 
 LRESULT CALLBACK
 subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
@@ -175,6 +208,11 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);
+
+#ifndef NDEBUG
+    case WM_IME_ENDCOMPOSITION:
+      return wm_ime_endcomposition (hwnd, umsg, wparam, lparam);
+#endif
     }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);

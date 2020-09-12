@@ -25,6 +25,8 @@
 #ifndef INCLUDE_GUARD_SUBCLASS_PROC_HH
 #define INCLUDE_GUARD_SUBCLASS_PROC_HH
 
+#include <unordered_set>
+
 #include <windows.h>
 
 class subclass_proc final
@@ -49,10 +51,18 @@ public:
   static LRESULT wm_tr_ime_set_compositionwindow (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
 
+#ifndef NDEBUG
+  static LRESULT wm_ime_endcomposition (HWND, UINT, WPARAM, LPARAM);
+#endif
+
 private:
   static constexpr UINT_PTR subclass_id_ {0};
   static thread_local LOGFONTW lf_imefont_;
   static thread_local COMPOSITIONFORM compform_;
+
+#ifndef NDEBUG
+  static thread_local std::unordered_set<HWND> compositioning_hwnds_;
+#endif
 };
 
 #endif // INCLUDE_GUARD_SUBCLASS_PROC_HH
