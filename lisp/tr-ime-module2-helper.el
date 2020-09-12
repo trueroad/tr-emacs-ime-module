@@ -83,7 +83,7 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
      (string-to-number (frame-parameter nil 'window-id))))
   (set-default symb bool))
 
-(defcustom w32-tr-ime-module-message-hook-and-subclassify-p nil
+(defcustom w32-tr-ime-module-message-hook-and-subclassify-p t
   "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。
@@ -124,7 +124,7 @@ Emacs の動作がおかしくなってしまう。"
     (w32-tr-ime-set-dispatch-thread-message nil))
   (set-default symb bool))
 
-(defcustom w32-tr-ime-module-dispatch-thread-message-p nil
+(defcustom w32-tr-ime-module-dispatch-thread-message-p t
   "スレッドメッセージをディスパッチするか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。
@@ -274,7 +274,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
                  #'w32-tr-ime-module-ime-font-emulator))
   (set-default symb bool))
 
-(defcustom w32-tr-ime-module-ime-font-focus-p nil
+(defcustom w32-tr-ime-module-ime-font-focus-p t
   "フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。
