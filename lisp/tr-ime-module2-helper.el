@@ -37,7 +37,13 @@
 (unless (featurep 'tr-ime-module2)
   (load (concat "tr-ime-module2-" system-configuration) t))
 
+(declare-function w32-tr-ime-install-message-hook-hwnd "tr-ime-module2"
+                  arg1)
+(declare-function w32-tr-ime-uninstall-message-hook-hwnd "tr-ime-module2"
+                  arg1)
 (declare-function w32-tr-ime-subclassify-hwnd "tr-ime-module2"
+                  arg1 &optional arg2)
+(declare-function w32-tr-ime-unsubclassify-hwnd "tr-ime-module2"
                   arg1 &optional arg2)
 (declare-function w32-tr-ime-set-dispatch-thread-message "tr-ime-module2"
                   arg1)
@@ -47,6 +53,39 @@
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
                   arg11 arg12 arg13 arg14 arg15)
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
+
+;;
+;; メッセージフックとサブクラス化
+;;
+
+(defun w32-tr-ime-module-message-hook-and-subclassify-p-set (symb bool)
+  "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か設定
+
+BOOL が non-nil ならメッセージフックしてサブクラス化する。
+BOOL が nil ならサブクラス解除してメッセージフックを停止する。"
+  (if bool
+      (progn
+        (w32-tr-ime-install-message-hook-hwnd
+         (string-to-number (frame-parameter nil 'window-id)))
+        (w32-tr-ime-subclassify-hwnd
+         (string-to-number (frame-parameter nil 'window-id)) nil))
+    (w32-tr-ime-unsubclassify-hwnd
+     (string-to-number (frame-parameter nil 'window-id)) nil)
+    ;; サブクラス解除は非同期に実施されるが、
+    ;; 解除前にメッセージフック停止すると解除できなくなるので少し待機する。
+    (sleep-for 1)
+    (w32-tr-ime-uninstall-message-hook-hwnd
+     (string-to-number (frame-parameter nil 'window-id))))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-message-hook-and-subclassify-p nil
+  "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
+  :group 'w32-tr-ime-module)
 
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
