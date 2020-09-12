@@ -86,11 +86,11 @@
 
 #ifdef NDEBUG
 #define DEBUG_MESSAGE_STATIC(x)
-#define WARNING_MESSAGE_STATIC(x)
 #else
 #define DEBUG_MESSAGE_STATIC(x) OutputDebugStringA ((x))
-#define WARNING_MESSAGE_STATIC(x) OutputDebugStringA ((x))
 #endif
+
+#define WARNING_MESSAGE_STATIC(x) OutputDebugStringA ((x))
 
 inline std::string
 get_format_message (DWORD dwMessageId)

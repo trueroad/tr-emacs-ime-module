@@ -36,8 +36,8 @@ public:
   static LRESULT CALLBACK proc (int, WPARAM, LPARAM);
   static void destroy (HWND hwnd)
   {
-    hwnds_.erase (hwnd);
-    exclude_hwnds_.erase (hwnd);
+    remove_hwnd (hwnd);
+    remove_exclude_hwnd (hwnd);
   }
   static void set_b_dispatch_thread_messages (bool bset)
   {
@@ -60,6 +60,10 @@ private:
   {
     hwnds_.insert (hwnd);
   }
+  static void remove_hwnd (HWND hwnd)
+  {
+    hwnds_.erase (hwnd);
+  }
   static bool find_exclude_hwnd (HWND hwnd)
   {
     return (exclude_hwnds_.find (hwnd) != exclude_hwnds_.end ());
@@ -68,12 +72,17 @@ private:
   {
     exclude_hwnds_.insert (hwnd);
   }
+  static void remove_exclude_hwnd (HWND hwnd)
+  {
+    exclude_hwnds_.erase (hwnd);
+  }
   static bool get_b_dispatch_thread_messages (void)
   {
     return ab_dispatch_thread_messages_.load ();
   }
 
   static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
+  static LRESULT wm_tr_ime_unsubclassify (int, WPARAM, LPARAM);
   static bool is_target_class (HWND);
 
   static constexpr WCHAR target_class_name_[] {L"Emacs"};

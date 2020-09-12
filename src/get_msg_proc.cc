@@ -72,6 +72,45 @@ get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
   return CallNextHookEx (nullptr, code, wparam, lparam);
 }
 
+LRESULT
+get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  auto msg = reinterpret_cast<MSG*> (lparam);
+  auto bunsubclassify_all = static_cast<bool> (msg->wParam);
+  bsubclassify_all_ = false;
+
+  if (find_hwnd (msg->hwnd))
+    {
+      if (RemoveWindowSubclass (msg->hwnd, &subclass_proc::proc,
+                                subclass_proc::get_subclass_id ()))
+        {
+          DEBUG_MESSAGE_STATIC ("  RemoveWindowSubclass succeeded");
+          remove_hwnd (msg->hwnd);
+        }
+      else
+        {
+          auto e = GetLastError ();
+          WARNING_MESSAGE ("RemoveWindowSubclass failed: " +
+                           get_format_message (e) + "\n");
+        }
+    }
+  else
+    {
+      DEBUG_MESSAGE_STATIC ("  already unsubclassified\n");
+    }
+
+  if (bunsubclassify_all)
+    {
+      for (auto h: hwnds_)
+        PostMessage (h, u_WM_TR_IME_UNSUBCLASSIFY_,
+                     static_cast<WPARAM> (false), 0);
+    }
+
+  return CallNextHookEx (nullptr, code, wparam, lparam);
+}
+
 bool
 get_msg_proc::is_target_class (HWND hwnd)
 {
@@ -130,6 +169,8 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
 
   if (msg->message == u_WM_TR_IME_SUBCLASSIFY_)
     return wm_tr_ime_subclassify (code, wparam, lparam);
+  else if (msg->message == u_WM_TR_IME_UNSUBCLASSIFY_)
+    return wm_tr_ime_unsubclassify (code, wparam, lparam);
 
   if (bsubclassify_all_ &&
       !find_exclude_hwnd (msg->hwnd) && !find_hwnd (msg->hwnd) &&

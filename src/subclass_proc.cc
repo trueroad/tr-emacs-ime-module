@@ -155,6 +155,12 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 {
   if (umsg == u_WM_TR_IME_SUBCLASSIFY_)
     DEBUG_MESSAGE ("WM_TR_IME_SUBCLASSIFY\n");
+  else if (umsg == u_WM_TR_IME_UNSUBCLASSIFY_)
+    {
+      WARNING_MESSAGE ("WM_TR_IME_UNSUBCLASSIFY\n");
+      WARNING_MESSAGE_STATIC ("  cannot unsubclassify"
+                              " because a message hook is not installed\n");
+    }
   else if (umsg == u_WM_TR_IME_SET_FONT_)
     return wm_tr_ime_set_font (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_SET_COMPOSITIONWINDOW_)
