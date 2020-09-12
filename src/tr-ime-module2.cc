@@ -92,6 +92,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
       return 2;
     }
 
+  regist_function (env, "w32-tr-ime-install-message-hook-hwnd",
+                   1, 1, Fw32_tr_ime_install_message_hook_hwnd,
+                   doc_w32_tr_ime_install_message_hook_hwnd,
+                   nullptr);
   regist_function (env, "w32-tr-ime-subclassify-hwnd",
                    1, 2, Fw32_tr_ime_subclassify_hwnd,
                    doc_w32_tr_ime_subclassify_hwnd,

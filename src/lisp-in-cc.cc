@@ -102,14 +102,52 @@ namespace
   }
 };
 
+const char *doc_w32_tr_ime_install_message_hook_hwnd =
+  "Install a message hook into a frame for subclassify\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-install-message-hook-hwnd\n"
+  " (string-to-number (frame-parameter nil 'window-id)))";
+
+emacs_value
+Fw32_tr_ime_install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                       emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  if (!gmh_.install (GetWindowThreadProcessId (hwnd, nullptr)))
+    {
+      WARNING_MESSAGE ("hook install failed\n");
+      return env->intern (env, "nil");
+    }
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_subclassify_hwnd =
   "Subclassify a frame to controlling IME\n\n"
   "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
   "This function subclasses all frames found in the thread to which the\n"
-  "HWND belongs. Otherwise, it subclasses only the specified HWND.\n\n"
+  "HWND belongs. Otherwise, it subclasses only the specified HWND.\n"
+  "Note: To subclassify, a message hook by\n"
+  "w32-tr-ime-install-message-hook-hwnd is required to be installed in\n"
+  "the thread to which the HWND belongs.\n\n"
   "Sample usage:\n"
   "(w32-tr-ime-subclassify-hwnd\n"
-  "  (string-to-number (frame-parameter (selected-frame) 'window-id)) nil)";
+  " (string-to-number (frame-parameter nil 'window-id)) nil)";
 
 emacs_value
 Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
@@ -131,12 +169,6 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
     }
 
   bool b_all = !env->is_not_nil (env, args[1]);
-
-  if (!gmh_.install (GetWindowThreadProcessId (hwnd, nullptr)))
-    {
-      WARNING_MESSAGE ("hook install failed\n");
-      return env->intern (env, "nil");
-    }
 
   PostMessageW (hwnd, u_WM_TR_IME_SUBCLASSIFY_,
                 static_cast<WPARAM> (b_all), 0);
