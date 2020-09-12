@@ -106,6 +106,27 @@ namespace
 };
 
 LRESULT
+subclass_proc::wm_tr_ime_set_open_status (HWND hwnd, UINT umsg,
+                                          WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_SET_OPEN_STATUS\n");
+
+  auto bopen = static_cast<bool> (wparam);
+  ime_set_mode (hwnd, bopen);
+
+  return 0;
+}
+
+LRESULT
+subclass_proc::wm_tr_ime_get_open_status (HWND hwnd, UINT umsg,
+                                          WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_GET_OPEN_STATUS\n");
+
+  return ime_get_mode (hwnd);
+}
+
+LRESULT
 subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
                                    WPARAM wparam, LPARAM lparam)
 {
@@ -219,6 +240,10 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
       WARNING_MESSAGE_STATIC ("  cannot unsubclassify"
                               " because a message hook is not installed\n");
     }
+  else if (umsg == u_WM_TR_IME_SET_OPEN_STATUS_)
+    return wm_tr_ime_set_open_status (hwnd, umsg, wparam, lparam);
+  else if (umsg == u_WM_TR_IME_GET_OPEN_STATUS_)
+    return wm_tr_ime_get_open_status (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_SET_FONT_)
     return wm_tr_ime_set_font (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_SET_COMPOSITIONWINDOW_)
