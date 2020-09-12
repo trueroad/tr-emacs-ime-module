@@ -120,6 +120,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    8, 8, Fw32_tr_ime_set_composition_window,
                    doc_w32_tr_ime_set_composition_window,
                    nullptr);
+  regist_function (env, "w32-tr-ime-set-prefix-keys",
+                   2, 2, Fw32_tr_ime_set_prefix_keys,
+                   doc_w32_tr_ime_set_prefix_keys,
+                   nullptr);
   regist_function (env, "w32-tr-ime-get-dpi",
                    0, 0, Fw32_tr_ime_get_dpi,
                    doc_w32_tr_ime_get_dpi,

@@ -430,6 +430,65 @@ Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_set_prefix_keys =
+  "Set prefix keys to turn off IME\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n"
+  "ARG2 is interpreted as a list of prefix key codes to be detected.\n"
+  "The upper 16 bits of the code are specified the modified key and the\n"
+  "lower 16 bits are specified the virtual key code to be modified. The\n"
+  "modifier keys are #x10000 for the shift key, #x20000 for the control key,\n"
+  " and #x40000 for the ALT key, respectively, and specify by the bitwise OR\n"
+  "of them. The virtual key code is specified Windows' code. For example, if\n"
+  "you want to specify C-x, specify #x20058 because it is the bitwise OR of\n"
+  "#x20000, the modifier of the control key, and #x58, the virtual key code\n"
+  "of X key. If you want to specify C-M-x, specify #x60058, including the\n"
+  "ALT key modifier. This setting is also applied to other frames in the\n"
+  "same thread as the specified frame.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-prefix-keys\n"
+  " (string-to-number (frame-parameter nil 'window-id))\n"
+  " '(#x20058 #x20048 #x20043 #x1b)";
+
+emacs_value
+Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
+                             emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 2)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  std::unordered_set<DWORD> prefix_keys;
+
+  auto car = env->intern (env, "car");
+  auto cdr = env->intern (env, "cdr");
+  auto remain = args[1];
+
+  while (env->is_not_nil (env, remain))
+    {
+      std::array<emacs_value, 1> arg {remain};
+      auto c = env->funcall (env, car, arg.size (), arg.data ());
+      prefix_keys.insert (env->extract_integer (env, c));
+
+      remain = env->funcall (env, cdr, arg.size (), arg.data ());
+    }
+
+  SendMessage (hwnd, u_WM_TR_IME_SET_PREFIX_KEYS_,
+               reinterpret_cast<WPARAM> (&prefix_keys), 0);
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_get_dpi =
   "Get DPI of the desktop\n\n"
   "The return value is a list containing the DPI in the x and y directions.";
