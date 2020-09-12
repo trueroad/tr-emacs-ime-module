@@ -62,7 +62,12 @@
   "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か設定
 
 BOOL が non-nil ならメッセージフックしてサブクラス化する。
-BOOL が nil ならサブクラス解除してメッセージフックを停止する。"
+BOOL が nil ならサブクラス解除してメッセージフックを停止する。
+
+注意：tr-ime-module2 のほとんどの機能は
+メッセージフックとサブクラス化を前提としており、
+これらが有効でなければ機能しないだけではなく、
+設定変更すらできないものも存在する。"
   (if bool
       (progn
         (w32-tr-ime-install-message-hook-hwnd
@@ -81,7 +86,13 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
 (defcustom w32-tr-ime-module-message-hook-and-subclassify-p nil
   "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+注意：tr-ime-module2 のほとんどの機能は
+メッセージフックとサブクラス化を前提としており、
+これらが有効でなければ機能しないだけではなく、
+設定変更すらできないものが存在する。
+特別な目的が無い限りは non-nil にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
@@ -95,7 +106,19 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
   "スレッドメッセージをディスパッチするか否か設定
 
 BOOL が non-nil ならスレッドメッセージをディスパッチする。
-BOOL が nil ならスレッドメッセージをディスパッチしない。"
+BOOL が nil ならスレッドメッセージをディスパッチしない。
+
+GNU Emacs 27 や 28 の UI スレッドは、
+スレッドメッセージをディスパッチしないため IME の動作に不具合が発生する
+（タスクトレイの IME 状態表示アイコンが変わらない等）。
+そこで、本設定によって Emacs の代わりにメッセージフックが
+スレッドメッセージをディスパッチするようにできる。
+
+ただし、将来の Emacs でスレッドメッセージをディスパッチするように修正されたら
+本設定を nil にすること。
+さもなければひとつのスレッドメッセージを
+二重にディスパッチしてしまうことになり、
+Emacs の動作がおかしくなってしまう。"
   (if bool
       (w32-tr-ime-set-dispatch-thread-message t)
     (w32-tr-ime-set-dispatch-thread-message nil))
@@ -104,7 +127,20 @@ BOOL が nil ならスレッドメッセージをディスパッチしない。"
 (defcustom w32-tr-ime-module-dispatch-thread-message-p nil
   "スレッドメッセージをディスパッチするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+GNU Emacs 27 や 28 の UI スレッドは、
+スレッドメッセージがディスパッチされない。
+これによって IME の動作に不具合が発生する
+（タスクトレイの IME 状態表示アイコンが変わらない等）。
+そこで、本設定によってメッセージフックが
+スレッドメッセージをディスパッチするようにできる。
+
+ただし、将来の Emacs で
+スレッドメッセージをディスパッチするようになったら本設定を nil にすること。
+さもなければひとつのスレッドメッセージを
+二重にディスパッチしてしまうことになり、
+Emacs の動作がおかしくなってしまう。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-dispatch-thread-message-p-set
@@ -241,7 +277,11 @@ BOOL が nil ならフックから削除して設定を停止する。"
 (defcustom w32-tr-ime-module-ime-font-focus-p nil
   "フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+本設定を non-nil にすると、フォーカス変更時（フレーム変更時）に
+フレームパラメータの ime-font 設定が、
+モジュール環境の未確定文字列フォントに反映される。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-ime-font-focus-p-set
@@ -250,7 +290,13 @@ BOOL が nil ならフックから削除して設定を停止する。"
 (defcustom w32-tr-ime-module-ime-font-post-command-p nil
   "コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+本設定を non-nil にすると、ほとんどのコマンド実行後に
+フレームパラメータの ime-font 設定が、
+モジュール環境の未確定文字列フォントに反映される。
+つまり、ime-font 設定を変更することで IME パッチ環境と同様、
+ほぼ即座に未確定文字列フォントが設定できる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-ime-font-post-command-p-set
