@@ -104,7 +104,10 @@ namespace
 
 const char *doc_w32_tr_ime_install_message_hook_hwnd =
   "Install a message hook into a frame for subclassify\n\n"
-  "ARG1 is interpreted as HWND of the frame.\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n"
+  "Note: The message hook is installed to the thread to which the frame\n"
+  "belongs, not the frame. Since most frames belong to a single thread,\n"
+  "using this function only once will affect the most frames.\n\n"
   "Sample usage:\n"
   "(w32-tr-ime-install-message-hook-hwnd\n"
   " (string-to-number (frame-parameter nil 'window-id)))";
@@ -133,6 +136,41 @@ Fw32_tr_ime_install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
       WARNING_MESSAGE ("hook install failed\n");
       return env->intern (env, "nil");
     }
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_uninstall_message_hook_hwnd =
+  "Uninstall a message hook into a frame for subclassify\n\n"
+  "ARG1 is interpreted as HWND of the frame.\n\n"
+  "Note: The message hook is installed to the thread to which the frame\n"
+  "belongs, not the frame. Since most frames belong to a single thread,\n"
+  "using this function only once will uninstall the message hook for\n"
+  "the most frames.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-uninstall-message-hook-hwnd\n"
+  " (string-to-number (frame-parameter nil 'window-id)))";
+
+emacs_value
+Fw32_tr_ime_uninstall_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                         emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  gmh_.uninstall (GetWindowThreadProcessId (hwnd, nullptr));
 
   return env->intern (env, "t");
 }
