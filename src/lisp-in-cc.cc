@@ -140,7 +140,7 @@ Fw32_tr_ime_install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
 const char *doc_w32_tr_ime_subclassify_hwnd =
   "Subclassify a frame to controlling IME\n\n"
   "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
-  "This function subclasses all frames found in the thread to which the\n"
+  "this function subclasses all frames found in the thread to which the\n"
   "HWND belongs. Otherwise, it subclasses only the specified HWND.\n"
   "Note: To subclassify, a message hook by\n"
   "w32-tr-ime-install-message-hook-hwnd is required to be installed in\n"
@@ -171,6 +171,48 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
   bool b_all = !env->is_not_nil (env, args[1]);
 
   PostMessageW (hwnd, u_WM_TR_IME_SUBCLASSIFY_,
+                static_cast<WPARAM> (b_all), 0);
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_unsubclassify_hwnd =
+  "Unsubclassify a frame to release controlling IME\n\n"
+  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
+  "this function unsubclasses all frames in the thread to which the\n"
+  "HWND belongs. Otherwise, it unsubclasses only the specified HWND.\n"
+  "Note: To unsubclassify, a message hook by\n"
+  "w32-tr-ime-install-message-hook-hwnd is required to be installed in\n"
+  "the thread to which the HWND belongs.\n"
+  "Note: After using this function, w32-tr-ime-subclassify-hwnd's\n"
+  "specification to subclassify all frames is disabled and does not\n"
+  "subclassify frames found.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-unsubclassify-hwnd\n"
+  " (string-to-number (frame-parameter nil 'window-id)) nil)";
+
+emacs_value
+Fw32_tr_ime_unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs < 1 || nargs > 2)
+    {
+      WARNING_MESSAGE ("invalid nargs\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  bool b_all = !env->is_not_nil (env, args[1]);
+
+  PostMessageW (hwnd, u_WM_TR_IME_UNSUBCLASSIFY_,
                 static_cast<WPARAM> (b_all), 0);
 
   return env->intern (env, "t");

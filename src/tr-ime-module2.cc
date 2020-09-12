@@ -100,6 +100,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    1, 2, Fw32_tr_ime_subclassify_hwnd,
                    doc_w32_tr_ime_subclassify_hwnd,
                    nullptr);
+  regist_function (env, "w32-tr-ime-unsubclassify-hwnd",
+                   1, 2, Fw32_tr_ime_unsubclassify_hwnd,
+                   doc_w32_tr_ime_unsubclassify_hwnd,
+                   nullptr);
   regist_function (env, "w32-tr-ime-set-dispatch-thread-message",
                    1, 1, Fw32_tr_ime_set_dispatch_thread_message,
                    doc_w32_tr_ime_set_dispatch_thread_message,
