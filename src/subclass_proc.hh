@@ -47,6 +47,7 @@ public:
     return subclass_id_;
   }
 
+private:
   static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_compositionwindow (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
@@ -55,7 +56,6 @@ public:
   static LRESULT wm_ime_endcomposition (HWND, UINT, WPARAM, LPARAM);
 #endif
 
-private:
   static constexpr UINT_PTR subclass_id_ {0};
   static thread_local LOGFONTW lf_imefont_;
   static thread_local COMPOSITIONFORM compform_;
