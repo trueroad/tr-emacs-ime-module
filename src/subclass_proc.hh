@@ -25,6 +25,7 @@
 #ifndef INCLUDE_GUARD_SUBCLASS_PROC_HH
 #define INCLUDE_GUARD_SUBCLASS_PROC_HH
 
+#include <mutex>
 #include <unordered_set>
 
 #include <windows.h>
@@ -47,11 +48,29 @@ public:
     return subclass_id_;
   }
 
+  static void lisp_resume_prefix_key (void)
+  {
+    prefix_key::lisp_resume ();
+  }
+
 private:
+  class prefix_key
+  {
+  public:
+    static void set (HWND);
+    static void lisp_resume (void);
+  private:
+    static std::mutex mtx_;
+    static HWND hwnd_;
+    static bool b_before_ime_mode_;
+  };
+
   static LRESULT wm_tr_ime_set_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_get_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_compositionwindow (HWND, UINT, WPARAM, LPARAM);
+
+  static LRESULT wm_keydown (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
 
 #ifndef NDEBUG
@@ -61,6 +80,7 @@ private:
   static constexpr UINT_PTR subclass_id_ {0};
   static thread_local LOGFONTW lf_imefont_;
   static thread_local COMPOSITIONFORM compform_;
+  static thread_local std::unordered_set<DWORD> prefix_keys_;
 
 #ifndef NDEBUG
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;

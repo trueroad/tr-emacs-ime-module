@@ -24,6 +24,7 @@
 
 #include "subclass_proc.hh"
 
+#include <mutex>
 #include <unordered_set>
 
 #include <windows.h>
@@ -33,8 +34,13 @@
 #include "get_msg_proc.hh"
 #include "message.hh"
 
+std::mutex subclass_proc::prefix_key::mtx_;
+HWND subclass_proc::prefix_key::hwnd_ {0};
+bool subclass_proc::prefix_key::b_before_ime_mode_;
+
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
+thread_local std::unordered_set<DWORD> subclass_proc::prefix_keys_;
 
 #ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
@@ -105,6 +111,36 @@ namespace
   }
 };
 
+void
+subclass_proc::prefix_key::set (HWND hwnd)
+{
+  std::lock_guard<std::mutex> lock (mtx_);
+
+  if (!hwnd_)
+    {
+      b_before_ime_mode_ = ime_get_mode (hwnd);
+      if (b_before_ime_mode_)
+        {
+          hwnd_ = hwnd;
+          ime_set_mode (hwnd, false);
+        }
+    }
+}
+
+void
+subclass_proc::prefix_key::lisp_resume (void)
+{
+  // This function is called from lisp threads.
+  std::lock_guard<std::mutex> lock (mtx_);
+
+  if (hwnd_)
+    {
+      PostMessageW (hwnd_, u_WM_TR_IME_SET_OPEN_STATUS_,
+                    b_before_ime_mode_, 0);
+      hwnd_ = nullptr;
+    }
+}
+
 LRESULT
 subclass_proc::wm_tr_ime_set_open_status (HWND hwnd, UINT umsg,
                                           WPARAM wparam, LPARAM lparam)
@@ -146,6 +182,30 @@ subclass_proc::wm_tr_ime_set_compositionwindow (HWND hwnd, UINT umsg,
 
   auto *compform = reinterpret_cast<COMPOSITIONFORM*> (wparam);
   compform_ = *compform;
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
+subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
+                           WPARAM wparam, LPARAM lparam)
+{
+  if (prefix_keys_.size ())
+    {
+      DWORD key_code = wparam;
+      if (GetAsyncKeyState (VK_SHIFT))
+        key_code |= 0x10000;
+      if (GetAsyncKeyState (VK_CONTROL))
+        key_code |= 0x20000;
+      if (GetAsyncKeyState (VK_MENU))
+        key_code |= 0x40000;
+
+      if (prefix_keys_.find (key_code) != prefix_keys_.end ())
+        {
+          DEBUG_MESSAGE ("WM_KEYDOWN: prefix key");
+          prefix_key::set (hwnd);
+        }
+    }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }
@@ -255,6 +315,9 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
       DEBUG_MESSAGE ("WM_NCDESTROY\n");
       get_msg_proc::destroy (hwnd);
       break;
+
+    case WM_KEYDOWN:
+      return wm_keydown (hwnd, umsg, wparam, lparam);
 
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);
