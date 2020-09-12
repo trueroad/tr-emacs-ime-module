@@ -80,6 +80,31 @@ private:
   HIMC himc_;
 };
 
+namespace
+{
+  void ime_set_mode (HWND hwnd, bool bmode)
+  {
+    himc_raii himc (hwnd);
+    if (himc)
+      {
+        if (!ImmSetOpenStatus (himc.get (), bmode))
+          {
+            auto e = GetLastError ();
+            WARNING_MESSAGE ("ImmSetOpenStatus failed:" +
+                             get_format_message (e) + "\n");
+          }
+      }
+  }
+
+  bool ime_get_mode (HWND hwnd)
+  {
+    himc_raii himc (hwnd);
+    if (himc)
+      return ImmGetOpenStatus (himc.get ());
+    return false;
+  }
+};
+
 LRESULT
 subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
                                    WPARAM wparam, LPARAM lparam)
