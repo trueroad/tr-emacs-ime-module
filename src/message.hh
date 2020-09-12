@@ -33,5 +33,6 @@ extern const UINT u_WM_TR_IME_SET_OPEN_STATUS_;
 extern const UINT u_WM_TR_IME_GET_OPEN_STATUS_;
 extern const UINT u_WM_TR_IME_SET_FONT_;
 extern const UINT u_WM_TR_IME_SET_COMPOSITIONWINDOW_;
+extern const UINT u_WM_TR_IME_SET_PREFIX_KEYS_;
 
 #endif // INCLUDE_GUARD_MESSAGE_HH

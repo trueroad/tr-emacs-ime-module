@@ -187,6 +187,18 @@ subclass_proc::wm_tr_ime_set_compositionwindow (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::wm_tr_ime_set_prefix_keys (HWND hwnd, UINT umsg,
+                                          WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_SET_PREFIX_KEYS\n");
+
+  auto *prefix_keys = reinterpret_cast<std::unordered_set<DWORD> *> (wparam);
+  prefix_keys_ = *prefix_keys;
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
 subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
                            WPARAM wparam, LPARAM lparam)
 {
@@ -308,6 +320,8 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
     return wm_tr_ime_set_font (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_SET_COMPOSITIONWINDOW_)
     return wm_tr_ime_set_compositionwindow (hwnd, umsg, wparam, lparam);
+  else if (umsg == u_WM_TR_IME_SET_PREFIX_KEYS_)
+    return wm_tr_ime_set_prefix_keys (hwnd, umsg, wparam, lparam);
 
   switch (umsg)
     {
