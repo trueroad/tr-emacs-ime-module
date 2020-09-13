@@ -173,7 +173,7 @@ subclass_proc::wm_tr_ime_set_font (HWND hwnd, UINT umsg,
   auto *logfont = reinterpret_cast<LOGFONTW*> (wparam);
   lf_imefont_ = *logfont;
 
-  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+  return 0;
 }
 
 LRESULT
@@ -185,7 +185,7 @@ subclass_proc::wm_tr_ime_set_compositionwindow (HWND hwnd, UINT umsg,
   auto *compform = reinterpret_cast<COMPOSITIONFORM*> (wparam);
   compform_ = *compform;
 
-  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+  return 0;
 }
 
 LRESULT
@@ -197,7 +197,7 @@ subclass_proc::wm_tr_ime_set_prefix_keys (HWND hwnd, UINT umsg,
   auto *prefix_keys = reinterpret_cast<std::unordered_set<DWORD> *> (wparam);
   prefix_keys_ = *prefix_keys;
 
-  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+  return 0;
 }
 
 LRESULT
