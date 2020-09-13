@@ -57,6 +57,12 @@ Module2 を使用する際のコア機能の設定です。
   :group 'w32-tr-ime-module)
 
 ;;
+;; Module1 がロードされていなければロードする
+;;
+
+(require 'tr-ime-module-helper)
+
+;;
 ;; C++ 実装による DLL をロードする
 ;;
 
