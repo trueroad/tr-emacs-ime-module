@@ -32,6 +32,7 @@
 #include "get_msg_hook.hh"
 #include "get_msg_proc.hh"
 #include "message.hh"
+#include "subclass_proc.hh"
 
 namespace
 {
@@ -485,6 +486,28 @@ Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
 
   SendMessage (hwnd, u_WM_TR_IME_SET_PREFIX_KEYS_,
                reinterpret_cast<WPARAM> (&prefix_keys), 0);
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_resume_prefix_key =
+  "Resume IME mode if a prefix key was pressed before\n\n"
+  "If IME was automatically turned off previously by the prefix key,\n"
+  "IME is resumed to on. This function is for adding to post-command-hook.";
+
+emacs_value
+Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
+                               emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 0)
+    {
+      WARNING_MESSAGE ("nargs != 0\n");
+      return env->intern (env, "nil");
+    }
+
+  subclass_proc::lisp_resume_prefix_key ();
 
   return env->intern (env, "t");
 }
