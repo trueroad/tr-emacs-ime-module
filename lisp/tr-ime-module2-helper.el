@@ -52,6 +52,9 @@
 (declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
                   arg11 arg12 arg13 arg14 arg15)
+(declare-function w32-tr-ime-set-prefix-keys "tr-ime-module2"
+                  arg1 arg2)
+(declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
 
 ;;
@@ -425,6 +428,69 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-isearch-p-set
+  :group 'w32-tr-ime-module)
+
+;;
+;; プレフィックスキー（C-x など）を検出して自動的に IME OFF する
+;;
+
+(defvar w32-tr-ime-module-prefix-key-p t)
+
+(defun w32-tr-ime-module-prefix-key-list-set (symb settings)
+  "プレフィックスキー検出対象リストを設定する
+
+SETTINGS はプレフィックスキーとして検出したいコードのリスト。"
+  (set-default symb settings)
+  (if w32-tr-ime-module-prefix-key-p
+      (w32-tr-ime-set-prefix-keys
+       (string-to-number (frame-parameter nil 'window-id))
+       settings)))
+
+(defcustom w32-tr-ime-module-prefix-key-list
+  '(#x20058 #x20048 #x20043 #x1b)
+  "プレフィックスキー検出対象リスト
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+プレフィックスキーとして検出したいコードのリスト。
+コードは上位 16 bit が修飾キー、下位 16 bit が修飾されるキーの
+バーチャルキーコードを指定する。
+修飾キーは Shift (#x10000), Ctrl (#x20000), Alt (#x40000) の
+ビット論理和で指定する。バーチャルキーコードは Windows のものを指定する。
+
+例えば C-x は Ctrl の修飾キー #x20000 と、
+X キーのバーチャルキーコード #x58 のビット論理和なので #x20058 を指定する。
+C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定する。"
+  :type '(repeat integer)
+  :set #'w32-tr-ime-module-prefix-key-list-set
+  :group 'w32-tr-ime-module)
+
+(defun w32-tr-ime-module-prefix-key-p-set (symb bool)
+  "プレフィックスキーを検出して自動的に IME OFF するか否か設定する
+
+BOOL が non-nil ならプレフィックスキーを検出して IME OFF する。
+あわせて module1 で同様な機能を持つワークアラウンドを無効にする。
+BOOL が nil ならフックから削除して停止する。"
+  (if bool
+      (progn
+        (custom-set-variables
+         '(w32-tr-ime-module-workaround-prefix-key-p nil))
+        (w32-tr-ime-set-prefix-keys
+         (string-to-number (frame-parameter nil 'window-id))
+         w32-tr-ime-module-prefix-key-list)
+        (add-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+    (w32-tr-ime-set-prefix-keys
+     (string-to-number (frame-parameter nil 'window-id)) nil)
+    (remove-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-prefix-key-p t
+  "プレフィックスキーを検出して自動的に IME OFF するか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-prefix-key-p-set
   :group 'w32-tr-ime-module)
 
 ;;
