@@ -512,7 +512,7 @@ Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
 
 const char *doc_w32_tr_ime_get_dpi =
   "Get DPI of the desktop\n\n"
-  "The return value is a list containing the DPI in the x and y directions.";
+  "The return value is a cons containing the DPI in the x and y directions.";
 
 emacs_value
 Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
@@ -540,7 +540,7 @@ Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
 
   ReleaseDC (nullptr, hdc);
 
-  auto list = env->intern (env, "list");
+  auto list = env->intern (env, "cons");
   auto ex = env->make_integer (env, x);
   auto ey = env->make_integer (env, y);
   std::array<emacs_value, 2> a {ex, ey};

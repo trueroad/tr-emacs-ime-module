@@ -194,7 +194,7 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
              (height (plist-get attributes :height)))
         (when (and family height)
           (let ((h (round (/ (* height
-                                (nth 1 (w32-tr-ime-get-dpi)))
+                                (cdr (w32-tr-ime-get-dpi)))
                              -720.0))))
             (w32-tr-ime-set-font
              (string-to-number
