@@ -30,6 +30,32 @@
   "Simple IME module for GNU Emacs (tr-emacs-ime-module)"
   :group 'W32-IME)
 
+(defgroup w32-tr-ime-module-core nil
+  "コア機能設定
+
+モジュールを使用する際のコア機能の設定です。
+通常は設定変更しないでください。"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-core-module2 nil
+  "Module2 設定
+
+Module2 を使用する際のコア機能の設定です。
+通常は設定変更しないでください。"
+  :group 'w32-tr-ime-module-core)
+
+(defgroup w32-tr-ime-module-ime-font nil
+  "IME フォント (Module2)"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-isearch-mode nil
+  "isearch-mode (Module2)"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-prefix-key nil
+  "プレフィックスキー検出 (Module2)"
+  :group 'w32-tr-ime-module)
+
 ;;
 ;; C++ 実装による DLL をロードする
 ;;
@@ -99,7 +125,7 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-core-module2)
 
 ;;
 ;; スレッドメッセージのディスパッチ
@@ -147,7 +173,7 @@ Emacs の動作がおかしくなってしまう。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-dispatch-thread-message-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-core-module2)
 
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
@@ -288,7 +314,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-ime-font-focus-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-ime-font)
 
 (defcustom w32-tr-ime-module-ime-font-post-command-p nil
   "コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か
@@ -303,7 +329,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-ime-font-post-command-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-ime-font)
 
 ;;
 ;; isearch-mode 時の未確定文字列ウィンドウ位置設定
@@ -428,7 +454,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-isearch-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-isearch-mode)
 
 ;;
 ;; プレフィックスキー（C-x など）を検出して自動的に IME OFF する
@@ -463,7 +489,7 @@ X キーのバーチャルキーコード #x58 のビット論理和なので #x
 C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定する。"
   :type '(repeat integer)
   :set #'w32-tr-ime-module-prefix-key-list-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-prefix-key)
 
 (defun w32-tr-ime-module-prefix-key-p-set (symb bool)
   "プレフィックスキーを検出して自動的に IME OFF するか否か設定する
@@ -491,7 +517,7 @@ BOOL が nil ならフックから削除して停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-prefix-key-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-prefix-key)
 
 ;;
 ;; provide

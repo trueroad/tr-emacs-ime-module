@@ -30,6 +30,35 @@
   "Simple IME module for GNU Emacs (tr-emacs-ime-module)"
   :group 'W32-IME)
 
+(defgroup w32-tr-ime-module-core nil
+  "コア機能設定
+
+モジュールを使用する際のコア機能の設定です。
+通常は設定変更しないでください。"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-core-emacs28 nil
+  "Emacs 28 以降向け設定
+
+Emacs 28 以降を使用する際のコア機能の設定です。
+通常は設定変更しないでください。"
+  :group 'w32-tr-ime-module-core)
+
+(defgroup w32-tr-ime-module-workaround nil
+  "ワークアラウンド設定"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-workaround-prefix-key nil
+  "プレフィックスキー検出
+
+Module2 を使用するなら、このワークアラウンドではなく
+Module2 のプレフィックスキー検出を使ってください。"
+  :group 'w32-tr-ime-module-workaround)
+
+(defgroup w32-tr-ime-module-workaround-inconsist-ime nil
+  "IME 状態食い違い検出"
+  :group 'w32-tr-ime-module-workaround)
+
 ;;
 ;; C 実装による DLL をロードする
 ;;
@@ -66,7 +95,7 @@ GNU Emacs 28 では IME 状態変更関数 w32-set-ime-open-status を使うが�
 1 回目や 2 回目で完了していたらそこで打ち切る。
 0 を設定した場合は一切完了確認しない。"
   :type 'integer
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-core-emacs28)
 
 (if (fboundp #'w32-set-ime-open-status)
     (progn
@@ -189,21 +218,21 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-core)
 
 ;;
 ;; プレフィックスキー（C-x など）を検出して IME OFF するワークアラウンド
 ;;
 
 (defcustom w32-tr-ime-module-workaround-prefix-key-polling-time 0.1
-  "プレフィックスキー検出用ポーリング時間（秒）"
+  "プレフィックスキー検出ワークアラウンド用ポーリング時間（秒）"
   :type 'float
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-prefix-key)
 (defcustom w32-tr-ime-module-workaround-prefix-key-list
   '(?\C-x ?\C-h ?\C-c ?\e)
-  "プレフィックスキー検出検出対象リスト"
+  "プレフィックスキー検出ワークアラウンド用検出対象リスト"
   :type '(repeat integer)
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-prefix-key)
 
 (defvar w32-tr-ime-module-workaround-prefix-key-undetected-flag t
   "プレフィックスキー未検出フラグ")
@@ -287,7 +316,7 @@ bool が non-nil なら動作させる。nil なら停止させる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-prefix-key-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-prefix-key)
 
 ;;
 ;; IME 状態の食い違いを検出して修正するワークアラウンド
@@ -296,14 +325,14 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-polling-time 1.0
   "IME 状態食い違い検出修正用ポーリング時間（秒）"
   :type 'float
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-inconsist-ime)
 
 (defcustom
   w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
   "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-inconsist-ime)
 
 (defvar w32-tr-ime-module-workaround-inconsistent-ime-timer nil
   "IME 状態食い違い検出修正用タイマ")
@@ -329,7 +358,7 @@ w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
            (deactivate-input-method)))))
 
 (defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (symb bool)
-  "IME 状態食い違い検出修正のためのポーリングをするか否か設定する
+  "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か設定する
 
 bool が non-nil ならポーリングさせる。
 bool が nil なら停止させる。"
@@ -344,13 +373,13 @@ bool が nil なら停止させる。"
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
-  "IME 状態食い違い検出修正のためのポーリングをするか否か
+  "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set
-  :group 'w32-tr-ime-module)
+  :group 'w32-tr-ime-module-workaround-inconsist-ime)
 
 ;;
 ;; キー設定
