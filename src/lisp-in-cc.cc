@@ -499,8 +499,6 @@ emacs_value
 Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
                                emacs_value args[], void*)
 {
-  DEBUG_MESSAGE ("enter\n");
-
   if (nargs != 0)
     {
       WARNING_MESSAGE ("nargs != 0\n");

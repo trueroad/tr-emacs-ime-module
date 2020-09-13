@@ -135,6 +135,8 @@ subclass_proc::prefix_key::lisp_resume (void)
 
   if (hwnd_)
     {
+      DEBUG_MESSAGE ("resume\n");
+
       PostMessageW (hwnd_, u_WM_TR_IME_SET_OPEN_STATUS_,
                     b_before_ime_mode_, 0);
       hwnd_ = nullptr;
