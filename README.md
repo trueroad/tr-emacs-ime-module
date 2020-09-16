@@ -822,6 +822,10 @@ WM_INPUTLANGCHANGE による方法を模索しています
       次にフレームを切り替えた瞬間…、
       というのが交互に発生しているものと思います
 
+## News
+
+[NEWS.md](./NEWS.md)
+
 ## ライセンス
 
 Copyright (C) 2020 Masamichi Hosoda
