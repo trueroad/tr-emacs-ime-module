@@ -672,6 +672,70 @@ $ ../configure --host=x86_64-w64-mingw32 --with-emacs-module-hdir=`pwd`
 $ make install
 ```
 
+### バイナリリリースのビルド方法
+
+バイナリリリースは以下の方法でビルドしたものです。
+
+#### Cygwin 64 bit / 32 bit
+
+いずれも、Cygwin 64 bit / 32 bit の環境で、ソース配布ファイル
+tr-emacs-ime-module-VERSION.tar.gz
+を使って以下のようにしてビルドしました。
+
+```
+$ tar xfvz tr-emacs-ime-module-VERSION.tar.gz
+$ cd tr-emacs-ime-module-VERSION
+$ mkdir build
+$ cd build
+$ ../configure --enable-module2 --prefix=/usr
+$ make
+$ make install DESTDIR=`pwd`/tmp
+```
+
+#### MinGW 64 bit / 32 bit
+
+Cygwin 64 bit 環境でクロスコンパイルしました。
+また、libstdc++ などを静的リンクするために小細工をしています。
+（本当は GNU 公式バイナリの libstdc++-6.dll
+をそのまま使えるようにしたかったのですが、
+GCC のバージョンを下げてみるなどしてもうまくいかず…。
+Emacs の bin フォルダにある libstdc++-6.dll を最新のものに置き換えれば
+小細工しなくても動くのですが、それはそれで面倒だろうなと思いまして。
+また、小細工ではなく、正攻法で静的リンクしたかったのですが、
+そもそも DLL を作る際に、
+使用するライブラリを静的リンクすることは考慮されていないみたいで、
+どうにもなりませんでした。）
+
+```
+$ tar xfvz tr-emacs-ime-module-VERSION.tar.gz
+$ cd tr-emacs-ime-module-VERSION
+$ mkdir build
+$ cd build
+$ cp /usr/include/emacs-module.h .
+$ ../configure --enable-module2 --host=x86_64-w64-mingw32 \
+    --with-emacs-module-hdir=`pwd`
+$ sed -i -e '/^archive_cmds=/s/\\$deplibs/-Wl,-Bstatic,-lstdc++,-lgcc,-lgcc_eh,-Bdynamic \\$deplibs/' \
+         -e '/^postdeps=/s/-lstdc++ //' \
+         -e '/^postdeps=/s/-lgcc //g' \
+         -e '/^postdeps=/s/-lgcc_s //g' \
+         libtool
+$ make
+$ make install DESTDIR=`pwd`/tmp
+```
+
+なお、libwinpthread-1.dll は必要になっていますが、
+GNU 公式バイナリの依存関係の中に入っているものが使えるので、
+そのままで大丈夫のハズです。
+（いっそ libwinpthread-1.dll も静的リンクしようかと思ったのですが、
+残念ながらどうやってもうまくいかず…。
+これも「DLL を作る際に、
+使用するライブラリを静的リンクすることは考慮されていない」感じですし、
+もしかしたらスレッドローカルストレージ (TLS)
+関連の処理のために DLL でなければならないとかの理由もあるのかもしれません。）
+
+MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
+のところを `--host=i686-w64-mingw32` に変えただけです。
+
 ## 制約
 
 わかっているだけで以下のような制約があります。
