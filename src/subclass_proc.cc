@@ -263,13 +263,11 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
         DEBUG_MESSAGE_STATIC ("  LOGFONTW does not exist\n");
     }
 
-  auto r = DefSubclassProc (hwnd, umsg, wparam, lparam);
-
-  // The composition window position is set again after Emacs sets it.
   if (compform_.dwStyle)
     {
       if (!b_extra_start)
         DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM exists, set the position\n");
+
       himc_raii himc (hwnd);
       if (himc)
         {
@@ -280,6 +278,10 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
                                get_format_message (e) + "\n");
             }
         }
+
+      // Not using DefSubclassProc
+      // because it overwrites the composition window position.
+      return DefWindowProc (hwnd, umsg, wparam, lparam);
     }
   else
     {
@@ -287,7 +289,7 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
         DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM does not exist\n");
     }
 
-  return r;
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }
 
 #ifndef NDEBUG
