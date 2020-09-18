@@ -84,6 +84,9 @@ Module2 を使用する際のコア機能の設定です。
 (declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
                   arg11 arg12 arg13 arg14 arg15)
+(declare-function w32-tr-ime-set-startcomposition-defsubclassproc
+                  "tr-ime-module2"
+                  arg1 arg2)
 (declare-function w32-tr-ime-set-prefix-keys "tr-ime-module2"
                   arg1 arg2)
 (declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
@@ -460,6 +463,31 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-isearch-p-set
+  :group 'w32-tr-ime-module-isearch-mode)
+
+(defun w32-tr-ime-module-isearch-defsubclassproc-p-set (symb bool)
+  "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か設定する"
+  (w32-tr-ime-set-startcomposition-defsubclassproc
+   (string-to-number (frame-parameter nil 'window-id)) bool)
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-isearch-defsubclassproc-p nil
+  "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+WM_IME_STARTCOMPOSITION ハンドラにおいて、
+isearch-mode 中（未確定文字列ウィンドウの位置設定中）は
+DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップしている。
+これは Emacs で未確定文字列ウィンドウの位置を isearch-mode
+に入る前の文字入力位置に設定してしまうからで、
+この設定後に位置を上書きしても未確定文字列ウィンドウがチラつくからである。
+しかし、何らかの理由で元の Emacs の処理に戻さなければならない時は、
+本設定を non-nil にすることで isearch-mode 中であっても、
+DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになる。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-isearch-defsubclassproc-p-set
   :group 'w32-tr-ime-module-isearch-mode)
 
 ;;
