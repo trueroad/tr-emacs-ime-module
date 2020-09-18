@@ -495,6 +495,28 @@ isearch-mode 中の位置設定を無効にするには、以下のようにす�
 (custom-set-variables '(w32-tr-ime-module-isearch-p nil))
 ```
 
+#### WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か (Module2)
+
+WM_IME_STARTCOMPOSITION ハンドラにおいて、
+isearch-mode 中（未確定文字列ウィンドウの位置設定中）は
+DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップしています。
+これは Emacs が未確定文字列ウィンドウの位置を isearch-mode
+に入る前の文字入力位置に設定してしまうためです。
+しかし、何らかの理由で元の Emacs の処理に戻さなければならない時は、
+本設定を non-nil にすることで isearch-mode 中であっても、
+DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになります。
+その場合は Emacs の処理後に再度位置設定を行いますが、
+未確定文字列ウィンドウがチラついて見えることがあります。
+なお、isearch-mode 以外では本設定に関わらず、
+常に DefSubcalssProc を呼んで Emacs のメッセージ処理が行われます。
+
+何らかの理由で常に呼ぶようにするには、以下のようにすればできます
+（デフォルトは呼ばない）。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-isearch-defsubclassproc-p t)
+```
+
 ### プレフィックスキー検出 (Module2)
 
 コマンドのキーシーケンスになる最初のキーである
