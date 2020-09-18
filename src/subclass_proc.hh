@@ -25,6 +25,7 @@
 #ifndef INCLUDE_GUARD_SUBCLASS_PROC_HH
 #define INCLUDE_GUARD_SUBCLASS_PROC_HH
 
+#include <atomic>
 #include <mutex>
 #include <unordered_set>
 
@@ -51,6 +52,10 @@ public:
   static void lisp_resume_prefix_key (void)
   {
     prefix_key::lisp_resume ();
+  }
+  static void lisp_set_startcomposition_defsubclassproc (bool flag)
+  {
+    ab_startcomposition_defsubclassproc_.store (flag);
   }
 
 private:
@@ -82,6 +87,7 @@ private:
   static thread_local LOGFONTW lf_imefont_;
   static thread_local COMPOSITIONFORM compform_;
   static thread_local std::unordered_set<DWORD> prefix_keys_;
+  static std::atomic<bool> ab_startcomposition_defsubclassproc_;
 
 #ifndef NDEBUG
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;

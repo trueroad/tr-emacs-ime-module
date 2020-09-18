@@ -431,6 +431,43 @@ Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_set_startcomposition_defsubclassproc =
+  "Set whether or not the WM_IME_STARTCOMPOSITION always call DefSubclassProc"
+  "\n\n"
+  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
+  "WM_IME_STARTCOMPOSITION does not call DefSubclassProc when the \n"
+  "composition window is set. Otherwise, it always calls DefSubclassProc."
+  "\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-startcomposition_defsubclassproc\n"
+  "  (string-to-number (frame-parameter nil 'window-id)) nil)";
+
+emacs_value
+Fw32_tr_ime_set_startcomposition_defsubclassproc (emacs_env* env,
+                                                  ptrdiff_t nargs,
+                                                  emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 2)
+    {
+      WARNING_MESSAGE ("nargs != 2\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  bool b_set = env->is_not_nil (env, args[1]);
+  subclass_proc::lisp_set_startcomposition_defsubclassproc (b_set);
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_set_prefix_keys =
   "Set prefix keys to turn off IME\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"

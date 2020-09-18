@@ -24,6 +24,7 @@
 
 #include "subclass_proc.hh"
 
+#include <atomic>
 #include <mutex>
 #include <unordered_set>
 
@@ -41,6 +42,7 @@ bool subclass_proc::prefix_key::b_before_ime_mode_;
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
 thread_local std::unordered_set<DWORD> subclass_proc::prefix_keys_;
+std::atomic<bool> subclass_proc::ab_startcomposition_defsubclassproc_ {false};
 
 #ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
@@ -268,6 +270,14 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
       if (!b_extra_start)
         DEBUG_MESSAGE_STATIC ("  COMPOSITIONFORM exists, set the position\n");
 
+      LRESULT r;
+      auto b_defsubclassproc = ab_startcomposition_defsubclassproc_.load ();
+      if (b_defsubclassproc)
+        {
+          // Emacs will set the composition window position.
+          r = DefSubclassProc (hwnd, umsg, wparam, lparam);
+        }
+
       himc_raii himc (hwnd);
       if (himc)
         {
@@ -277,6 +287,12 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
               WARNING_MESSAGE ("ImmSetCompositionWindow failed:" +
                                get_format_message (e) + "\n");
             }
+        }
+
+      if (b_defsubclassproc)
+        {
+          // Just return because Emacs called DefWindowProc.
+          return r;
         }
 
       // Not using DefSubclassProc
