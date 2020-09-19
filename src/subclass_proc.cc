@@ -25,6 +25,7 @@
 #include "subclass_proc.hh"
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 #include <unordered_set>
 
@@ -34,6 +35,7 @@
 #include "debug-message.hh"
 #include "get_msg_proc.hh"
 #include "message.hh"
+#include "queue.hh"
 
 std::mutex subclass_proc::prefix_key::mtx_;
 HWND subclass_proc::prefix_key::hwnd_ {0};
@@ -227,6 +229,24 @@ subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::wm_ime_notify (HWND hwnd, UINT umsg,
+                              WPARAM wparam, LPARAM lparam)
+{
+  switch (wparam)
+    {
+    case IMN_SETOPENSTATUS:
+      DEBUG_MESSAGE ("WM_IME_NOTIFY: IMN_SETOPENSTATUS\n");
+
+      ui_to_lisp_queue::enqueue_one (std::make_unique<queue_message>
+                                     (queue_message::message::setopenstatus));
+      PostMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+      break;
+    }
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
 subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
                                         WPARAM wparam, LPARAM lparam)
 {
@@ -352,6 +372,9 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 
     case WM_KEYDOWN:
       return wm_keydown (hwnd, umsg, wparam, lparam);
+
+    case WM_IME_NOTIFY:
+      return wm_ime_notify (hwnd, umsg, wparam, lparam);
 
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);
