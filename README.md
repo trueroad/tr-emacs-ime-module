@@ -243,18 +243,22 @@ DLL はロードされません。
 #### 基本設定
 
 一部を除き IME パッチと同じような設定ができます。
-ただし `(global-set-key [M-kanji] 'ignore)` はしないでください。
+ただし Module1 のみ使用する場合は
+`(global-set-key [M-kanji] 'ignore)` をしないでください
+（Module2 なら問題ありません）。
 モジュール環境か IME パッチ環境かで設定を分けるならば、
 以下のようにしてください。（分ける必要が無ければ不要です。）
 
 ```el
-;; IME パッチ環境とモジュール環境で別々の設定をする
 (if (featurep 'tr-ime-module-helper)
-    (progn
-      ;; ダイナミックモジュール環境用
+    (if (featurep 'tr-ime-module-helper2)
+        (progn
+          ;; Module2 環境用
+          (global-set-key [M-kanji] 'ignore))
+      ;; Module1 環境用
       (global-set-key [M-kanji] 'toggle-input-method))
-    ;; IME パッチ環境用
-    (global-set-key [M-kanji] 'ignore))
+  ;; IME パッチ環境用
+  (global-set-key [M-kanji] 'ignore))
 ```
 
 あとはお好みで以下のような設定をします。
@@ -302,7 +306,7 @@ C-s (isearch-forward) などの IME パッチ向けの設定についてです�
 ほとんど害も無いので IME パッチ環境と共用の設定ファイルならば、
 書いておいても特に問題ないと思います。
 
-なお、isearch-mode 中に Alt + 半角/全角で IME ON/OFF するには、
+なお、Module1 で isearch-mode 中に Alt + 半角/全角で IME ON/OFF するには、
 
 ```
 (define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
@@ -863,6 +867,11 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
       Lisp から情報を UI スレッドへ戻して動作を継続する必要がある
       （一方通行ではなくて往復が必要になる）、
       というかなり困難な処理が必要です
+* Module2 で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
+  エコーエリアの表示が消えてしまう
+    * IME ON 後なら確定すると、IME OFF 後なら何か文字を入力すると、
+      表示されます
+    * C-\\ や半角/全角単独など、他の方法であれば問題ありません
 * 未確定文字列フォントの設定は Module2 でファミリとサイズのみ設定可能
     * 他の属性は単に実装していないだけです…
       無いと困るという方はいらっしゃいますか？どのような使い方でしょうか？
