@@ -311,8 +311,14 @@ Fw32_tr_ime_setopenstatus2 (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  SendMessageW (hwnd, u_WM_TR_IME_SET_OPEN_STATUS_,
-                env->is_not_nil (env, args[1]), 0);
+  auto r = SendMessageTimeoutW (hwnd, u_WM_TR_IME_SET_OPEN_STATUS_,
+                                env->is_not_nil (env, args[1]), 0,
+                                SMTO_NORMAL, 1000, nullptr);
+  if (r == 0 && GetLastError () == ERROR_TIMEOUT)
+    {
+      DEBUG_MESSAGE_STATIC ("  SendMessageTimeout: time out\n");
+      return env->intern (env, "nil");
+    }
 
   return env->intern (env, "t");
 }
@@ -344,7 +350,16 @@ Fw32_tr_ime_getopenstatus2 (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  if (SendMessageW (hwnd, u_WM_TR_IME_GET_OPEN_STATUS_, 0, 0))
+  DWORD_PTR result = 0;
+  auto r = SendMessageTimeoutW (hwnd, u_WM_TR_IME_GET_OPEN_STATUS_, 0, 0,
+                                SMTO_NORMAL, 1000, &result);
+  if (r == 0 && GetLastError () == ERROR_TIMEOUT)
+    {
+      DEBUG_MESSAGE_STATIC ("  SendMessageTimeout: time out\n");
+      return env->intern (env, "nil");
+    }
+
+  if (result)
     return env->intern (env, "t");
 
   return env->intern (env, "nil");
