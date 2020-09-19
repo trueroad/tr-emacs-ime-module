@@ -284,6 +284,72 @@ Fw32_tr_ime_set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_setopenstatus2 =
+  "Set IME open status to a frame\n\n"
+  "ARG1 is interpreted as HWND of the frame. If ARG2 is non-nil, turn on\n"
+  "IME. Otherwise, turn off IME.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-setopenstatus2\n"
+  " (string-to-number (frame-parameter nil 'window-id)) t)\n";
+
+emacs_value
+Fw32_tr_ime_setopenstatus2 (emacs_env* env, ptrdiff_t nargs,
+                            emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 2)
+    {
+      WARNING_MESSAGE ("nargs != 2\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  SendMessage (hwnd, u_WM_TR_IME_SET_OPEN_STATUS_,
+               env->is_not_nil (env, args[1]), 0);
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_getopenstatus2 =
+  "Get IME open status from a frame\n\n"
+  "ARG1 is interpreted as HWND of the frame. If IME is on, it returns\n"
+  "non-nil. Otherwise, it returns nil.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-getopenstatus2\n"
+  " (string-to-number (frame-parameter nil 'window-id)))\n";
+
+emacs_value
+Fw32_tr_ime_getopenstatus2 (emacs_env* env, ptrdiff_t nargs,
+                            emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  if (SendMessage (hwnd, u_WM_TR_IME_GET_OPEN_STATUS_, 0, 0))
+    return env->intern (env, "t");
+
+  return env->intern (env, "nil");
+}
+
 const char *doc_w32_tr_ime_set_font =
   "Set an IME font expressed in the LOGFONTW items to a frame\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"

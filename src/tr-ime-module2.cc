@@ -112,6 +112,14 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    1, 1, Fw32_tr_ime_set_dispatch_thread_message,
                    doc_w32_tr_ime_set_dispatch_thread_message,
                    nullptr);
+  regist_function (env, "w32-tr-ime-setopenstatus2",
+                   2, 2, Fw32_tr_ime_setopenstatus2,
+                   doc_w32_tr_ime_setopenstatus2,
+                   nullptr);
+  regist_function (env, "w32-tr-ime-getopenstatus2",
+                   1, 1, Fw32_tr_ime_getopenstatus2,
+                   doc_w32_tr_ime_getopenstatus2,
+                   nullptr);
   regist_function (env, "w32-tr-ime-set-font",
                    15, 15, Fw32_tr_ime_set_font,
                    doc_w32_tr_ime_set_font,
