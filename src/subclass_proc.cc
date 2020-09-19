@@ -220,7 +220,7 @@ subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
 
       if (prefix_keys_.find (key_code) != prefix_keys_.end ())
         {
-          DEBUG_MESSAGE ("WM_KEYDOWN: prefix key");
+          DEBUG_MESSAGE ("WM_KEYDOWN: prefix key\n");
           prefix_key::set (hwnd);
         }
     }

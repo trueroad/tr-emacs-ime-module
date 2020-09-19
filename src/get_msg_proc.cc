@@ -54,7 +54,7 @@ get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
       if (SetWindowSubclass (msg->hwnd, &subclass_proc::proc,
                              subclass_proc::get_subclass_id (), 0))
         {
-          DEBUG_MESSAGE_STATIC ("  SetWindowSubclass succeeded");
+          DEBUG_MESSAGE_STATIC ("  SetWindowSubclass succeeded\n");
           add_hwnd (msg->hwnd);
         }
       else
@@ -86,7 +86,7 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
       if (RemoveWindowSubclass (msg->hwnd, &subclass_proc::proc,
                                 subclass_proc::get_subclass_id ()))
         {
-          DEBUG_MESSAGE_STATIC ("  RemoveWindowSubclass succeeded");
+          DEBUG_MESSAGE_STATIC ("  RemoveWindowSubclass succeeded\n");
           remove_hwnd (msg->hwnd);
         }
       else

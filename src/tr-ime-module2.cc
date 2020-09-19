@@ -166,23 +166,23 @@ BOOL WINAPI DllMain (HINSTANCE, DWORD dwReason, LPVOID)
   switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
-      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_PROCESS_ATTACH");
+      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_PROCESS_ATTACH\n");
       break;
 
     case DLL_THREAD_ATTACH:
-      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_THREAD_ATTACH");
+      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_THREAD_ATTACH\n");
       break;
 
     case DLL_PROCESS_DETACH:
-      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_PROCESS_DETACH");
+      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_PROCESS_DETACH\n");
       break;
 
     case DLL_THREAD_DETACH:
-      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_THREAD_DETACH");
+      DEBUG_MESSAGE_STATIC ("debug: DllMain: DLL_THREAD_DETACH\n");
       break;
 
     default:
-      DEBUG_MESSAGE_STATIC ("debug: DllMain: dwReason is unknown");
+      DEBUG_MESSAGE_STATIC ("debug: DllMain: dwReason is unknown\n");
       break;
     }
 
