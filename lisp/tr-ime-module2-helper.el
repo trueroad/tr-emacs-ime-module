@@ -61,12 +61,6 @@ Module2 を使用する際のコア機能の設定です。
   :group 'w32-tr-ime-module)
 
 ;;
-;; Module1 がロードされていなければロードする
-;;
-
-(require 'tr-ime-module-helper)
-
-;;
 ;; C++ 実装による DLL をロードする
 ;;
 
@@ -100,6 +94,14 @@ Module2 を使用する際のコア機能の設定です。
 (declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
 (declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
+
+;;
+;; Module1 がロードされていなければロードする
+;;
+
+;; Module1 ヘルパのみロードして Module1 DLL はロードしない
+;; （Module1 ヘルパは Module2 DLL があると Module1 DLL をロードしない）
+(require 'tr-ime-module-helper)
 
 ;;
 ;; メッセージフックとサブクラス化

@@ -69,7 +69,8 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できます
 ;; Emacs 28 で導入された関数がある場合、
 ;; もしくは既に DLL モジュールがある場合はロードしない
 (unless (or (fboundp #'w32-get-ime-open-status)
-            (featurep 'tr-ime-module))
+            (featurep 'tr-ime-module)
+            (featurep 'tr-ime-module2))
   (load (concat "tr-ime-module-" system-configuration) t))
 
 (declare-function w32-tr-ime-setopenstatus "tr-ime-module"
