@@ -24,14 +24,18 @@
 
 #include "lisp-in-cc.hh"
 
+#include <array>
 #include <string>
 
 #include <windows.h>
+
+#include <emacs-module.h>
 
 #include "debug-message.hh"
 #include "get_msg_hook.hh"
 #include "get_msg_proc.hh"
 #include "message.hh"
+#include "queue.hh"
 #include "subclass_proc.hh"
 
 namespace
@@ -543,6 +547,57 @@ Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
     }
 
   subclass_proc::lisp_resume_prefix_key ();
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_language_change_handler =
+  "WM_INPUTLANGCHANGE special-event-map language-change handler\n\n"
+  "Check the queue from the UI thread. This function does nothing\n"
+  "if it's empty. This function is called from language-change in the\n"
+  "special-event-map.\n\n"
+  "Sample usage:\n"
+  "(define-key special-event-map [language-change]\n"
+  "  (lambda ()\n"
+  "    (interactive)\n"
+  "    (w32-tr-ime-language-change-handler)))";
+
+emacs_value
+Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
+                                     emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 0)
+    {
+      WARNING_MESSAGE ("nargs != 0\n");
+      return env->intern (env, "nil");
+    }
+
+  while (!ui_to_lisp_queue::empty ())
+    {
+      auto msg = ui_to_lisp_queue::dequeue ();
+      if (!msg)
+        return env->intern (env, "nil");
+
+      switch (msg->get_message ())
+        {
+        case queue_message::message::setopenstatus:
+          DEBUG_MESSAGE_STATIC ("  setopenstatus\n");
+          {
+            emacs_value run_hooks = env->intern (env, "run-hooks");
+            emacs_value hook_symbol
+              = env->intern (env, "w32-tr-ime-module-setopenstatus-hook");
+            std::array<emacs_value, 1> arg {hook_symbol};
+
+            env->funcall (env, run_hooks, arg.size (), arg.data ());
+          }
+          break;
+        default:
+          WARNING_MESSAGE ("unknown message\n");
+          break;
+        }
+    }
 
   return env->intern (env, "t");
 }

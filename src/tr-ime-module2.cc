@@ -132,6 +132,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    0, 0, Fw32_tr_ime_resume_prefix_key,
                    doc_w32_tr_ime_resume_prefix_key,
                    nullptr);
+  regist_function (env, "w32-tr-ime-language-change-handler",
+                   0, 0, Fw32_tr_ime_language_change_handler,
+                   doc_w32_tr_ime_language_change_handler,
+                   nullptr);
   regist_function (env, "w32-tr-ime-get-dpi",
                    0, 0, Fw32_tr_ime_get_dpi,
                    doc_w32_tr_ime_get_dpi,
