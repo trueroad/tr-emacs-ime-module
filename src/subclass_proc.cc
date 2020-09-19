@@ -45,6 +45,7 @@ thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
 thread_local std::unordered_set<DWORD> subclass_proc::prefix_keys_;
 std::atomic<bool> subclass_proc::ab_startcomposition_defsubclassproc_ {false};
+std::atomic<bool> subclass_proc::ab_last_ime_state_set_ {false};
 
 #ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
@@ -94,6 +95,8 @@ namespace
 {
   void ime_set_mode (HWND hwnd, bool bmode)
   {
+    subclass_proc::set_last_ime_state (bmode);
+
     himc_raii himc (hwnd);
     if (himc)
       {
@@ -237,9 +240,21 @@ subclass_proc::wm_ime_notify (HWND hwnd, UINT umsg,
     case IMN_SETOPENSTATUS:
       DEBUG_MESSAGE ("WM_IME_NOTIFY: IMN_SETOPENSTATUS\n");
 
-      ui_to_lisp_queue::enqueue_one (std::make_unique<queue_message>
-                                     (queue_message::message::setopenstatus));
-      PostMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+      auto bflag = ime_get_mode (hwnd);
+      if (ab_last_ime_state_set_.load () != bflag)
+        {
+          DEBUG_MESSAGE_STATIC ("  IME mode changed\n");
+          ab_last_ime_state_set_.store (bflag);
+
+          ui_to_lisp_queue::enqueue_one
+            (std::make_unique<queue_message>
+             (queue_message::message::setopenstatus));
+          PostMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+        }
+      else
+        {
+          DEBUG_MESSAGE_STATIC ("  IME mode not changed\n");
+        }
       break;
     }
 

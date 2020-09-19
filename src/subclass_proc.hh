@@ -58,6 +58,11 @@ public:
     ab_startcomposition_defsubclassproc_.store (flag);
   }
 
+  static void set_last_ime_state (bool flag)
+  {
+    ab_last_ime_state_set_.store (flag);
+  }
+
 private:
   class prefix_key
   {
@@ -89,6 +94,7 @@ private:
   static thread_local COMPOSITIONFORM compform_;
   static thread_local std::unordered_set<DWORD> prefix_keys_;
   static std::atomic<bool> ab_startcomposition_defsubclassproc_;
+  static std::atomic<bool> ab_last_ime_state_set_;
 
 #ifndef NDEBUG
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;
