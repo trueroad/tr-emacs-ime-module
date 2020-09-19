@@ -68,8 +68,8 @@ w32_tr_ime_setopenstatus
     }
 
   // PostMessage does not work.
-  LRESULT r = SendMessage (hwnd_ime, WM_IME_CONTROL,
-                           IMC_SETOPENSTATUS, (LPARAM)bopen);
+  LRESULT r = SendMessageW (hwnd_ime, WM_IME_CONTROL,
+                            IMC_SETOPENSTATUS, (LPARAM)bopen);
 
   if (r)
     {
@@ -107,8 +107,8 @@ w32_tr_ime_getopenstatus
       return env->intern (env, "nil");
     }
 
-  LRESULT r = SendMessage (hwnd_ime, WM_IME_CONTROL,
-                           IMC_GETOPENSTATUS, 0);
+  LRESULT r = SendMessageW (hwnd_ime, WM_IME_CONTROL,
+                            IMC_GETOPENSTATUS, 0);
 
   if (r)
     return env->intern (env, "t"); // IME on

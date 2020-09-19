@@ -104,8 +104,8 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
   if (bunsubclassify_all)
     {
       for (auto h: hwnds_)
-        PostMessage (h, u_WM_TR_IME_UNSUBCLASSIFY_,
-                     static_cast<WPARAM> (false), 0);
+        PostMessageW (h, u_WM_TR_IME_UNSUBCLASSIFY_,
+                      static_cast<WPARAM> (false), 0);
     }
 
   return CallNextHookEx (nullptr, code, wparam, lparam);
@@ -176,8 +176,8 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
       !find_exclude_hwnd (msg->hwnd) && !find_hwnd (msg->hwnd) &&
       is_target_class (msg->hwnd))
     {
-      PostMessage (msg->hwnd, u_WM_TR_IME_SUBCLASSIFY_,
-                   static_cast<WPARAM> (true), 0);
+      PostMessageW (msg->hwnd, u_WM_TR_IME_SUBCLASSIFY_,
+                    static_cast<WPARAM> (true), 0);
     }
 
   return CallNextHookEx (nullptr, code, wparam, lparam);

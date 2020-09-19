@@ -311,8 +311,8 @@ Fw32_tr_ime_setopenstatus2 (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  SendMessage (hwnd, u_WM_TR_IME_SET_OPEN_STATUS_,
-               env->is_not_nil (env, args[1]), 0);
+  SendMessageW (hwnd, u_WM_TR_IME_SET_OPEN_STATUS_,
+                env->is_not_nil (env, args[1]), 0);
 
   return env->intern (env, "t");
 }
@@ -344,7 +344,7 @@ Fw32_tr_ime_getopenstatus2 (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  if (SendMessage (hwnd, u_WM_TR_IME_GET_OPEN_STATUS_, 0, 0))
+  if (SendMessageW (hwnd, u_WM_TR_IME_GET_OPEN_STATUS_, 0, 0))
     return env->intern (env, "t");
 
   return env->intern (env, "nil");
@@ -429,7 +429,7 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
   wbuff.copy (logfont.lfFaceName,
               sizeof (logfont.lfFaceName) / sizeof (logfont.lfFaceName[0]));
 
-  SendMessage (hwnd, u_WM_TR_IME_SET_FONT_,
+  SendMessageW (hwnd, u_WM_TR_IME_SET_FONT_,
                reinterpret_cast<WPARAM> (&logfont), 0);
 
   return env->intern (env, "t");
@@ -495,8 +495,8 @@ Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
   compform.rcArea.bottom =
     static_cast<LONG> (env->extract_integer (env, args[7]));
 
-  SendMessage (hwnd, u_WM_TR_IME_SET_COMPOSITIONWINDOW_,
-               reinterpret_cast<WPARAM> (&compform), 0);
+  SendMessageW (hwnd, u_WM_TR_IME_SET_COMPOSITIONWINDOW_,
+                reinterpret_cast<WPARAM> (&compform), 0);
 
   return env->intern (env, "t");
 }
@@ -591,8 +591,8 @@ Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
       remain = env->funcall (env, cdr, arg.size (), arg.data ());
     }
 
-  SendMessage (hwnd, u_WM_TR_IME_SET_PREFIX_KEYS_,
-               reinterpret_cast<WPARAM> (&prefix_keys), 0);
+  SendMessageW (hwnd, u_WM_TR_IME_SET_PREFIX_KEYS_,
+                reinterpret_cast<WPARAM> (&prefix_keys), 0);
 
   return env->intern (env, "t");
 }
