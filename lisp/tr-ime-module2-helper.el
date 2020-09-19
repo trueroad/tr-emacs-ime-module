@@ -56,6 +56,10 @@ Module2 を使用する際のコア機能の設定です。
   "プレフィックスキー検出 (Module2)"
   :group 'w32-tr-ime-module)
 
+(defgroup w32-tr-ime-module-setopenstatus nil
+  "IME 状態変更通知による IM 状態同期 (Module2)"
+  :group 'w32-tr-ime-module)
+
 ;;
 ;; Module1 がロードされていなければロードする
 ;;
@@ -90,6 +94,7 @@ Module2 を使用する際のコア機能の設定です。
 (declare-function w32-tr-ime-set-prefix-keys "tr-ime-module2"
                   arg1 arg2)
 (declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
+(declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
 
 ;;
@@ -552,6 +557,69 @@ BOOL が nil ならフックから削除して停止する。"
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-prefix-key-p-set
   :group 'w32-tr-ime-module-prefix-key)
+
+;;
+;; IME 状態変更通知による IME/IM 状態同期
+;;
+
+(defvar w32-tr-ime-module-setopenstatus-hook nil
+  "IME 状態変更通知があったときに呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+(defcustom
+  w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
+  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :group 'w32-tr-ime-module-setopenstatus)
+
+(defun w32-tr-ime-module-setopenstatus-sync ()
+  "IME 状態変更通知時に呼ばれる関数
+
+w32-tr-ime-module-setopenstatus-call-hook-emulator-p
+が non-nil であれば、まずフックエミュレーション関数を呼ぶ。
+これによってウィンドウやバッファの切り替え未検出があったら、
+アブノーマルフックが呼ばれて、IME/IM 状態が整えられる。
+
+その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
+これにより、IME 側トリガの状態変更を IM に反映させる。"
+  (when w32-tr-ime-module-setopenstatus-call-hook-emulator-p
+    (w32-tr-ime-module-hook-emulator))
+  (let ((ime-status (ime-get-mode)))
+    (cond ((and ime-status
+                (not current-input-method))
+           (activate-input-method "W32-IME"))
+          ((and (not ime-status)
+                current-input-method)
+           (deactivate-input-method)))))
+
+(defun w32-tr-ime-module-setopenstatus-sync-p-set (symb bool)
+  "IME 状態変更通知による IM 状態同期をするか否か設定する"
+  (if bool
+      (progn
+        (custom-set-variables
+         '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
+        (add-hook 'w32-tr-ime-module-setopenstatus-hook
+                  #'w32-tr-ime-module-setopenstatus-sync)
+        (define-key special-event-map [language-change]
+          (lambda ()
+            (interactive)
+            (w32-tr-ime-language-change-handler))))
+    (define-key special-event-map [language-change] 'ignore)
+    (remove-hook 'w32-tr-ime-module-setopenstatus-hook
+                 #'w32-tr-ime-module-setopenstatus-sync))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-setopenstatus-sync-p t
+  "IME 状態変更通知による IM 状態同期をするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-setopenstatus-sync-p-set
+  :group 'w32-tr-ime-module-setopenstatus)
 
 ;;
 ;; provide
