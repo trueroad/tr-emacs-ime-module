@@ -83,6 +83,10 @@ Module2 を使用する際のコア機能の設定です。
                   arg1 &optional arg2)
 (declare-function w32-tr-ime-set-dispatch-thread-message "tr-ime-module2"
                   arg1)
+(declare-function w32-tr-ime-setopenstatus2 "tr-ime-module2"
+                  arg1 arg2)
+(declare-function w32-tr-ime-getopenstatus2 "tr-ime-module2"
+                  arg1)
 (declare-function w32-tr-ime-set-font "tr-ime-module2"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8)
 (declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
@@ -188,6 +192,32 @@ Emacs の動作がおかしくなってしまう。"
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-dispatch-thread-message-p-set
   :group 'w32-tr-ime-module-core-module2)
+
+;;
+;; IME 状態変更・状態取得関数のエミュレーション
+;;
+
+(defun ime-force-on (&optional _dummy)
+  "IME を ON にする関数
+
+Module2 で IME パッチの ime-force-on をエミュレーションする。"
+  (w32-tr-ime-setopenstatus2
+   (string-to-number (frame-parameter nil 'window-id)) t))
+
+(defun ime-force-off (&optional _dummy)
+  "IME を OFF にする関数
+
+Module2 で IME パッチの ime-force-off をエミュレーションする。"
+  (w32-tr-ime-setopenstatus2
+   (string-to-number (frame-parameter nil 'window-id)) nil))
+
+(defun ime-get-mode ()
+  "IME 状態を返す関数
+
+Module2 で IME パッチの ime-get-mode をエミュレーションする。
+IME が OFF なら nil を、ON ならそれ以外を返す。"
+  (w32-tr-ime-getopenstatus2
+   (string-to-number (frame-parameter nil 'window-id))))
 
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
