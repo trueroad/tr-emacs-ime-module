@@ -654,6 +654,16 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
   :group 'w32-tr-ime-module-setopenstatus)
 
 ;;
+;; キー設定
+;;
+
+;; Alt + 半角全角の設定
+(define-key global-map [M-kanji] 'ignore)
+
+;; C-s (isearch-forward) などでの Alt + 半角全角の設定
+(define-key isearch-mode-map [M-kanji] 'ignore)
+
+;;
 ;; provide
 ;;
 
