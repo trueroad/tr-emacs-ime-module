@@ -40,7 +40,7 @@
 (defgroup w32-tr-ime-module-core-emacs28 nil
   "Emacs 28 以降向け設定
 
-Emacs 28 以降を使用する際のコア機能の設定です。
+Emacs 28 以降で Module2 を使わない場合のコア機能の設定です。
 通常は設定変更しないでください。"
   :group 'w32-tr-ime-module-core)
 
@@ -56,7 +56,10 @@ Module2 のプレフィックスキー検出を使ってください。"
   :group 'w32-tr-ime-module-workaround)
 
 (defgroup w32-tr-ime-module-workaround-inconsist-ime nil
-  "IME 状態食い違い検出"
+  "IME 状態食い違い検出
+
+Module2 を使用するなら、このワークアラウンドではなく
+Module2 の IME 状態変更通知による IM 状態同期が利用できます。"
   :group 'w32-tr-ime-module-workaround)
 
 ;;
@@ -87,7 +90,8 @@ Module2 のプレフィックスキー検出を使ってください。"
 (defcustom w32-tr-ime-module-set-ime-open-check-counter 3
   "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限
 
-GNU Emacs 28 では IME 状態変更関数 w32-set-ime-open-status を使うが、
+GNU Emacs 28 で Module 2 を使わない場合は
+IME 状態変更関数 w32-set-ime-open-status を使うが、
 これを呼んだ直後に IME 状態確認関数 w32-get-ime-open-status を呼んでも、
 状態変更前を示す返り値が得られることがある。
 そこで、ここで設定した回数を上限として状態変更が完了するまで確認する。
