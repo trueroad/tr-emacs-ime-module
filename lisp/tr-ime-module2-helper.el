@@ -258,6 +258,17 @@ IME が OFF なら nil を、ON ならそれ以外を返す。"
 	  ((>= weight 20) 100)  ;; FW_THIN
 	  (t 0))))
 
+(defun w32-tr-ime-font-encode-slant (symb)
+  "フェイス属性の slant から LOGFONT 構造体の lfItalic へ変換する"
+  (let* ((result
+	  (seq-drop-while
+	   (lambda (x)
+	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) [] ))
+	   font-slant-table))
+         (slant
+	  (if (eq result []) 100 (aref (aref result 0) 0))))
+    (if (> slant 150) t nil)))
+
 (defun w32-tr-ime-reflect-frame-parameter-ime-font (&optional frame)
   "フレームの ime-font 設定をモジュールのフォント設定に反映させる
 
@@ -306,7 +317,8 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
               (frame-parameter frame 'window-id))
              h 0 0 0
              (w32-tr-ime-font-encode-weight (plist-get attributes :weight))
-             nil nil nil 0 0 0 0 0 family)))))))
+             (w32-tr-ime-font-encode-slant (plist-get attributes :slant))
+             nil nil 0 0 0 0 0 family)))))))
 
 (defvar w32-tr-ime-module-last-ime-font nil
   "未確定文字列フォント変更検出用")
