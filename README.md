@@ -436,6 +436,63 @@ Emacs の動作がおかしくなると思います。
 (custom-set-variables '(w32-tr-ime-module-dispatch-thread-message-p nil))
 ```
 
+#### UI スレッドからの通知を Lisp で受け取る
+
+UI スレッドにきた通知を Lisp 側で受け取る機構です。
+
+本機能の動作の仕組みとしては、まず
+UI スレッドに通知すべきメッセージがきたら、
+UI スレッドから Lisp スレッドへの、本モジュール内部専用のキューに、
+その旨のメッセージを格納してから WM_INPUTLANGCHANGE を post/send します。
+これにより Lisp 側で language-change イベントが発生します。
+このイベントを受けて Module2 の C++ 実装にある
+`w32-tr-ime-language-change-handler` 関数を呼びます。
+この関数は内部専用キューからメッセージを取り出し、
+その種類に応じてノーマルフックを呼び出すなどの動作を行います。
+
+この中で、language-change イベントの発生を受けて、
+`w32-tr-ime-language-change-handler` 関数を呼ぶところについて、
+以下のような設定を行っています。
+
+```el
+(define-key special-event-map [language-change]
+  (lambda ()
+    (interactive)
+    (w32-tr-ime-language-change-handler))))
+```
+
+本モジュールとは別の language-change イベントを使うツール類と
+共存させたい場合は、上記設定をうまく調整してください。
+本モジュールの `w32-tr-ime-language-change-handler` 関数は、
+内部専用キューが空であれば何もしませんので、
+イベントが来たらとにかく呼ばれるようになっていればよいです。
+他のツール類が発生させた language-change イベントの際に
+一緒に呼んでしまって構いません。
+
+本機能では、上記の通り
+UI スレッドにきた通知を Lisp 側へ通知する動作をしていますが、
+これがかなり困難でした。
+IME パッチは C 実装でメッセージ処理を追加して、
+kanji キーのイベントという形で通知しているようです。
+当初、これと同じような処理にするため、WM_KEYDOWN, WM_KEYUP で VK_KANJI を
+PostMessage する方法を思いついたのですが、修飾キーがあるとおかしくなり、
+一筋縄ではいきませんでした。
+一方、w32-imeadv は別プロセスを経由して通知するという
+かなり大がかりで複雑な機構を採用しています。
+結局色々調べて、
+ダイナミックモジュールの情報が集まったページ
+](https://github.com/jkitchin/emacs-modules) からリンクが貼られていた[
+Asynchronous Requests from Emacs Dynamic Modules
+](https://nullprogram.com/blog/2017/02/14/)を参考に、
+上記のような WM_INPUTLANGCHANGE による方法を実装しました。
+
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-recv-from-ui-thread-p nil))
+```
+
 ### IME フォント (Module2)
 
 IME パッチではフレームパラーメータの `ime-font` 設定を変更すると、
@@ -592,52 +649,14 @@ Module2 の本機能はタイマを使わないためタイミング的にも負
 本機能を有効にすると Module1 のワークアラウンドによる
 食い違い検出は無効になります。
 
-本機能の動作の仕組みとしては、まず
+本機能は、
 UI スレッドに WM_IME_NOTIFY IMN_SETOPENSTATUS がきたら、
-UI スレッドから Lisp スレッドへの、本モジュール内部専用のキューに、
-その旨のメッセージを格納し WM_INPUTLANGCHANGE を post します。
-これにより Lisp 側で language-change イベントが発生します。
-このイベントを受けて Module2 の C++ 実装にある
-`w32-tr-ime-language-change-handler` 関数を呼ぶと、
-内部専用キューからメッセージを取り出し、それが setopenstatus であれば
+UI スレッドからの通知を Lisp で受け取る機構を利用して
+setopenstatus を内部専用キューに格納して通知し、
+`w32-tr-ime-language-change-handler` 関数が、
+内部専用キューから setopenstatus を受け取ると、
 ノーマルフック `w32-tr-ime-module-setopenstatus-hook` を呼び出し、
 そこで一連の IME/IM 同期の動作が行われるようになっています。
-
-この中で、language-change イベントの発生を受けて、
-`w32-tr-ime-language-change-handler` 関数を呼ぶところについて、
-以下のような設定を行っています。
-
-```el
-(define-key special-event-map [language-change]
-  (lambda ()
-    (interactive)
-    (w32-tr-ime-language-change-handler))))
-```
-
-本モジュールとは別の language-change イベントを使うツール類と
-共存させたい場合は、上記設定をうまく調整してください。
-本モジュールの `w32-tr-ime-language-change-handler` 関数は、
-内部専用キューが空であれば何もしませんので、
-イベントが来たらとにかく呼ばれるようになっていればよいです。
-他のツール類が発生させた language-change イベントの際に
-一緒に呼んでしまって構いません。
-
-本機能では、上記の通り
-UI スレッドにきた通知を Lisp 側へ通知する動作をしていますが、
-これがかなり困難でした。
-IME パッチは C 実装でメッセージ処理を追加して、
-kanji キーのイベントという形で通知しているようです。
-当初、これと同じような処理にするため、WM_KEYDOWN, WM_KEYUP で VK_KANJI を
-PostMessage する方法を思いついたのですが、修飾キーがあるとおかしくなり、
-一筋縄ではいきませんでした。
-一方、w32-imeadv は別プロセスを経由して通知するという
-かなり大がかりで複雑な機構を採用しています。
-結局色々調べて、
-ダイナミックモジュールの情報が集まったページ
-](https://github.com/jkitchin/emacs-modules) からリンクが貼られていた[
-Asynchronous Requests from Emacs Dynamic Modules
-](https://nullprogram.com/blog/2017/02/14/)を参考に、
-上記のような WM_INPUTLANGCHANGE による方法を実装しました。
 
 #### IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
 
