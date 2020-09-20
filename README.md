@@ -168,7 +168,7 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 Module2 の機能は以下の通りです。
 
-* すべての IME ON/OFF 方法に対応
+* すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
     * Module1 だけでは Alt + 半角/全角キー（もしくは C-\\）による
       IME ON/OFF のみ対応しており、
       半角/全角キー単独やマウスで切り替えた場合には IM
