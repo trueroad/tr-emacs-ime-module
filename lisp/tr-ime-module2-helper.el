@@ -210,6 +210,30 @@ Emacs の動作がおかしくなってしまう。"
   :group 'w32-tr-ime-module-core-module2)
 
 ;;
+;; UI スレッドからの通知を Lisp で受け取る
+;;
+
+(defun w32-tr-ime-module-recv-from-ui-thread-p-set (symb bool)
+  "UI スレッドからの通知を Lisp で受け取るか否か設定する"
+  (if bool
+      (progn
+        (define-key special-event-map [language-change]
+          (lambda ()
+            (interactive)
+            (w32-tr-ime-language-change-handler))))
+    (define-key special-event-map [language-change] 'ignore))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-recv-from-ui-thread-p t
+  "UI スレッドからの通知を Lisp で受け取るか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-recv-from-ui-thread-p-set
+  :group 'w32-tr-ime-module-core-module2)
+
+;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
@@ -725,12 +749,7 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
         (custom-set-variables
          '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
         (add-hook 'w32-tr-ime-module-setopenstatus-hook
-                  #'w32-tr-ime-module-setopenstatus-sync)
-        (define-key special-event-map [language-change]
-          (lambda ()
-            (interactive)
-            (w32-tr-ime-language-change-handler))))
-    (define-key special-event-map [language-change] 'ignore)
+                  #'w32-tr-ime-module-setopenstatus-sync))
     (remove-hook 'w32-tr-ime-module-setopenstatus-hook
                  #'w32-tr-ime-module-setopenstatus-sync))
   (set-default symb bool))
