@@ -276,7 +276,7 @@ FRAME の frame-parameter から ime-font 設定を読み取り、
 モジュールで C++ 実装されている低レベルフォント設定関数
 w32-tr-ime-set-font を使って未確定文字列のフォントを設定する。
 FRAME が nil または省略された場合は選択されているフレームが対象となる。
-現状では family と height のみが設定され、他の属性は無視される。
+family に generic family を指定することはできない。
 
 IME パッチではフレームの ime-font 設定を変更すると即座に反映されるが、
 モジュール環境では、フレームの ime-font 設定と、
