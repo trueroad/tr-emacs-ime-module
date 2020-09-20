@@ -705,6 +705,50 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_notify_reconvert_string =
+  "Notify reconvert string to UI thread\n\n"
+  "ARG1 is interpreted as HWND of the frame. ARG2 is a string of the line\n"
+  "where the point exists. ARG3 is the position of the point counting from\n"
+  "the beginning of the string. If the point is at the beginning of the\n"
+  "string, it is zero.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-notify-reconvert-string\n"
+  " (string-to-number (frame-parameter nil 'window-id))\n"
+  " (buffer-substring-no-properties\n"
+  "  (line-beginning-position) (line-end-position))\n"
+  " (- (point) (line-beginning-position)))";
+
+emacs_value
+Fw32_tr_ime_notify_reconvert_string (emacs_env* env, ptrdiff_t nargs,
+                                     emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 3)
+    {
+      WARNING_MESSAGE ("nargs != 3\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  auto buff = to_string (env, args[1]);
+  auto wbuff = to_wstring (buff);
+
+  auto point =
+    static_cast<LPARAM> (env->extract_integer (env, args[2]));
+
+  SendMessage (hwnd, u_WM_TR_IME_NOTIFY_RECONVERT_STRING_,
+               reinterpret_cast<WPARAM> (wbuff.c_str ()), point);
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_get_dpi =
   "Get DPI of the desktop\n\n"
   "The return value is a cons containing the DPI in the x and y directions.";
