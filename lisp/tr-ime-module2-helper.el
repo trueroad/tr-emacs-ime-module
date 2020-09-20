@@ -60,6 +60,14 @@ Module2 を使用する際のコア機能の設定です。
   "IME 状態変更通知による IM 状態同期 (Module2)"
   :group 'w32-tr-ime-module)
 
+(defgroup w32-tr-ime-module-workaround nil
+  "ワークアラウンド設定"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-workaround-isearch-mode nil
+  "isearch-mode (Module2)"
+  :group 'w32-tr-ime-module-workaround)
+
 ;;
 ;; C++ 実装による DLL をロードする
 ;;
@@ -528,6 +536,50 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
   :group 'w32-tr-ime-module-isearch-mode)
 
 ;;
+;; isearch-mode 時の Alt + 半角/全角ワークアラウンド
+;;
+
+(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update ()
+  "アイドル状態になったら isearch-mode のエコーエリアを再表示する
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう。
+キー操作時に再表示させても効果が無い
+（恐らくキー操作後にくるイベントか何かで消されている）ので、
+Emacs がアイドル状態になったら動作するタイマで再表示させる。"
+  (interactive)
+  (run-with-idle-timer 0.0001 nil #'isearch-update))
+
+(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
+    (symb bool)
+  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か設定
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう対策のワークアラウンドを動作させるか否か
+設定する。
+bool が non-nil なら動作させる。それ以外なら停止させる。"
+  (if bool
+      (define-key isearch-mode-map [M-kanji]
+        'w32-tr-ime-module-workaround-isearch-mode-delayed-update)
+    (define-key isearch-mode-map [M-kanji] 'ignore))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-p t
+  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう。
+キー操作時に再表示させても効果が無い
+（恐らくキー操作後にくるイベントか何かで消されている）ので、
+Emacs がアイドル状態になったら動作するタイマで再表示させるワークアラウンド。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
+  :group 'w32-tr-ime-module-workaround-isearch-mode)
+
+;;
 ;; プレフィックスキー（C-x など）を検出して自動的に IME OFF する
 ;;
 
@@ -660,8 +712,8 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
 ;; Alt + 半角全角の設定
 (define-key global-map [M-kanji] 'ignore)
 
-;; C-s (isearch-forward) などでの Alt + 半角全角の設定
-(define-key isearch-mode-map [M-kanji] 'ignore)
+;; C-s (isearch-forward) などでの Alt + 半角全角の設定は
+;; ワークアラウンドの中で実施済
 
 ;;
 ;; provide
