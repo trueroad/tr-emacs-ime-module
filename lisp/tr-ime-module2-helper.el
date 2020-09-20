@@ -318,7 +318,7 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
              h 0 0 0
              (w32-tr-ime-font-encode-weight (plist-get attributes :weight))
              (w32-tr-ime-font-encode-slant (plist-get attributes :slant))
-             nil nil 0 0 0 0 0 family)))))))
+             nil nil 1 0 0 0 0 family)))))))
 
 (defvar w32-tr-ime-module-last-ime-font nil
   "未確定文字列フォント変更検出用")
