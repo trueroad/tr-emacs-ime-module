@@ -83,6 +83,7 @@ private:
 
   static LRESULT wm_keydown (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_notify (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT wm_ime_request (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
 
 #ifndef NDEBUG

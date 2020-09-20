@@ -262,6 +262,34 @@ subclass_proc::wm_ime_notify (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
+                               WPARAM wparam, LPARAM lparam)
+{
+  switch (wparam)
+    {
+    case IMR_RECONVERTSTRING:
+      DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_RECONVERTSTRING\n");
+
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::reconvertstring));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+      break;
+
+    case IMR_DOCUMENTFEED:
+      DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_DOCUMENTFEED\n");
+
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::documentfeed));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+      break;
+    }
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
 subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
                                         WPARAM wparam, LPARAM lparam)
 {
@@ -390,6 +418,9 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 
     case WM_IME_NOTIFY:
       return wm_ime_notify (hwnd, umsg, wparam, lparam);
+
+    case WM_IME_REQUEST:
+      return wm_ime_request (hwnd, umsg, wparam, lparam);
 
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);

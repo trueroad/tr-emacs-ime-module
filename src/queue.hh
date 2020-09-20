@@ -32,7 +32,7 @@
 class queue_message
 {
 public:
-  enum class message { setopenstatus };
+  enum class message { setopenstatus, reconvertstring, documentfeed };
 
   explicit queue_message (message msg):
     message_ (msg)

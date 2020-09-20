@@ -674,6 +674,28 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
             env->funcall (env, run_hooks, arg.size (), arg.data ());
           }
           break;
+        case queue_message::message::reconvertstring:
+          DEBUG_MESSAGE_STATIC ("  reconvertstring\n");
+          {
+            emacs_value run_hooks = env->intern (env, "run-hooks");
+            emacs_value hook_symbol
+              = env->intern (env, "w32-tr-ime-module-reconvertstring-hook");
+            std::array<emacs_value, 1> arg {hook_symbol};
+
+            env->funcall (env, run_hooks, arg.size (), arg.data ());
+          }
+          break;
+        case queue_message::message::documentfeed:
+          DEBUG_MESSAGE_STATIC ("  documentfeed\n");
+          {
+            emacs_value run_hooks = env->intern (env, "run-hooks");
+            emacs_value hook_symbol
+              = env->intern (env, "w32-tr-ime-module-documentfeed-hook");
+            std::array<emacs_value, 1> arg {hook_symbol};
+
+            env->funcall (env, run_hooks, arg.size (), arg.data ());
+          }
+          break;
         default:
           WARNING_MESSAGE ("unknown message\n");
           break;

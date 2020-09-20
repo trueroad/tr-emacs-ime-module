@@ -764,6 +764,26 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
   :group 'w32-tr-ime-module-setopenstatus)
 
 ;;
+;; 再変換 (RECONVERSION)
+;;
+
+(defvar w32-tr-ime-module-reconvertstring-hook nil
+  "WM_IME_REQUEST IMR_RECONVERTSTRING が来た時に呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+;;
+;; 前後の確定済文字列を参照した変換 (DOCUMENTFEED)
+;;
+
+(defvar w32-tr-ime-module-documentfeed-hook nil
+  "WM_IME_REQUEST IMR_DOCUMENTFEED が来た時に呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+;;
 ;; キー設定
 ;;
 
