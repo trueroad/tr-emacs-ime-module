@@ -118,6 +118,7 @@ private:
   };
 
   static bool wait_message (HWND, std::function<bool(void)>);
+  static bool set_reconvert_string (RECONVERTSTRING*);
 
   static LRESULT wm_tr_ime_set_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_get_open_status (HWND, UINT, WPARAM, LPARAM);

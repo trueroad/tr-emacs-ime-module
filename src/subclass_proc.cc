@@ -211,6 +211,42 @@ subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
   return false;
 }
 
+bool
+subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
+{
+  auto size = sizeof (RECONVERTSTRING) +
+    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
+
+  if (rs->dwSize < size)
+    {
+      WARNING_MESSAGE ("size over\n");
+      return false;
+    }
+
+  // Len: WCHAR count, Offset: byte count
+  // dwStrOffset: buffer offset from beginning of the struct
+  // dw{Comp|Target}Offset: from beginning of the buffer
+  rs->dwSize = size;
+  rs->dwVersion = 0;
+  rs->dwStrLen = reconvert_string::get_wbuff ().size ();
+  rs->dwStrOffset = sizeof (RECONVERTSTRING);
+  rs->dwCompStrLen = 0;
+  // *** FIX ME *** surrogate pair
+  rs->dwCompStrOffset =
+    reconvert_string::get_point () * sizeof (WCHAR);
+  rs->dwTargetStrLen = 0;
+  rs->dwTargetStrOffset = rs->dwCompStrOffset;
+
+  auto *rs_buff = reinterpret_cast<WCHAR*>
+    (reinterpret_cast<unsigned char*> (rs) +
+     sizeof (RECONVERTSTRING));
+  std::copy (reconvert_string::get_wbuff ().begin (),
+             reconvert_string::get_wbuff ().end (),
+             rs_buff);
+
+  return true;
+}
+
 LRESULT
 subclass_proc::wm_tr_ime_set_open_status (HWND hwnd, UINT umsg,
                                           WPARAM wparam, LPARAM lparam)
@@ -360,15 +396,37 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
         {
           DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_RECONVERTSTRING\n");
 
-          ui_to_lisp_queue::enqueue_one
-            (std::make_unique<queue_message>
-             (queue_message::message::reconvertstring));
-          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+          if (!lparam)
+            {
+              reconvert_string::clear ();
 
-          if (!wait_message (hwnd, &reconvert_string::isset))
-            return 0;
+              ui_to_lisp_queue::enqueue_one
+                (std::make_unique<queue_message>
+                 (queue_message::message::reconvertstring));
+              SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
 
-          reconvert_string::clear ();
+              if (!wait_message (hwnd, &reconvert_string::isset))
+                return 0;
+            }
+          if (!reconvert_string::isset ())
+            {
+              WARNING_MESSAGE
+                ("IMR_RECONVERTSTRING: no reconvert string\n");
+              return 0;
+            }
+
+          LRESULT retval = sizeof (RECONVERTSTRING) +
+            (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
+          if (lparam)
+            {
+              auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+              if (!set_reconvert_string (rs))
+                return 0;
+
+              reconvert_string::clear ();
+            }
+
+          return retval;
         }
       break;
 
@@ -377,15 +435,36 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
         {
           DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_DOCUMENTFEED\n");
 
-          ui_to_lisp_queue::enqueue_one
-            (std::make_unique<queue_message>
-             (queue_message::message::documentfeed));
-          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+          if (!lparam)
+            {
+              reconvert_string::clear ();
 
-          if (!wait_message (hwnd, &reconvert_string::isset))
-            return 0;
+              ui_to_lisp_queue::enqueue_one
+                (std::make_unique<queue_message>
+                 (queue_message::message::documentfeed));
+              SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
 
-          reconvert_string::clear ();
+              if (!wait_message (hwnd, &reconvert_string::isset))
+                return 0;
+            }
+          if (!reconvert_string::isset ())
+            {
+              WARNING_MESSAGE ("IMR_DOCUMENTFEED: no reconvert string\n");
+              return 0;
+            }
+
+          LRESULT retval = sizeof (RECONVERTSTRING) +
+            (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
+          if (lparam)
+            {
+              auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+              if (!set_reconvert_string (rs))
+                return 0;
+
+              reconvert_string::clear ();
+            }
+
+          return retval;
         }
       break;
     }
