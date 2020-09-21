@@ -120,6 +120,10 @@ private:
   static bool wait_message (HWND, std::function<bool(void)>);
   static bool set_reconvert_string (RECONVERTSTRING*);
 
+#ifndef NDEBUG
+  static void debug_output_reconvert_string (RECONVERTSTRING*);
+#endif
+
   static LRESULT wm_tr_ime_set_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_get_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);

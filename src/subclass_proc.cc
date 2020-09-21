@@ -247,6 +247,31 @@ subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
   return true;
 }
 
+#ifndef NDEBUG
+void
+subclass_proc::debug_output_reconvert_string (RECONVERTSTRING *rs)
+{
+  std::stringstream ss;
+
+  ss << "---RECONVERTSTRING---" << std::endl
+     << "  dwSize           : " << rs->dwSize << std::endl
+     << "  dwVersion        : " << rs->dwVersion << std::endl
+     << "  dwStrLen         : " << rs->dwStrLen << std::endl
+     << "  dwStrOffset      : " << rs->dwStrOffset << std::endl
+     << "  dwCompStrLen     : " << rs->dwCompStrLen << std::endl
+     << "  dwCompStrOffset  : " << rs->dwCompStrOffset << std::endl
+     << "  dwTargetStrLen   : " << rs->dwTargetStrLen << std::endl
+     << "  dwTargetStrOffset: " << rs->dwTargetStrOffset << std::endl;
+  OutputDebugStringA (ss.str ().c_str ());
+
+  auto *buff = reinterpret_cast<WCHAR*>
+    (reinterpret_cast<unsigned char*> (rs) + sizeof (RECONVERTSTRING));
+  std::basic_string<WCHAR> str (buff, rs->dwStrLen);
+  str = L"  buff = \"" + str + L"\"\n";
+  OutputDebugStringW (str.c_str ());
+}
+#endif // NDEBUG
+
 LRESULT
 subclass_proc::wm_tr_ime_set_open_status (HWND hwnd, UINT umsg,
                                           WPARAM wparam, LPARAM lparam)
@@ -422,7 +447,9 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
               auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
               if (!set_reconvert_string (rs))
                 return 0;
-
+#ifndef NDEBUG
+              debug_output_reconvert_string (rs);
+#endif
               reconvert_string::clear ();
             }
 
@@ -460,7 +487,9 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
               auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
               if (!set_reconvert_string (rs))
                 return 0;
-
+#ifndef NDEBUG
+              debug_output_reconvert_string (rs);
+#endif
               reconvert_string::clear ();
             }
 
