@@ -399,98 +399,100 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
 
   LRESULT retval = sizeof (RECONVERTSTRING) +
     (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
-  if (lparam)
+
+  if (!lparam)
     {
-      auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
-      if (!set_reconvert_string (rs))
-        return 0;
+      DEBUG_MESSAGE_STATIC
+        ("IMR_RECONVERTSTRING: first attempt succeeded\n");
+      return retval;
+    }
+
+  DEBUG_MESSAGE_STATIC ("IMR_RECONVERTSTRING: second attempt...\n");
+
+  auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+  if (!set_reconvert_string (rs))
+    return 0;
 
 #ifndef NDEBUG
-      debug_output_reconvert_string (rs);
+  debug_output_reconvert_string (rs);
 #endif
 
-      auto before_offset = rs->dwCompStrOffset;
-      himc_raii himc (hwnd);
-      if (!himc)
-        return 0;
+  auto before_offset = rs->dwCompStrOffset;
 
-      if (ImmSetCompositionStringW (himc.get (),
-                                    SCS_QUERYRECONVERTSTRING,
-                                    rs, rs->dwSize, nullptr, 0))
-        {
-          DEBUG_MESSAGE_STATIC
-            ("  SCS_QUERYRECONVERTSTRING succeeded\n");
-        }
-      else
-        {
-          WARNING_MESSAGE
-            ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
-             " failed\n");
-          return 0;
-        }
+  himc_raii himc (hwnd);
+  if (!himc)
+    return 0;
 
-#ifndef NDEBUG
-      debug_output_reconvert_string (rs);
-#endif
-
-      if (before_offset > rs->dwCompStrOffset)
-        {
-          auto *p = reinterpret_cast<WCHAR*>
-            (reinterpret_cast <unsigned char*> (rs) +
-             rs->dwStrOffset + rs->dwCompStrOffset);
-          auto *end = reinterpret_cast<WCHAR*>
-            (reinterpret_cast <unsigned char*> (rs) +
-             rs->dwStrOffset + before_offset);
-          size_t n = 0;
-          while ( p < end )
-            {
-              if (0xd800 <= *p && *p <= 0xdbff)
-                ++p;
-              ++p;
-              ++n;
-            }
-
-#ifndef NDEBUG
-          {
-            std::stringstream ss;
-            ss << "  backward: " << n << std::endl;
-            DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
-          }
-#endif
-
-          backward_complete::clear ();
-          ui_to_lisp_queue::enqueue_one
-            (std::make_unique<queue_message>
-             (queue_message::message::backward_char, hwnd, n));
-          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-          if (!wait_message (hwnd, &backward_complete::isset))
-            {
-              WARNING_MESSAGE
-                ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
-            }
-        }
-
-      if (ImmSetCompositionStringW (himc.get (),
-                                    SCS_SETRECONVERTSTRING,
-                                    rs, rs->dwSize, nullptr, 0))
-        {
-          DEBUG_MESSAGE_STATIC
-            ("  SCS_SETRECONVERTSTRING succeeded\n");
-        }
-      else
-        {
-          WARNING_MESSAGE
-            ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING"
-             " failed\n");
-          return 0;
-        }
-      reconvert_string::clear ();
-
+  if (!ImmSetCompositionStringW (himc.get (),
+                                 SCS_QUERYRECONVERTSTRING,
+                                 rs, rs->dwSize, nullptr, 0))
+    {
+      WARNING_MESSAGE
+        ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING failed\n");
       return 0;
     }
 
-  return retval;
+  DEBUG_MESSAGE_STATIC ("  SCS_QUERYRECONVERTSTRING succeeded\n");
+
+#ifndef NDEBUG
+  debug_output_reconvert_string (rs);
+#endif
+
+  if (before_offset > rs->dwCompStrOffset)
+    {
+      DEBUG_MESSAGE_STATIC ("  require backward characters\n");
+
+      auto *p = reinterpret_cast<WCHAR*>
+        (reinterpret_cast <unsigned char*> (rs) +
+         rs->dwStrOffset + rs->dwCompStrOffset);
+      auto *end = reinterpret_cast<WCHAR*>
+        (reinterpret_cast <unsigned char*> (rs) +
+         rs->dwStrOffset + before_offset);
+      size_t n = 0;
+      while ( p < end )
+        {
+          if (0xd800 <= *p && *p <= 0xdbff) // surrogate pair
+            ++p;
+          ++p;
+          ++n;
+        }
+
+#ifndef NDEBUG
+      {
+        std::stringstream ss;
+        ss << "  backward: " << n << std::endl;
+        DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
+      }
+#endif
+
+      backward_complete::clear ();
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::backward_char, hwnd, n));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+      if (!wait_message (hwnd, &backward_complete::isset))
+        {
+          WARNING_MESSAGE
+            ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
+        }
+    }
+
+  if (!ImmSetCompositionStringW (himc.get (),
+                                 SCS_SETRECONVERTSTRING,
+                                 rs, rs->dwSize, nullptr, 0))
+    {
+      WARNING_MESSAGE
+        ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING failed\n");
+    }
+  else
+    {
+      DEBUG_MESSAGE_STATIC ("  SCS_SETRECONVERTSTRING succeeded\n");
+    }
+
+  reconvert_string::clear ();
+
+  return 0;
 }
 
 LRESULT
