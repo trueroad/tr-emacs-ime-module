@@ -373,6 +373,168 @@ subclass_proc::wm_tr_ime_notify_backward_complete (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
+                                    WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("IMR_RECONVERTSTRING\n");
+
+  if (!lparam)
+    {
+      reconvert_string::clear ();
+
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::reconvertstring, hwnd));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+      if (!wait_message (hwnd, &reconvert_string::isset))
+        return 0;
+    }
+  if (!reconvert_string::isset ())
+    {
+      WARNING_MESSAGE
+        ("IMR_RECONVERTSTRING: no reconvert string\n");
+      return 0;
+    }
+
+  LRESULT retval = sizeof (RECONVERTSTRING) +
+    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
+  if (lparam)
+    {
+      auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+      if (!set_reconvert_string (rs))
+        return 0;
+
+#ifndef NDEBUG
+      debug_output_reconvert_string (rs);
+#endif
+
+      auto before_offset = rs->dwCompStrOffset;
+      himc_raii himc (hwnd);
+      if (!himc)
+        return 0;
+
+      if (ImmSetCompositionStringW (himc.get (),
+                                    SCS_QUERYRECONVERTSTRING,
+                                    rs, rs->dwSize, nullptr, 0))
+        {
+          DEBUG_MESSAGE_STATIC
+            ("  SCS_QUERYRECONVERTSTRING succeeded\n");
+        }
+      else
+        {
+          WARNING_MESSAGE
+            ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
+             " failed\n");
+          return 0;
+        }
+
+#ifndef NDEBUG
+      debug_output_reconvert_string (rs);
+#endif
+
+      if (before_offset > rs->dwCompStrOffset)
+        {
+          auto *p = reinterpret_cast<WCHAR*>
+            (reinterpret_cast <unsigned char*> (rs) +
+             rs->dwStrOffset + rs->dwCompStrOffset);
+          auto *end = reinterpret_cast<WCHAR*>
+            (reinterpret_cast <unsigned char*> (rs) +
+             rs->dwStrOffset + before_offset);
+          size_t n = 0;
+          while ( p < end )
+            {
+              if (0xd800 <= *p && *p <= 0xdbff)
+                ++p;
+              ++p;
+              ++n;
+            }
+
+#ifndef NDEBUG
+          {
+            std::stringstream ss;
+            ss << "  backward: " << n << std::endl;
+            DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
+          }
+#endif
+
+          backward_complete::clear ();
+          ui_to_lisp_queue::enqueue_one
+            (std::make_unique<queue_message>
+             (queue_message::message::backward_char, hwnd, n));
+          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+          if (!wait_message (hwnd, &backward_complete::isset))
+            {
+              WARNING_MESSAGE
+                ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
+            }
+        }
+
+      if (ImmSetCompositionStringW (himc.get (),
+                                    SCS_SETRECONVERTSTRING,
+                                    rs, rs->dwSize, nullptr, 0))
+        {
+          DEBUG_MESSAGE_STATIC
+            ("  SCS_SETRECONVERTSTRING succeeded\n");
+        }
+      else
+        {
+          WARNING_MESSAGE
+            ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING"
+             " failed\n");
+          return 0;
+        }
+      reconvert_string::clear ();
+
+      return 0;
+    }
+
+  return retval;
+}
+
+LRESULT
+subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
+                                 WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("IMR_DOCUMENTFEED\n");
+
+  if (!lparam)
+    {
+      reconvert_string::clear ();
+
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::documentfeed, hwnd));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+      if (!wait_message (hwnd, &reconvert_string::isset))
+        return 0;
+    }
+  if (!reconvert_string::isset ())
+    {
+      WARNING_MESSAGE ("IMR_DOCUMENTFEED: no reconvert string\n");
+      return 0;
+    }
+
+  LRESULT retval = sizeof (RECONVERTSTRING) +
+    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
+  if (lparam)
+    {
+      auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+      if (!set_reconvert_string (rs))
+        return 0;
+
+#ifndef NDEBUG
+      debug_output_reconvert_string (rs);
+#endif
+
+      reconvert_string::clear ();
+    }
+  return retval;
+}
+
+LRESULT
 subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
                            WPARAM wparam, LPARAM lparam)
 {
@@ -434,157 +596,12 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
     {
     case IMR_RECONVERTSTRING:
       if (ab_reconversion_.load ())
-        {
-          DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_RECONVERTSTRING\n");
-
-          if (!lparam)
-            {
-              reconvert_string::clear ();
-
-              ui_to_lisp_queue::enqueue_one
-                (std::make_unique<queue_message>
-                 (queue_message::message::reconvertstring, hwnd));
-              SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-              if (!wait_message (hwnd, &reconvert_string::isset))
-                return 0;
-            }
-          if (!reconvert_string::isset ())
-            {
-              WARNING_MESSAGE
-                ("IMR_RECONVERTSTRING: no reconvert string\n");
-              return 0;
-            }
-
-          LRESULT retval = sizeof (RECONVERTSTRING) +
-            (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
-          if (lparam)
-            {
-              auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
-              if (!set_reconvert_string (rs))
-                return 0;
-#ifndef NDEBUG
-              debug_output_reconvert_string (rs);
-#endif
-              auto before_offset = rs->dwCompStrOffset;
-              himc_raii himc (hwnd);
-              if (!himc)
-                return 0;
-
-              if (ImmSetCompositionStringW (himc.get (),
-                                            SCS_QUERYRECONVERTSTRING,
-                                            rs, rs->dwSize, nullptr, 0))
-                {
-                  DEBUG_MESSAGE_STATIC
-                    ("  SCS_QUERYRECONVERTSTRING succeeded\n");
-                }
-              else
-                {
-                  WARNING_MESSAGE
-                    ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
-                     " failed\n");
-                  return 0;
-                }
-#ifndef NDEBUG
-              debug_output_reconvert_string (rs);
-#endif
-              if (before_offset > rs->dwCompStrOffset)
-                {
-                  auto *p = reinterpret_cast<WCHAR*>
-                    (reinterpret_cast <unsigned char*> (rs) +
-                     rs->dwStrOffset + rs->dwCompStrOffset);
-                  auto *end = reinterpret_cast<WCHAR*>
-                    (reinterpret_cast <unsigned char*> (rs) +
-                     rs->dwStrOffset + before_offset);
-                  size_t n = 0;
-                  while ( p < end )
-                    {
-                      if (0xd800 <= *p && *p <= 0xdbff)
-                        ++p;
-                      ++p;
-                      ++n;
-                    }
-#ifndef NDEBUG
-                  {
-                    std::stringstream ss;
-                    ss << "  backward: " << n << std::endl;
-                    DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
-                  }
-#endif
-                  backward_complete::clear ();
-                  ui_to_lisp_queue::enqueue_one
-                    (std::make_unique<queue_message>
-                     (queue_message::message::backward_char, hwnd, n));
-                  SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-                  if (!wait_message (hwnd, &backward_complete::isset))
-                    {
-                      WARNING_MESSAGE
-                        ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
-                    }
-                }
-
-              if (ImmSetCompositionStringW (himc.get (),
-                                            SCS_SETRECONVERTSTRING,
-                                            rs, rs->dwSize, nullptr, 0))
-                {
-                  DEBUG_MESSAGE_STATIC
-                    ("  SCS_SETRECONVERTSTRING succeeded\n");
-                }
-              else
-                {
-                  WARNING_MESSAGE
-                    ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING"
-                     " failed\n");
-                  return 0;
-                }
-              reconvert_string::clear ();
-
-              return 0;
-            }
-
-          return retval;
-        }
+        return imr_reconvertstring (hwnd, umsg, wparam, lparam);
       break;
 
     case IMR_DOCUMENTFEED:
       if (ab_documentfeed_.load ())
-        {
-          DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_DOCUMENTFEED\n");
-
-          if (!lparam)
-            {
-              reconvert_string::clear ();
-
-              ui_to_lisp_queue::enqueue_one
-                (std::make_unique<queue_message>
-                 (queue_message::message::documentfeed, hwnd));
-              SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-              if (!wait_message (hwnd, &reconvert_string::isset))
-                return 0;
-            }
-          if (!reconvert_string::isset ())
-            {
-              WARNING_MESSAGE ("IMR_DOCUMENTFEED: no reconvert string\n");
-              return 0;
-            }
-
-          LRESULT retval = sizeof (RECONVERTSTRING) +
-            (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
-          if (lparam)
-            {
-              auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
-              if (!set_reconvert_string (rs))
-                return 0;
-#ifndef NDEBUG
-              debug_output_reconvert_string (rs);
-#endif
-              reconvert_string::clear ();
-            }
-
-          return retval;
-        }
+        return imr_documentfeed (hwnd, umsg, wparam, lparam);
       break;
     }
 
