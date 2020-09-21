@@ -117,6 +117,10 @@ Module2 を使用する際のコア機能の設定です。
 (declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
 (declare-function w32-tr-ime-notify-reconvert-string "tr-ime-module2"
                   arg1 arg2 arg3)
+(declare-function w32-tr-ime-set-reconversion "tr-ime-module2"
+                  arg1 arg2)
+(declare-function w32-tr-ime-set-documentfeed "tr-ime-module2"
+                  arg1 arg2)
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
 
 ;;
@@ -800,8 +804,13 @@ w32-tr-ime-module-documentfeed-hook に登録して使う。"
 (defun w32-tr-ime-module-reconversion-p-set (symb bool)
   "再変換 (RECONVERSION) 動作を行うか否か設定する"
   (if bool
-      (add-hook 'w32-tr-ime-module-reconvertstring-hook
-                #'w32-tr-ime-module-notify-reconvert-string)
+      (progn
+        (add-hook 'w32-tr-ime-module-reconvertstring-hook
+                  #'w32-tr-ime-module-notify-reconvert-string)
+        (w32-tr-ime-set-reconversion
+         (string-to-number (frame-parameter nil 'window-id)) t))
+    (w32-tr-ime-set-reconversion
+     (string-to-number (frame-parameter nil 'window-id)) nil)
     (remove-hook 'w32-tr-ime-module-reconvertstring-hook
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
@@ -828,8 +837,13 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
 (defun w32-tr-ime-module-documentfeed-p-set (symb bool)
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する"
   (if bool
-      (add-hook 'w32-tr-ime-module-documentfeed-hook
-                #'w32-tr-ime-module-notify-reconvert-string)
+      (progn
+        (add-hook 'w32-tr-ime-module-documentfeed-hook
+                  #'w32-tr-ime-module-notify-reconvert-string)
+        (w32-tr-ime-set-documentfeed
+         (string-to-number (frame-parameter nil 'window-id)) t))
+    (w32-tr-ime-set-documentfeed
+     (string-to-number (frame-parameter nil 'window-id)) nil)
     (remove-hook 'w32-tr-ime-module-documentfeed-hook
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
