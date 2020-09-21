@@ -129,6 +129,20 @@ namespace
       return ImmGetOpenStatus (himc.get ());
     return false;
   }
+
+  template <class Iterator>
+  size_t count_codepoints (Iterator first, Iterator last)
+  {
+    size_t n = 0;
+
+    for (auto p = first; p < last; ++p, ++n)
+      {
+        if (0xd800 <= *p && *p <= 0xdbff) // surrogate pair
+          ++p;
+      }
+
+    return n;
+  }
 };
 
 void
@@ -438,24 +452,16 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
   debug_output_reconvert_string (rs);
 #endif
 
+  auto *p_str = reinterpret_cast <unsigned char*> (rs) + rs->dwStrOffset;
+  auto *p_comp = p_str + rs->dwCompStrOffset;
+
   if (before_offset > rs->dwCompStrOffset)
     {
       DEBUG_MESSAGE_STATIC ("  require backward characters\n");
 
-      auto *p = reinterpret_cast<WCHAR*>
-        (reinterpret_cast <unsigned char*> (rs) +
-         rs->dwStrOffset + rs->dwCompStrOffset);
-      auto *end = reinterpret_cast<WCHAR*>
-        (reinterpret_cast <unsigned char*> (rs) +
-         rs->dwStrOffset + before_offset);
-      size_t n = 0;
-      while ( p < end )
-        {
-          if (0xd800 <= *p && *p <= 0xdbff) // surrogate pair
-            ++p;
-          ++p;
-          ++n;
-        }
+      auto *p_before = p_str + before_offset;
+      size_t n = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
+                                   reinterpret_cast<WCHAR*> (p_before));
 
 #ifndef NDEBUG
       {
