@@ -29,6 +29,8 @@
 #include <memory>
 #include <mutex>
 
+#include <windows.h>
+
 class queue_message
 {
 public:
@@ -37,12 +39,12 @@ public:
       backward_char
     };
 
-  explicit queue_message (message msg):
-    message_ (msg), parameter_ (0)
+  explicit queue_message (message msg, HWND hwnd):
+    message_ (msg), hwnd_ (hwnd), parameter_ (0)
   {
   }
-  explicit queue_message (message msg, int param):
-    message_ (msg), parameter_ (param)
+  explicit queue_message (message msg, HWND hwnd, int param):
+    message_ (msg), hwnd_ (hwnd), parameter_ (param)
   {
   }
   virtual ~queue_message ()
@@ -53,6 +55,10 @@ public:
   {
     return message_;
   }
+  HWND get_hwnd (void) const
+  {
+    return hwnd_;
+  }
   int get_parameter (void) const
   {
     return parameter_;
@@ -60,6 +66,7 @@ public:
 
 private:
   const message message_;
+  const HWND hwnd_;
   const int parameter_;
 };
 

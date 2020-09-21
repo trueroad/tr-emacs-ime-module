@@ -117,6 +117,25 @@ private:
     static thread_local std::atomic<bool> ab_set_;
   };
 
+  class backward_complete
+  {
+  public:
+    static void set(void)
+    {
+      ab_set_.store (true);
+    }
+    static void clear (void)
+    {
+      ab_set_.store (false);
+    }
+    static bool isset (void)
+    {
+      return ab_set_.load ();
+    }
+  private:
+    static thread_local std::atomic<bool> ab_set_;
+  };
+
   static bool wait_message (HWND, std::function<bool(void)>);
   static bool set_reconvert_string (RECONVERTSTRING*);
 
@@ -131,6 +150,8 @@ private:
   static LRESULT wm_tr_ime_set_prefix_keys (HWND, UINT, WPARAM, LPARAM);
   static LRESULT
   wm_tr_ime_notify_reconvert_string (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT
+  wm_tr_ime_notify_backward_complete (HWND, UINT, WPARAM, LPARAM);
 
   static LRESULT wm_keydown (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_notify (HWND, UINT, WPARAM, LPARAM);

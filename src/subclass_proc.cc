@@ -49,6 +49,8 @@ thread_local std::basic_string<WCHAR> subclass_proc::reconvert_string::wbuff_;
 thread_local int subclass_proc::reconvert_string::point_;
 thread_local std::atomic<bool>
 subclass_proc::reconvert_string::ab_set_ {false};
+thread_local std::atomic<bool>
+subclass_proc::backward_complete::ab_set_ {false};
 
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
@@ -357,6 +359,20 @@ subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
 }
 
 LRESULT
+subclass_proc::wm_tr_ime_notify_backward_complete (HWND hwnd, UINT umsg,
+                                                   WPARAM wparam,
+                                                   LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
+
+  ReplyMessage (0);
+
+  backward_complete::set ();
+
+  return 0;
+}
+
+LRESULT
 subclass_proc::wm_keydown (HWND hwnd, UINT umsg,
                            WPARAM wparam, LPARAM lparam)
 {
@@ -397,7 +413,7 @@ subclass_proc::wm_ime_notify (HWND hwnd, UINT umsg,
 
           ui_to_lisp_queue::enqueue_one
             (std::make_unique<queue_message>
-             (queue_message::message::setopenstatus));
+             (queue_message::message::setopenstatus, hwnd));
           PostMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
         }
       else
@@ -427,7 +443,7 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
 
               ui_to_lisp_queue::enqueue_one
                 (std::make_unique<queue_message>
-                 (queue_message::message::reconvertstring));
+                 (queue_message::message::reconvertstring, hwnd));
               SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
 
               if (!wait_message (hwnd, &reconvert_string::isset))
@@ -495,10 +511,17 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
                     DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
                   }
 #endif
+                  backward_complete::clear ();
                   ui_to_lisp_queue::enqueue_one
                     (std::make_unique<queue_message>
-                     (queue_message::message::backward_char, n));
+                     (queue_message::message::backward_char, hwnd, n));
                   SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+                  if (!wait_message (hwnd, &backward_complete::isset))
+                    {
+                      WARNING_MESSAGE
+                        ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
+                    }
                 }
               reconvert_string::clear ();
             }
@@ -518,7 +541,7 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
 
               ui_to_lisp_queue::enqueue_one
                 (std::make_unique<queue_message>
-                 (queue_message::message::documentfeed));
+                 (queue_message::message::documentfeed, hwnd));
               SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
 
               if (!wait_message (hwnd, &reconvert_string::isset))
@@ -669,6 +692,8 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
     return wm_tr_ime_set_prefix_keys (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_NOTIFY_RECONVERT_STRING_)
     return wm_tr_ime_notify_reconvert_string (hwnd, umsg, wparam, lparam);
+  else if (umsg == u_WM_TR_IME_NOTIFY_BACKWARD_COMPLETE_)
+    return wm_tr_ime_notify_backward_complete (hwnd, umsg, wparam, lparam);
 
   switch (umsg)
     {

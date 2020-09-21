@@ -704,6 +704,15 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
             std::array<emacs_value, 1> arg {chars};
 
             env->funcall (env, backward_char, arg.size (), arg.data ());
+
+            auto r = SendMessageTimeoutW
+              (msg->get_hwnd (), u_WM_TR_IME_NOTIFY_BACKWARD_COMPLETE_, 0, 0,
+               SMTO_NORMAL, 1000, nullptr);
+
+            if (r == 0 && GetLastError () == ERROR_TIMEOUT)
+              {
+                DEBUG_MESSAGE_STATIC ("  SendMessageTimeout: time out\n");
+              }
           }
           break;
         default:
