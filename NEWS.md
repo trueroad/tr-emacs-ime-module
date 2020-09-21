@@ -1,3 +1,9 @@
+* Release x.x.x (xxxx-xx-xx):
+    * Improve Module2
+    * 再変換 (RECONVERSION) に対応しました
+        * 今のところデフォルト無効にしていますので、
+          使用したい場合は設定してください
+
 * Release 0.2.0 (2020-09-20):
     * Improve Module2
     * Module2 で UI スレッドから Lisp への通知をできるようにし、

@@ -168,6 +168,10 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 Module2 の機能は以下の通りです。
 
+* 再変換 (RECONVERSION) に対応
+    * Module1 だけでは再変換ができません
+    * Module2 でも今のところデフォルト無効にしていますので、
+      使用したい場合は設定してください
 * すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
     * Module1 だけでは Alt + 半角/全角キー（もしくは C-\\）による
       IME ON/OFF のみ対応しており、
@@ -491,6 +495,30 @@ Asynchronous Requests from Emacs Dynamic Modules
 
 ```el
 (custom-set-variables '(w32-tr-ime-module-recv-from-ui-thread-p nil))
+```
+
+### 再変換 (RECONVERSION) (Module2)
+
+確定済文字列にカーソルを置いて変換キーを押すと、
+カーソルのあった場所の確定済文字列が未確定文字列になって、
+再変換できるようになるという機能です。
+
+本機能は、UI スレッドに WM_IME_REQUEST IMR_RECONVERTSTRING
+メッセージが来たら、内部専用キューにその旨を格納して Lisp に通知し、
+Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI スレッドに通知し、
+再変換の処理を始める、という通知の往復があります。
+さらに、再変換処理中に、再変換に合わせてカーソルを移動させたり、
+再変換前の確定済文字列を消したりといった動作が必要で、
+これらも UI スレッドから Lisp への通知などをする、
+かなり複雑な動作になっています。
+
+#### 再変換 (RECONVERSION) 動作を行うか否か
+
+今のところデフォルト無効にしています。
+有効にしたければ以下のようにすればできます。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-reconversion-p t))
 ```
 
 ### IME フォント (Module2)
@@ -897,13 +925,9 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 わかっているだけで以下のような制約があります。
 
-* 再変換 (RECONVERSION) や前後の確定済文字列を参照した変換 (DOCUMENTFEED)
-  には対応できない
-    * 対応するには
-      UI スレッドのメッセージループから Lisp へ通知を行った上に、
-      Lisp から情報を UI スレッドへ戻して動作を継続する必要がある
-      （一方通行ではなくて往復が必要になる）、
-      というかなり困難な処理が必要です
+* 前後の確定済文字列を参照した変換 (DOCUMENTFEED) に対応できていない
+    * 再変換 (RECONVERSION) は動作するようになりましたが、
+      DOCUMENTFEED はまだ動かせていません
 * Module2 で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
   エコーエリアの表示が消えてしまう
     * ワークアラウンドでなんとかしています
