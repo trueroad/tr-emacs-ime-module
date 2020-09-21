@@ -46,6 +46,8 @@ thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
 thread_local std::unordered_set<DWORD> subclass_proc::prefix_keys_;
 std::atomic<bool> subclass_proc::ab_startcomposition_defsubclassproc_ {false};
 std::atomic<bool> subclass_proc::ab_last_ime_state_set_ {false};
+std::atomic<bool> subclass_proc::ab_reconversion_ {false};
+std::atomic<bool> subclass_proc::ab_documentfeed_ {false};
 
 #ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
@@ -268,21 +270,27 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
   switch (wparam)
     {
     case IMR_RECONVERTSTRING:
-      DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_RECONVERTSTRING\n");
+      if (ab_reconversion_.load ())
+        {
+          DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_RECONVERTSTRING\n");
 
-      ui_to_lisp_queue::enqueue_one
-        (std::make_unique<queue_message>
-         (queue_message::message::reconvertstring));
-      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+          ui_to_lisp_queue::enqueue_one
+            (std::make_unique<queue_message>
+             (queue_message::message::reconvertstring));
+          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+        }
       break;
 
     case IMR_DOCUMENTFEED:
-      DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_DOCUMENTFEED\n");
+      if (ab_documentfeed_.load ())
+        {
+          DEBUG_MESSAGE ("WM_IME_REQUEST: IMR_DOCUMENTFEED\n");
 
-      ui_to_lisp_queue::enqueue_one
-        (std::make_unique<queue_message>
-         (queue_message::message::documentfeed));
-      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+          ui_to_lisp_queue::enqueue_one
+            (std::make_unique<queue_message>
+             (queue_message::message::documentfeed));
+          SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+        }
       break;
     }
 

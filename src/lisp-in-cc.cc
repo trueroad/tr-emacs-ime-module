@@ -749,6 +749,72 @@ Fw32_tr_ime_notify_reconvert_string (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_w32_tr_ime_set_reconversion =
+  "Set whether to use reconversion or not\n\n"
+  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil, the module does\n"
+  "not perform reconversion. Otherwise, it performs reconversion.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-reconversion\n"
+  " (string-to-number (frame-parameter nil 'window-id)) t)";
+
+emacs_value
+Fw32_tr_ime_set_reconversion (emacs_env* env, ptrdiff_t nargs,
+                              emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 2)
+    {
+      WARNING_MESSAGE ("nargs != 2\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  bool b_set = env->is_not_nil (env, args[1]);
+  subclass_proc::lisp_set_reconversion (b_set);
+
+  return env->intern (env, "t");
+}
+
+const char *doc_w32_tr_ime_set_documentfeed =
+  "Set whether to use documentfeed or not\n\n"
+  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil, the module does\n"
+  "not perform documentfeed. Otherwise, it performs documentfeed.\n\n"
+  "Sample usage:\n"
+  "(w32-tr-ime-set-documentfeed\n"
+  " (string-to-number (frame-parameter nil 'window-id)) t)";
+
+emacs_value
+Fw32_tr_ime_set_documentfeed (emacs_env* env, ptrdiff_t nargs,
+                              emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 2)
+    {
+      WARNING_MESSAGE ("nargs != 2\n");
+      return env->intern (env, "nil");
+    }
+
+  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+  if (!IsWindow (hwnd))
+    {
+      WARNING_MESSAGE ("ARG1 is not HWND\n");
+      return env->intern (env, "nil");
+    }
+
+  bool b_set = env->is_not_nil (env, args[1]);
+  subclass_proc::lisp_set_documentfeed (b_set);
+
+  return env->intern (env, "t");
+}
+
 const char *doc_w32_tr_ime_get_dpi =
   "Get DPI of the desktop\n\n"
   "The return value is a cons containing the DPI in the x and y directions.";

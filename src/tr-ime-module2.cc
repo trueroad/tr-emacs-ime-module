@@ -148,6 +148,14 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    3, 3, Fw32_tr_ime_notify_reconvert_string,
                    doc_w32_tr_ime_notify_reconvert_string,
                    nullptr);
+  regist_function (env, "w32-tr-ime-set-reconversion",
+                   2, 2, Fw32_tr_ime_set_reconversion,
+                   doc_w32_tr_ime_set_reconversion,
+                   nullptr);
+  regist_function (env, "w32-tr-ime-set-documentfeed",
+                   2, 2, Fw32_tr_ime_set_documentfeed,
+                   doc_w32_tr_ime_set_documentfeed,
+                   nullptr);
   regist_function (env, "w32-tr-ime-get-dpi",
                    0, 0, Fw32_tr_ime_get_dpi,
                    doc_w32_tr_ime_get_dpi,

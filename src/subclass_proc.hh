@@ -57,6 +57,14 @@ public:
   {
     ab_startcomposition_defsubclassproc_.store (flag);
   }
+  static void lisp_set_reconversion (bool flag)
+  {
+    ab_reconversion_.store (flag);
+  }
+  static void lisp_set_documentfeed (bool flag)
+  {
+    ab_documentfeed_.store (flag);
+  }
 
   static void set_last_ime_state (bool flag)
   {
@@ -96,6 +104,8 @@ private:
   static thread_local std::unordered_set<DWORD> prefix_keys_;
   static std::atomic<bool> ab_startcomposition_defsubclassproc_;
   static std::atomic<bool> ab_last_ime_state_set_;
+  static std::atomic<bool> ab_reconversion_;
+  static std::atomic<bool> ab_documentfeed_;
 
 #ifndef NDEBUG
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;
