@@ -27,7 +27,10 @@
 #include <atomic>
 #include <memory>
 #include <mutex>
+#include <sstream>
+#include <string>
 #include <unordered_set>
+#include <utility>
 
 #include <windows.h>
 #include <commctrl.h>
@@ -40,6 +43,11 @@
 std::mutex subclass_proc::prefix_key::mtx_;
 HWND subclass_proc::prefix_key::hwnd_ {0};
 bool subclass_proc::prefix_key::b_before_ime_mode_;
+
+thread_local std::basic_string<WCHAR> subclass_proc::reconvert_string::wbuff_;
+thread_local int subclass_proc::reconvert_string::point_;
+thread_local std::atomic<bool>
+subclass_proc::reconvert_string::ab_set_ {false};
 
 thread_local LOGFONTW subclass_proc::lf_imefont_ {0};
 thread_local COMPOSITIONFORM subclass_proc::compform_ {0};
@@ -205,6 +213,32 @@ subclass_proc::wm_tr_ime_set_prefix_keys (HWND hwnd, UINT umsg,
 
   auto *prefix_keys = reinterpret_cast<std::unordered_set<DWORD> *> (wparam);
   prefix_keys_ = *prefix_keys;
+
+  return 0;
+}
+
+LRESULT
+subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
+                                                  WPARAM wparam, LPARAM lparam)
+{
+  DEBUG_MESSAGE ("WM_TR_IME_NOTIFY_RECONVERT_STRING\n");
+
+  std::basic_string<WCHAR> wbuff = reinterpret_cast<WCHAR*> (wparam);
+  ReplyMessage (0);
+
+#ifndef NDEBUG
+  {
+    auto str = wbuff;
+    str = L"  wbuff = \"" + str + L"\"\n";
+    OutputDebugStringW (str.c_str ());
+
+    std::stringstream ss;
+    ss << "  point = " << static_cast<int> (lparam) << std::endl;
+    OutputDebugStringA (ss.str ().c_str ());
+  }
+#endif
+
+  reconvert_string::set (std::move (wbuff), lparam);
 
   return 0;
 }
@@ -413,6 +447,8 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
     return wm_tr_ime_set_compositionwindow (hwnd, umsg, wparam, lparam);
   else if (umsg == u_WM_TR_IME_SET_PREFIX_KEYS_)
     return wm_tr_ime_set_prefix_keys (hwnd, umsg, wparam, lparam);
+  else if (umsg == u_WM_TR_IME_NOTIFY_RECONVERT_STRING_)
+    return wm_tr_ime_notify_reconvert_string (hwnd, umsg, wparam, lparam);
 
   switch (umsg)
     {

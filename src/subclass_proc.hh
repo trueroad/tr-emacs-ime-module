@@ -27,7 +27,9 @@
 
 #include <atomic>
 #include <mutex>
+#include <string>
 #include <unordered_set>
+#include <utility>
 
 #include <windows.h>
 
@@ -83,11 +85,44 @@ private:
     static bool b_before_ime_mode_;
   };
 
+  class reconvert_string
+  {
+  public:
+    static void set (std::basic_string<WCHAR> &&b, int p)
+    {
+      wbuff_ = std::move (b);
+      point_ = p;
+      ab_set_.store (true);
+    }
+    static void clear (void)
+    {
+      ab_set_.store (false);
+    }
+    static std::basic_string<WCHAR> &get_wbuff (void)
+    {
+      return wbuff_;
+    }
+    static int get_point (void)
+    {
+      return point_;
+    }
+    static bool isset (void)
+    {
+      return ab_set_.load ();
+    }
+  private:
+    static thread_local std::basic_string<WCHAR> wbuff_;
+    static thread_local int point_;
+    static thread_local std::atomic<bool> ab_set_;
+  };
+
   static LRESULT wm_tr_ime_set_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_get_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_font (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_compositionwindow (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_set_prefix_keys (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT
+  wm_tr_ime_notify_reconvert_string (HWND, UINT, WPARAM, LPARAM);
 
   static LRESULT wm_keydown (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_notify (HWND, UINT, WPARAM, LPARAM);
