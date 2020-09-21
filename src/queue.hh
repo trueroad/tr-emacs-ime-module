@@ -36,7 +36,7 @@ class queue_message
 public:
   enum class message
     { setopenstatus, reconvertstring, documentfeed,
-      backward_char
+      backward_char, delete_char
     };
 
   explicit queue_message (message msg, HWND hwnd):

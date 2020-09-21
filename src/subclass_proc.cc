@@ -59,6 +59,7 @@ std::atomic<bool> subclass_proc::ab_startcomposition_defsubclassproc_ {false};
 std::atomic<bool> subclass_proc::ab_last_ime_state_set_ {false};
 std::atomic<bool> subclass_proc::ab_reconversion_ {false};
 std::atomic<bool> subclass_proc::ab_documentfeed_ {false};
+std::atomic<int> subclass_proc::ai_delete_chars_reconversion_complete_ {0};
 
 #ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
@@ -454,6 +455,7 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
 
   auto *p_str = reinterpret_cast <unsigned char*> (rs) + rs->dwStrOffset;
   auto *p_comp = p_str + rs->dwCompStrOffset;
+  auto *p_comp_end = p_comp + rs->dwCompStrLen * sizeof (WCHAR);
 
   if (before_offset > rs->dwCompStrOffset)
     {
@@ -482,6 +484,25 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
           WARNING_MESSAGE
             ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
         }
+    }
+
+  if (rs->dwCompStrLen)
+    {
+      DEBUG_MESSAGE_STATIC ("  require delete characters\n");
+
+      auto *p_comp_end = p_comp + rs->dwCompStrLen * sizeof (WCHAR);
+      size_t d = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
+                                   reinterpret_cast<WCHAR*> (p_comp_end));
+
+#ifndef NDEBUG
+      {
+        std::stringstream ss;
+        ss << "  delete: " << d << std::endl;
+        DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
+      }
+#endif
+
+      ai_delete_chars_reconversion_complete_.store (d);
     }
 
   if (!ImmSetCompositionStringW (himc.get (),
@@ -611,6 +632,27 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
       if (ab_documentfeed_.load ())
         return imr_documentfeed (hwnd, umsg, wparam, lparam);
       break;
+    }
+
+  return DefSubclassProc (hwnd, umsg, wparam, lparam);
+}
+
+LRESULT
+subclass_proc::wm_ime_composition (HWND hwnd, UINT umsg,
+                                   WPARAM wparam, LPARAM lparam)
+{
+  if (lparam & GCS_RESULTSTR)
+    {
+      auto chars = ai_delete_chars_reconversion_complete_.load ();
+      if (chars)
+        {
+          ui_to_lisp_queue::enqueue_one
+            (std::make_unique<queue_message>
+             (queue_message::message::delete_char, hwnd, chars));
+          PostMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+          ai_delete_chars_reconversion_complete_.store (0);
+        }
     }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
@@ -752,6 +794,9 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
 
     case WM_IME_REQUEST:
       return wm_ime_request (hwnd, umsg, wparam, lparam);
+
+    case WM_IME_COMPOSITION:
+      return wm_ime_composition (hwnd, umsg, wparam, lparam);
 
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);

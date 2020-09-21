@@ -715,6 +715,16 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
               }
           }
           break;
+        case queue_message::message::delete_char:
+          DEBUG_MESSAGE_STATIC ("  delete_char\n");
+          {
+            emacs_value delete_char = env->intern (env, "delete-char");
+            emacs_value chars = env->make_integer (env, msg->get_parameter ());
+            std::array<emacs_value, 1> arg {chars};
+
+            env->funcall (env, delete_char, arg.size (), arg.data ());
+          }
+          break;
         default:
           WARNING_MESSAGE ("unknown message\n");
           break;
