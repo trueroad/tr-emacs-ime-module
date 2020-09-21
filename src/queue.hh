@@ -32,10 +32,17 @@
 class queue_message
 {
 public:
-  enum class message { setopenstatus, reconvertstring, documentfeed };
+  enum class message
+    { setopenstatus, reconvertstring, documentfeed,
+      backward_char
+    };
 
   explicit queue_message (message msg):
-    message_ (msg)
+    message_ (msg), parameter_ (0)
+  {
+  }
+  explicit queue_message (message msg, int param):
+    message_ (msg), parameter_ (param)
   {
   }
   virtual ~queue_message ()
@@ -46,9 +53,14 @@ public:
   {
     return message_;
   }
+  int get_parameter (void) const
+  {
+    return parameter_;
+  }
 
 private:
   const message message_;
+  const int parameter_;
 };
 
 class ui_to_lisp_queue

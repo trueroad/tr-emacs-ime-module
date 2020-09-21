@@ -696,6 +696,16 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
             env->funcall (env, run_hooks, arg.size (), arg.data ());
           }
           break;
+        case queue_message::message::backward_char:
+          DEBUG_MESSAGE_STATIC ("  backward_char\n");
+          {
+            emacs_value backward_char = env->intern (env, "backward-char");
+            emacs_value chars = env->make_integer (env, msg->get_parameter ());
+            std::array<emacs_value, 1> arg {chars};
+
+            env->funcall (env, backward_char, arg.size (), arg.data ());
+          }
+          break;
         default:
           WARNING_MESSAGE ("unknown message\n");
           break;

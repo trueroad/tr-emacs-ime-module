@@ -495,6 +495,10 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
                     DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
                   }
 #endif
+                  ui_to_lisp_queue::enqueue_one
+                    (std::make_unique<queue_message>
+                     (queue_message::message::backward_char, n));
+                  SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
                 }
               reconvert_string::clear ();
             }
