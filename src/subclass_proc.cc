@@ -450,6 +450,52 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
 #ifndef NDEBUG
               debug_output_reconvert_string (rs);
 #endif
+              auto before_offset = rs->dwCompStrOffset;
+              himc_raii himc (hwnd);
+              if (himc)
+                {
+                  if (ImmSetCompositionStringW (himc.get (),
+                                                SCS_QUERYRECONVERTSTRING,
+                                                rs, rs->dwSize, nullptr, 0))
+                    {
+                      DEBUG_MESSAGE_STATIC
+                        ("  SCS_QUERYRECONVERTSTRING succeeded\n");
+                    }
+                  else
+                    {
+                      WARNING_MESSAGE
+                        ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
+                         " failed\n");
+                      return 0;
+                    }
+                }
+#ifndef NDEBUG
+              debug_output_reconvert_string (rs);
+#endif
+              if (before_offset > rs->dwCompStrOffset)
+                {
+                  auto *p = reinterpret_cast<WCHAR*>
+                    (reinterpret_cast <unsigned char*> (rs) +
+                     rs->dwStrOffset + rs->dwCompStrOffset);
+                  auto *end = reinterpret_cast<WCHAR*>
+                    (reinterpret_cast <unsigned char*> (rs) +
+                     rs->dwStrOffset + before_offset);
+                  size_t n = 0;
+                  while ( p < end )
+                    {
+                      if (0xd800 <= *p && *p <= 0xdbff)
+                        ++p;
+                      ++p;
+                      ++n;
+                    }
+#ifndef NDEBUG
+                  {
+                    std::stringstream ss;
+                    ss << "  backward: " << n << std::endl;
+                    DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
+                  }
+#endif
+                }
               reconvert_string::clear ();
             }
 
