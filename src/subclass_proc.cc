@@ -144,6 +144,20 @@ namespace
 
     return n;
   }
+
+  template <class Iterator>
+  DWORD count_offset (Iterator first, Iterator last, int point)
+  {
+    auto p = first;
+
+    for (int i = 0; i < point && p < last; ++i, ++p)
+      {
+        if (0xd800 <= *p && *p <= 0xdbff) // surrogate pair
+          ++p;
+      }
+
+    return (p - first) * sizeof (*first);
+  }
 };
 
 void
@@ -247,19 +261,20 @@ subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
   rs->dwVersion = 0;
   rs->dwStrLen = reconvert_string::get_wbuff ().size ();
   rs->dwStrOffset = sizeof (RECONVERTSTRING);
-  rs->dwCompStrLen = 0;
-  // *** FIX ME *** surrogate pair
-  rs->dwCompStrOffset =
-    reconvert_string::get_point () * sizeof (WCHAR);
-  rs->dwTargetStrLen = 0;
-  rs->dwTargetStrOffset = rs->dwCompStrOffset;
 
-  auto *rs_buff = reinterpret_cast<WCHAR*>
-    (reinterpret_cast<unsigned char*> (rs) +
-     sizeof (RECONVERTSTRING));
+  auto *p_str = reinterpret_cast<unsigned char*> (rs) + rs->dwStrOffset;
+  auto *p_str_end = p_str + rs->dwStrLen * sizeof (WCHAR);
+
   std::copy (reconvert_string::get_wbuff ().begin (),
              reconvert_string::get_wbuff ().end (),
-             rs_buff);
+             reinterpret_cast<WCHAR*> (p_str));
+
+  rs->dwCompStrLen = 0;
+  rs->dwCompStrOffset = count_offset (reinterpret_cast<WCHAR*> (p_str),
+                                      reinterpret_cast<WCHAR*> (p_str_end),
+                                      reconvert_string::get_point ());
+  rs->dwTargetStrLen = 0;
+  rs->dwTargetStrOffset = rs->dwCompStrOffset;
 
   return true;
 }
