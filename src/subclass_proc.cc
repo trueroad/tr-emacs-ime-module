@@ -25,6 +25,7 @@
 #include "subclass_proc.hh"
 
 #include <atomic>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -160,6 +161,56 @@ subclass_proc::prefix_key::lisp_resume (void)
     }
 }
 
+bool
+subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (f ())
+    {
+      DEBUG_MESSAGE_STATIC ("  recieved\n");
+      return true;
+    }
+
+  DEBUG_MESSAGE_STATIC ("  wait for three times\n");
+  for (int i = 0; i < 3; ++i)
+    {
+      auto r = MsgWaitForMultipleObjectsEx
+        (0, nullptr, 1000, QS_SENDMESSAGE, MWMO_INPUTAVAILABLE);
+
+      switch (r)
+        {
+        case WAIT_OBJECT_0:
+          DEBUG_MESSAGE_STATIC ("  WAIT_OBJECT_0\n");
+          {
+            MSG msg;
+            PeekMessage (&msg, hwnd, WM_NULL, WM_NULL,
+                         PM_NOREMOVE | PM_QS_SENDMESSAGE);
+          }
+          break;
+        case WAIT_TIMEOUT:
+          DEBUG_MESSAGE_STATIC ("  WAIT_TIMEOUT\n");
+          break;
+        default:
+          DEBUG_MESSAGE_STATIC ("  unknown\n");
+          break;
+        }
+
+      if (f ())
+        {
+          DEBUG_MESSAGE_STATIC ("  recieved\n");
+          return true;
+        }
+      else
+        {
+          DEBUG_MESSAGE_STATIC ("  not yet\n");
+        }
+    }
+
+  DEBUG_MESSAGE_STATIC ("  timeout\n");
+  return false;
+}
+
 LRESULT
 subclass_proc::wm_tr_ime_set_open_status (HWND hwnd, UINT umsg,
                                           WPARAM wparam, LPARAM lparam)
@@ -239,6 +290,7 @@ subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
 #endif
 
   reconvert_string::set (std::move (wbuff), lparam);
+  DEBUG_MESSAGE_STATIC ("  set reconvert string\n");
 
   return 0;
 }
@@ -312,6 +364,11 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
             (std::make_unique<queue_message>
              (queue_message::message::reconvertstring));
           SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+          if (!wait_message (hwnd, &reconvert_string::isset))
+            return 0;
+
+          reconvert_string::clear ();
         }
       break;
 
@@ -324,6 +381,11 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
             (std::make_unique<queue_message>
              (queue_message::message::documentfeed));
           SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+          if (!wait_message (hwnd, &reconvert_string::isset))
+            return 0;
+
+          reconvert_string::clear ();
         }
       break;
     }

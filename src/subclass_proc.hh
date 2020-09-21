@@ -26,6 +26,7 @@
 #define INCLUDE_GUARD_SUBCLASS_PROC_HH
 
 #include <atomic>
+#include <functional>
 #include <mutex>
 #include <string>
 #include <unordered_set>
@@ -115,6 +116,8 @@ private:
     static thread_local int point_;
     static thread_local std::atomic<bool> ab_set_;
   };
+
+  static bool wait_message (HWND, std::function<bool(void)>);
 
   static LRESULT wm_tr_ime_set_open_status (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_get_open_status (HWND, UINT, WPARAM, LPARAM);
