@@ -70,7 +70,7 @@ Module2 を使用する際のコア機能の設定です。
   "RECONVERSION (Module2)"
   :group 'w32-tr-ime-module)
 
-(defgroup w32-tr-ime-module-reconversion nil
+(defgroup w32-tr-ime-module-documentfeed nil
   "DOCUMENTFEED (Module2)"
   :group 'w32-tr-ime-module)
 
