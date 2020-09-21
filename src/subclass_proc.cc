@@ -468,22 +468,22 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
 #endif
               auto before_offset = rs->dwCompStrOffset;
               himc_raii himc (hwnd);
-              if (himc)
+              if (!himc)
+                return 0;
+
+              if (ImmSetCompositionStringW (himc.get (),
+                                            SCS_QUERYRECONVERTSTRING,
+                                            rs, rs->dwSize, nullptr, 0))
                 {
-                  if (ImmSetCompositionStringW (himc.get (),
-                                                SCS_QUERYRECONVERTSTRING,
-                                                rs, rs->dwSize, nullptr, 0))
-                    {
-                      DEBUG_MESSAGE_STATIC
-                        ("  SCS_QUERYRECONVERTSTRING succeeded\n");
-                    }
-                  else
-                    {
-                      WARNING_MESSAGE
-                        ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
-                         " failed\n");
-                      return 0;
-                    }
+                  DEBUG_MESSAGE_STATIC
+                    ("  SCS_QUERYRECONVERTSTRING succeeded\n");
+                }
+              else
+                {
+                  WARNING_MESSAGE
+                    ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING"
+                     " failed\n");
+                  return 0;
                 }
 #ifndef NDEBUG
               debug_output_reconvert_string (rs);
@@ -523,7 +523,24 @@ subclass_proc::wm_ime_request (HWND hwnd, UINT umsg,
                         ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
                     }
                 }
+
+              if (ImmSetCompositionStringW (himc.get (),
+                                            SCS_SETRECONVERTSTRING,
+                                            rs, rs->dwSize, nullptr, 0))
+                {
+                  DEBUG_MESSAGE_STATIC
+                    ("  SCS_SETRECONVERTSTRING succeeded\n");
+                }
+              else
+                {
+                  WARNING_MESSAGE
+                    ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING"
+                     " failed\n");
+                  return 0;
+                }
               reconvert_string::clear ();
+
+              return 0;
             }
 
           return retval;
