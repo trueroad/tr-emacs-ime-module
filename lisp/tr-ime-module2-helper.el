@@ -39,15 +39,15 @@
 (defgroup w32-tr-ime-module-core nil
   "コア機能設定
 
-モジュールを使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+モジュールを使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module)
 
 (defgroup w32-tr-ime-module-core-module2 nil
   "Module2 設定
 
-Module2 を使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+Module2 を使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module-core)
 
 (defgroup w32-tr-ime-module-ime-font nil

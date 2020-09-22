@@ -33,15 +33,15 @@
 (defgroup w32-tr-ime-module-core nil
   "コア機能設定
 
-モジュールを使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+モジュールを使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module)
 
 (defgroup w32-tr-ime-module-core-emacs28 nil
   "Emacs 28 以降向け設定
 
-Emacs 28 以降で Module2 を使わない場合のコア機能の設定です。
-通常は設定変更しないでください。"
+Emacs 28 以降で Module2 を使わない場合のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module-core)
 
 (defgroup w32-tr-ime-module-workaround nil
@@ -52,14 +52,14 @@ Emacs 28 以降で Module2 を使わない場合のコア機能の設定です�
   "プレフィックスキー検出
 
 Module2 を使用するなら、このワークアラウンドではなく
-Module2 のプレフィックスキー検出を使ってください。"
+Module2 のプレフィックスキー検出を使うこと。"
   :group 'w32-tr-ime-module-workaround)
 
 (defgroup w32-tr-ime-module-workaround-inconsist-ime nil
   "IME 状態食い違い検出
 
 Module2 を使用するなら、このワークアラウンドではなく
-Module2 の IME 状態変更通知による IM 状態同期が利用できます。"
+Module2 の IME 状態変更通知による IM 状態同期が利用できる。"
   :group 'w32-tr-ime-module-workaround)
 
 ;;
