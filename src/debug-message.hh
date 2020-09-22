@@ -88,6 +88,7 @@
 #define DEBUG_MESSAGE_A(x)
 #define DEBUG_MESSAGE_W(x)
 #define DEBUG_MESSAGE_STATIC(x)
+#define DEBUG_MESSAGE_RECONVERTSTRING(x)
 #else
 #define DEBUG_MESSAGE_A(x)                      \
   do                                            \
@@ -106,6 +107,7 @@
     }                                           \
   while (false)
 #define DEBUG_MESSAGE_STATIC(x) OutputDebugStringA ((x))
+#define DEBUG_MESSAGE_RECONVERTSTRING(x) debug_output_reconvert_string ((x))
 #endif
 
 #define WARNING_MESSAGE_A(x)                    \
@@ -146,6 +148,29 @@ get_format_message (DWORD dwMessageId)
   LocalFree (lpbuff);
 
   return ret;
+}
+
+inline void
+debug_output_reconvert_string (RECONVERTSTRING *rs)
+{
+  std::stringstream ss;
+
+  ss << "---RECONVERTSTRING---" << std::endl
+     << "  dwSize           : " << rs->dwSize << std::endl
+     << "  dwVersion        : " << rs->dwVersion << std::endl
+     << "  dwStrLen         : " << rs->dwStrLen << std::endl
+     << "  dwStrOffset      : " << rs->dwStrOffset << std::endl
+     << "  dwCompStrLen     : " << rs->dwCompStrLen << std::endl
+     << "  dwCompStrOffset  : " << rs->dwCompStrOffset << std::endl
+     << "  dwTargetStrLen   : " << rs->dwTargetStrLen << std::endl
+     << "  dwTargetStrOffset: " << rs->dwTargetStrOffset << std::endl;
+  OutputDebugStringA (ss.str ().c_str ());
+
+  auto *buff = reinterpret_cast<WCHAR*>
+    (reinterpret_cast<unsigned char*> (rs) + sizeof (RECONVERTSTRING));
+  std::basic_string<WCHAR> str (buff, rs->dwStrLen);
+  str = L"  buff = \"" + str + L"\"\n";
+  OutputDebugStringW (str.c_str ());
 }
 
 #endif // INCLUDE_GUARD_DEBUG_MESSAGE_HH
