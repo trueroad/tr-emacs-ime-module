@@ -45,8 +45,9 @@ std::mutex subclass_proc::prefix_key::mtx_;
 HWND subclass_proc::prefix_key::hwnd_ {0};
 bool subclass_proc::prefix_key::b_before_ime_mode_;
 
-thread_local std::basic_string<WCHAR> subclass_proc::reconvert_string::wbuff_;
+thread_local std::basic_string<WCHAR> subclass_proc::reconvert_string::str_;
 thread_local DWORD subclass_proc::reconvert_string::offset_;
+thread_local DWORD subclass_proc::reconvert_string::len_;
 thread_local std::atomic<bool>
 subclass_proc::reconvert_string::ab_set_ {false};
 thread_local std::atomic<bool>
@@ -245,10 +246,7 @@ subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
 bool
 subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
 {
-  auto size = sizeof (RECONVERTSTRING) +
-    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
-
-  if (rs->dwSize < size)
+  if (rs->dwSize < reconvert_string::get_dwSize ())
     {
       WARNING_MESSAGE ("size over\n");
       return false;
@@ -257,19 +255,19 @@ subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
   // Len: WCHAR count, Offset: byte count
   // dwStrOffset: buffer offset from beginning of the struct
   // dw{Comp|Target}Offset: from beginning of the buffer
-  rs->dwSize = size;
+  rs->dwSize = reconvert_string::get_dwSize ();
   rs->dwVersion = 0;
-  rs->dwStrLen = reconvert_string::get_wbuff ().size ();
-  rs->dwStrOffset = sizeof (RECONVERTSTRING);
-  rs->dwCompStrLen = 0;
-  rs->dwCompStrOffset = reconvert_string::get_offset ();
-  rs->dwTargetStrLen = 0;
+  rs->dwStrLen = reconvert_string::get_dwStrLen ();
+  rs->dwStrOffset = reconvert_string::get_dwStrOffset ();
+  rs->dwCompStrLen = reconvert_string::get_dwCompStrLen ();
+  rs->dwCompStrOffset = reconvert_string::get_dwCompStrOffset ();
+  rs->dwTargetStrLen = rs->dwCompStrLen;
   rs->dwTargetStrOffset = rs->dwCompStrOffset;
 
   auto *p_str = reinterpret_cast<unsigned char*> (rs) + rs->dwStrOffset;
 
-  std::copy (reconvert_string::get_wbuff ().begin (),
-             reconvert_string::get_wbuff ().end (),
+  std::copy (reconvert_string::get_str ().begin (),
+             reconvert_string::get_str ().end (),
              reinterpret_cast<WCHAR*> (p_str));
 
   return true;
@@ -424,14 +422,11 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
       return 0;
     }
 
-  LRESULT retval = sizeof (RECONVERTSTRING) +
-    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
-
   if (!lparam)
     {
       DEBUG_MESSAGE_STATIC
         ("IMR_RECONVERTSTRING: first attempt succeeded\n");
-      return retval;
+      return reconvert_string::get_dwSize ();
     }
 
   DEBUG_MESSAGE_STATIC ("IMR_RECONVERTSTRING: second attempt...\n");
@@ -558,8 +553,6 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
       return 0;
     }
 
-  LRESULT retval = sizeof (RECONVERTSTRING) +
-    (reconvert_string::get_wbuff ().size () + 1) * sizeof (WCHAR);
   if (lparam)
     {
       auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
@@ -572,7 +565,7 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
 
       reconvert_string::clear ();
     }
-  return retval;
+  return reconvert_string::get_dwSize ();
 }
 
 LRESULT

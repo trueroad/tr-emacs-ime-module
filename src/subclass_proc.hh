@@ -92,31 +92,67 @@ private:
     // offset is a byte count from the beginning of the string
     // to indicate the cursor position, similar to
     // RECONVERTSTRING dwCompStrOffset.
-    static void set (std::basic_string<WCHAR> &&b, DWORD offset)
+    static void set (std::basic_string<WCHAR> &&str, DWORD offset)
     {
-      wbuff_ = std::move (b);
+      str_ = std::move (str);
       offset_ = offset;
+      len_ = 0;
       ab_set_.store (true);
+    }
+    static void add_comp (const std::basic_string<WCHAR> &compstr)
+    {
+      str_.insert (offset_ / sizeof (WCHAR), compstr);
+      len_ = compstr.size ();
     }
     static void clear (void)
     {
       ab_set_.store (false);
     }
-    static std::basic_string<WCHAR> &get_wbuff (void)
+    static std::basic_string<WCHAR> &get_str (void)
     {
-      return wbuff_;
+      return str_;
     }
-    static DWORD get_offset (void)
+    // For RECONVERTSTRING dwSize
+    // byte count for the struct
+    static DWORD get_dwSize (void)
+    {
+      return sizeof (RECONVERTSTRING) +
+        (get_dwStrLen () + 1) * sizeof (WCHAR);
+    }
+    // For RECONVERTSTRING dwStrLen
+    // WCHAR count for the length of the full string
+    static DWORD get_dwStrLen (void)
+    {
+      return str_.size ();
+    }
+    // For RECONVERTSTRING dwStrOffset
+    // byte count from the beginning of the struct to indicate the offset
+    // of the full string
+    static constexpr DWORD get_dwStrOffset (void)
+    {
+      return sizeof (RECONVERTSTRING);
+    }
+    // For RECONVERTSTRING dwComStrOffset
+    // byte count from the beginning of the string to indicate the offset
+    // of the composition string
+    static DWORD get_dwCompStrOffset (void)
     {
       return offset_;
+    }
+    // For RECONVERTSTRING dwCompStrLen
+    // WCHAR count for the length of the composition string
+    static DWORD get_dwCompStrLen (void)
+    {
+      return len_;
     }
     static bool isset (void)
     {
       return ab_set_.load ();
     }
   private:
-    static thread_local std::basic_string<WCHAR> wbuff_;
+    static thread_local std::basic_string<WCHAR> str_;
     static thread_local DWORD offset_;
+    static thread_local DWORD len_;
     static thread_local std::atomic<bool> ab_set_;
   };
 
