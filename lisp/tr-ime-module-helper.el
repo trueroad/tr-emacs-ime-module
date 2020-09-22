@@ -206,7 +206,7 @@ set-selected-window-buffer-functions を呼ぶ。
       (setq w32-tr-ime-module-last-selected-window-buffer buffer)))))
 
 (defun w32-tr-ime-module-hook-emulator-p-set (symb bool)
-  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
+  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
 
 bool が non-nil ならエミュレーションさせる。
 これにより post-command-hook にエミュレーション関数を追加することで、
@@ -217,9 +217,12 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-hook-emulator-p t
-  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か
+  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。
+
+post-command-hook を使って
+IME パッチ特有のアブノーマルフックをエミュレーションする機能。
 
 注意：w32-ime.el はこれらのアブノーマルフックを使って
 ウィンドウやバッファの切り替えを認識して
@@ -230,6 +233,54 @@ IME/IM が同期しなくなるなどの問題が発生する。
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set
+  :group 'w32-tr-ime-module-core)
+
+(defun w32-tr-ime-module-hook-emulator-focus-change ()
+  "フォーカス変更を検知してIME パッチ特有のフックエミュレーションを呼ぶ
+
+after-focus-change-function は呼び出された時点では
+まだ selected-frame が変わっていないことがあるので、
+全フレームに対して frame-focus-state　でフォーカスを得ているか否かを判定し、
+フォーカスを得ていたフレームで w32-tr-ime-module-hook-emulator
+を呼び出してウィンドウやバッファの変更を検知する。
+
+after-focus-change-function （GNU Emacs 27.1 以降）
+に登録して使う。"
+  (dolist (f (frame-list))
+    (when (frame-focus-state f)
+      (with-selected-frame f (w32-tr-ime-module-hook-emulator)))))
+
+(defun w32-tr-ime-module-hook-emulator-focus-change-p-set (symb bool)
+  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
+
+BOOL が non-nil なら設定する。
+BOOL が nil ならフックから削除して設定を停止する。"
+  (if bool
+      (add-function :before
+                    after-focus-change-function
+                    #'w32-tr-ime-module-hook-emulator-focus-change)
+    (remove-function
+     after-focus-change-function
+     #'w32-tr-ime-module-hook-emulator-focus-change))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-hook-emulator-focus-change-p t
+  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+after-focus-change-function を使って
+IME パッチ特有のアブノーマルフックをエミュレーションする機能。
+
+本設定を non-nil (Enable) にすると、
+フォーカス変更時（フレーム変更時）にも
+IME パッチ特有のフックエミュレーションを呼ぶようになる。
+emacsclient などでバッファが変更になった場合は
+post-command-hook が呼ばれずに検知漏れが発生するが、
+フォーカス変更もトリガに加えることで漏れを防ぐことができる。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-hook-emulator-focus-change-p-set
   :group 'w32-tr-ime-module-core)
 
 ;;
