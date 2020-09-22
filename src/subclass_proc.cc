@@ -201,11 +201,13 @@ subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
       return true;
     }
 
-  DEBUG_MESSAGE_STATIC ("  wait for three times\n");
-  for (int i = 0; i < 3; ++i)
+  DEBUG_MESSAGE_STATIC ("  wait for message\n");
+  auto before_time = GetTickCount ();
+  for (int i = 0; i < i_wait_message_times_; ++i)
     {
       auto r = MsgWaitForMultipleObjectsEx
-        (0, nullptr, 1000, QS_SENDMESSAGE, MWMO_INPUTAVAILABLE);
+        (0, nullptr, dw_wait_message_single_,
+         QS_SENDMESSAGE, MWMO_INPUTAVAILABLE);
 
       switch (r)
         {
@@ -234,9 +236,13 @@ subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
         {
           DEBUG_MESSAGE_STATIC ("  not yet\n");
         }
+
+      auto t = GetTickCount ();
+      if (t > before_time + dw_wait_message_total_ || t < before_time)
+        break;
     }
 
-  DEBUG_MESSAGE_STATIC ("  timeout\n");
+  WARNING_MESSAGE ("timeout\n");
   return false;
 }
 

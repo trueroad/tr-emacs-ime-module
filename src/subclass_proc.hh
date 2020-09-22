@@ -208,6 +208,10 @@ private:
   static std::atomic<bool> ab_documentfeed_;
   static std::atomic<int> ai_delete_chars_reconversion_complete_;
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;
+
+  static constexpr int i_wait_message_times_ = 100;
+  static constexpr DWORD dw_wait_message_single_ = 1000;
+  static constexpr DWORD dw_wait_message_total_ = 3000;
 };
 
 #endif // INCLUDE_GUARD_SUBCLASS_PROC_HH
