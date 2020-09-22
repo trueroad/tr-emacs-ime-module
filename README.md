@@ -827,21 +827,35 @@ C-x, C-h, C-c と ESC です）。
 
 Module1, Module2 ともに Win32 API の OutputDebugString を使って、
 デバッグメッセージの出力をしています。
-Module2 では `w32-tr-ime-set-verbose-level` 関数で出力するレベルを
-変更することができます。
+Module2 では出力するレベルを変更することができます。
 
-ほぼ何も出力しないようにしたいなら
-`(w32-tr-ime-set-verbose-level 0)`
-を実行してください。
-API の失敗などを出力するなら
-`(w32-tr-ime-set-verbose-level 3)`
-を、詳細なデバッグ情報も出力するなら
-`(w32-tr-ime-set-verbose-level 5)`
-を指定してください。
-ここまでであれば編集中や入力中の文字列は含まれません。
-`(w32-tr-ime-set-verbose-level 6)`
-にすると、再変換や確定済文字列を利用した変換などで、
-編集中や入力中の文字列も含んだデバッグ情報が出力されます。
+ほぼ何も出力しないようにしたいなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 0))
+```
+
+API の失敗などを出力するなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 3))
+```
+
+さらに詳細なデバッグ情報も出力するなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 5))
+```
+
+以上の設定では編集中や入力中の文字列はデバッグ出力に含まれません。
+再変換や確定済文字列を利用した変換などで、
+編集中や入力中の文字列も含んだデバッグ情報も出力したいなら、
+以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 6))
+```
+
 バイナリリリースのデフォルトは 5 にしてあります。
 
 ## ビルド
