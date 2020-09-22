@@ -26,7 +26,7 @@
 ;; 他のライブラリ
 ;;
 
-(require 'seq)
+(autoload 'seq-drop-while "seq")
 
 ;;
 ;; ユーザ設定用
