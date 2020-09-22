@@ -510,6 +510,8 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
                                             GCS_COMPSTR,
                                             &buff[0], len) > 0)
                 {
+                  DEBUG_MESSAGE_W (L"  documentfeed add_comp = \""
+                                   << buff << "\"\n");
                   reconvert_string::add_comp (buff);
                 }
             }
