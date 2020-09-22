@@ -364,17 +364,8 @@ subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
   std::basic_string<WCHAR> wbuff = reinterpret_cast<WCHAR*> (wparam);
   ReplyMessage (0);
 
-#ifndef NDEBUG
-  {
-    auto str = wbuff;
-    str = L"  wbuff = \"" + str + L"\"\n";
-    OutputDebugStringW (str.c_str ());
-
-    std::stringstream ss;
-    ss << "  point = " << static_cast<int> (lparam) << std::endl;
-    OutputDebugStringA (ss.str ().c_str ());
-  }
-#endif
+  DEBUG_MESSAGE_W (L"  string = \"" << wbuff << L"\"\n");
+  DEBUG_MESSAGE_A ("  point = " << static_cast<int> (lparam) << std::endl);
 
   auto offset = count_offset (wbuff.begin (), wbuff.end (), lparam);
   reconvert_string::set (std::move (wbuff), offset);
@@ -472,13 +463,7 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
       size_t n = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
                                    reinterpret_cast<WCHAR*> (p_before));
 
-#ifndef NDEBUG
-      {
-        std::stringstream ss;
-        ss << "  backward: " << n << std::endl;
-        DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
-      }
-#endif
+      DEBUG_MESSAGE_A ("  backward: " << n << std::endl);
 
       backward_complete::clear ();
       ui_to_lisp_queue::enqueue_one
@@ -501,13 +486,7 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
       size_t d = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
                                    reinterpret_cast<WCHAR*> (p_comp_end));
 
-#ifndef NDEBUG
-      {
-        std::stringstream ss;
-        ss << "  delete: " << d << std::endl;
-        DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
-      }
-#endif
+      DEBUG_MESSAGE_A ("  delete: " << d << std::endl);
 
       ai_delete_chars_reconversion_complete_.store (d);
     }

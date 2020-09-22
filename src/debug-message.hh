@@ -85,11 +85,45 @@
 #endif // HAVE_PRETTY_FUNCTION
 
 #ifdef NDEBUG
+#define DEBUG_MESSAGE_A(x)
+#define DEBUG_MESSAGE_W(x)
 #define DEBUG_MESSAGE_STATIC(x)
 #else
+#define DEBUG_MESSAGE_A(x)                      \
+  do                                            \
+    {                                           \
+      std::stringstream ss;                     \
+      ss << x;                                  \
+      OutputDebugStringA (ss.str ().c_str ());  \
+    }                                           \
+  while (false)
+#define DEBUG_MESSAGE_W(x)                      \
+  do                                            \
+    {                                           \
+      std::basic_stringstream<WCHAR> ss;        \
+      ss << x;                                  \
+      OutputDebugStringW (ss.str ().c_str ());  \
+    }                                           \
+  while (false)
 #define DEBUG_MESSAGE_STATIC(x) OutputDebugStringA ((x))
 #endif
 
+#define WARNING_MESSAGE_A(x)                    \
+  do                                            \
+    {                                           \
+      std::stringstream ss;                     \
+      ss << x;                                  \
+      OutputDebugStringA (ss.str ().c_str ());  \
+    }                                           \
+  while (false)
+#define WARNING_MESSAGE_W(x)                    \
+  do                                            \
+    {                                           \
+      std::basic_stringstream<WCHAR> ss;        \
+      ss << x;                                  \
+      OutputDebugStringW (ss.str ().c_str ());  \
+    }                                           \
+  while (false)
 #define WARNING_MESSAGE_STATIC(x) OutputDebugStringA ((x))
 
 inline std::string
