@@ -101,6 +101,9 @@
 #define DEBUG_MESSAGE_W(x)
 #define DEBUG_MESSAGE_STATIC(x)
 #define DEBUG_MESSAGE_RECONVERTSTRING(x)
+#define TRACE_MESSAGE_A(x)
+#define TRACE_MESSAGE_W(x)
+#define TRACE_MESSAGE_STATIC(x)
 #else
 #define DEBUG_MESSAGE_A(x)                              \
   do                                                    \
@@ -136,6 +139,35 @@
     {                                           \
       if (verbose_level >= 5)                   \
         debug_output_reconvert_string ((x));    \
+    }                                           \
+  while (false)
+#define TRACE_MESSAGE_A(x)                              \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 6)                           \
+        {                                               \
+          std::stringstream ss;                         \
+          ss << x;                                      \
+          OutputDebugStringA (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
+  while (false)
+#define TRACE_MESSAGE_W(x)                              \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 6)                           \
+        {                                               \
+          std::basic_stringstream<WCHAR> ss;            \
+          ss << x;                                      \
+          OutputDebugStringW (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
+  while (false)
+#define TRACE_MESSAGE_STATIC(x)                 \
+  do                                            \
+    {                                           \
+      if (verbose_level >= 6)                   \
+        OutputDebugStringA ((x));               \
     }                                           \
   while (false)
 #endif

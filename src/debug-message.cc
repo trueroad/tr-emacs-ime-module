@@ -84,11 +84,10 @@ debug_output_reconvert_string (RECONVERTSTRING *rs)
      << "  dwCompStrOffset  : " << rs->dwCompStrOffset << std::endl
      << "  dwTargetStrLen   : " << rs->dwTargetStrLen << std::endl
      << "  dwTargetStrOffset: " << rs->dwTargetStrOffset << std::endl;
-  OutputDebugStringA (ss.str ().c_str ());
+  DEBUG_MESSAGE_STATIC (ss.str ().c_str ());
 
   auto *buff = reinterpret_cast<WCHAR*>
     (reinterpret_cast<unsigned char*> (rs) + sizeof (RECONVERTSTRING));
   std::basic_string<WCHAR> str (buff, rs->dwStrLen);
-  str = L"  buff = \"" + str + L"\"\n";
-  OutputDebugStringW (str.c_str ());
+  TRACE_MESSAGE_W (L"  buff = \"" << str << L"\"\n");
 }

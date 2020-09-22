@@ -339,7 +339,7 @@ subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
   std::basic_string<WCHAR> wbuff = reinterpret_cast<WCHAR*> (wparam);
   ReplyMessage (0);
 
-  DEBUG_MESSAGE_W (L"  string = \"" << wbuff << L"\"\n");
+  TRACE_MESSAGE_W (L"  string = \"" << wbuff << L"\"\n");
   DEBUG_MESSAGE_A ("  point = " << static_cast<int> (lparam) << std::endl);
 
   auto offset = count_offset (wbuff.begin (), wbuff.end (), lparam);
@@ -510,7 +510,7 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
                                             GCS_COMPSTR,
                                             &buff[0], len) > 0)
                 {
-                  DEBUG_MESSAGE_W (L"  documentfeed add_comp = \""
+                  TRACE_MESSAGE_W (L"  documentfeed add_comp = \""
                                    << buff << "\"\n");
                   reconvert_string::add_comp (buff);
                 }
