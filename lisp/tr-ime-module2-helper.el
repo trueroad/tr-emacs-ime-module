@@ -141,7 +141,7 @@ Module2 を使用する際のコア機能の設定。
 BOOL が non-nil ならメッセージフックしてサブクラス化する。
 BOOL が nil ならサブクラス解除してメッセージフックを停止する。
 
-注意：tr-ime-module2 のほとんどの機能は
+注意：Module2 のほとんどの機能は
 メッセージフックとサブクラス化を前提としており、
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものも存在する。"
@@ -165,7 +165,7 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-注意：tr-ime-module2 のほとんどの機能は
+注意：Module2 のほとんどの機能は
 メッセージフックとサブクラス化を前提としており、
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものが存在する。
@@ -241,7 +241,16 @@ Emacs の動作がおかしくなってしまう。"
 (defcustom w32-tr-ime-module-recv-from-ui-thread-p t
   "UI スレッドからの通知を Lisp で受け取るか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+注意：Module2 の一部の機能は
+UI スレッドからの通知を Lisp で受け取り、
+Lisp での処理結果が UI スレッドへ通知されるまで待つものがある。
+これらの機能が有効なまま本設定を無効にしてしまうと
+Lisp が通知を受け取れなくなり処理もされず、
+UI スレッドは返ってこない通知を待つため（一時的に）
+ロックしてしまうことがある。
+特別な目的が無い限りは non-nil にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-recv-from-ui-thread-p-set
