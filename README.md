@@ -168,8 +168,9 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 Module2 の機能は以下の通りです。
 
-* 再変換 (RECONVERSION) に対応
-    * Module1 だけでは再変換ができません
+* 再変換 (RECONVERSION) および
+  前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
+    * Module1 だけではどちらもできません
     * Module2 でも今のところデフォルト無効にしていますので、
       使用したい場合は設定してください
 * すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
@@ -519,6 +520,28 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 
 ```el
 (custom-set-variables '(w32-tr-ime-module-reconversion-p t))
+```
+
+### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (Module2)
+
+確定済文字列のあるところにカーソルを置いて文字を入力・変換すると、
+カーソルのあった場所の確定済文字列によって変換候補が変わる機能です。
+たとえば、通常は「いっぱつ」を変換すると「一発」が最初の候補に出ても、
+「危機」の直後にカーソルがある状態だと「一髪」が最初の候補になる、
+というものです。
+
+本機能は、UI スレッドに WM_IME_REQUEST IMR_DOCUMENTFEED
+メッセージが来たら、内部専用キューにその旨を格納して Lisp に通知し、
+Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI スレッドに通知し、
+という通知の往復が必要で、かなり複雑な動作になっています。
+
+#### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
+
+今のところデフォルト無効にしています。
+有効にしたければ以下のようにすればできます。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-documentfeed-p t))
 ```
 
 ### IME フォント (Module2)
@@ -925,9 +948,6 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 わかっているだけで以下のような制約があります。
 
-* 前後の確定済文字列を参照した変換 (DOCUMENTFEED) に対応できていない
-    * 再変換 (RECONVERSION) は動作するようになりましたが、
-      DOCUMENTFEED はまだ動かせていません
 * Module2 で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
   エコーエリアの表示が消えてしまう
     * ワークアラウンドでなんとかしています

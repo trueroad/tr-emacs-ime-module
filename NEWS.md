@@ -1,6 +1,7 @@
 * Release x.x.x (xxxx-xx-xx):
     * Improve Module2
-    * 再変換 (RECONVERSION) に対応しました
+    * 再変換 (RECONVERSION) および
+      前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応しました
         * 今のところデフォルト無効にしていますので、
           使用したい場合は設定してください
 
