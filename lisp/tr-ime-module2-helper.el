@@ -590,7 +590,11 @@ BOOL が nil ならフックから削除して設定を停止する。"
 (defcustom w32-tr-ime-module-isearch-p t
   "isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+isearch-mode 中に未確定文字列をエコーエリア（ミニバッファ）
+に表示する機能。本機能が無効の場合、
+未確定文字列は isearch-mode に入る前の入力位置に表示される。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-isearch-p-set
@@ -722,7 +726,14 @@ BOOL が nil ならフックから削除して停止する。"
 (defcustom w32-tr-ime-module-prefix-key-p t
   "プレフィックスキーを検出して自動的に IME OFF するか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+コマンドのキーシーケンスになる最初のキーである
+プレフィックスキー（C-x など）を検出すると、
+自動的に IME OFF にして、コマンド終了後に IME 状態を戻す機能。
+
+本機能を有効にすると Module1 用の
+プレフィックスキー検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-prefix-key-p-set
@@ -740,7 +751,12 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
 
 (defcustom
   w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
-  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か"
+  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
+
+IME 状態変更通知があった時に、IME/IM 状態同期の前に
+フックエミュレーション関数を呼ぶことで、
+未検出のウィンドウ変更やバッファ変更を検知し、
+IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :group 'w32-tr-ime-module-setopenstatus)
@@ -780,7 +796,14 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
 (defcustom w32-tr-ime-module-setopenstatus-sync-p t
   "IME 状態変更通知による IM 状態同期をするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+Emacs 側トリガ（C-\\ やウィンドウ・バッファの切り替えなど）だけでなく、
+IME 側トリガ（半角/全角キーやマウスでの切り替えなど）も含め、
+IME 状態変更通知がきた時に、IME/IM 状態同期をする機能。
+
+本機能を有効にすると Module1 用の
+IME 状態食い違い検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-setopenstatus-sync-p-set
@@ -827,7 +850,11 @@ w32-tr-ime-module-documentfeed-hook に登録して使う。"
 (defcustom w32-tr-ime-module-reconversion-p nil
   "再変換 (RECONVERSION) 動作を行うか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+確定済文字列にカーソルを置いて変換キーを押すと、
+カーソルのあった場所の確定済文字列が未確定文字列になって、
+再変換できるようになる機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-reconversion-p-set
@@ -860,7 +887,10 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
 (defcustom w32-tr-ime-module-documentfeed-p nil
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+確定済文字列のあるところにカーソルを置いて文字を入力・変換すると、
+カーソルのあった場所の確定済文字列によって変換候補が変わる機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-documentfeed-p-set

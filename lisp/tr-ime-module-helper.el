@@ -219,7 +219,14 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
 (defcustom w32-tr-ime-module-hook-emulator-p t
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+注意：w32-ime.el はこれらのアブノーマルフックを使って
+ウィンドウやバッファの切り替えを認識して
+IME/IM の同期や切り替えなどを行っている。
+本設定を無効にすると、ウィンドウやバッファ切り替え時に
+IME/IM が同期しなくなるなどの問題が発生する。
+特別な目的が無い限りは non-nil にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set
@@ -235,7 +242,9 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
   :group 'w32-tr-ime-module-workaround-prefix-key)
 (defcustom w32-tr-ime-module-workaround-prefix-key-list
   '(?\C-x ?\C-h ?\C-c ?\e)
-  "プレフィックスキー検出ワークアラウンド用検出対象リスト"
+  "プレフィックスキー検出ワークアラウンド用検出対象リスト
+
+プレフィックスキーとして検出したいキーのリスト。"
   :type '(repeat integer)
   :group 'w32-tr-ime-module-workaround-prefix-key)
 
@@ -317,7 +326,11 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 (defcustom w32-tr-ime-module-workaround-prefix-key-p t
   "プレフィックスキー検出ワークアラウンドを動作させるか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+コマンドのキーシーケンスになる最初のキーである
+プレフィックスキー（C-x など）をタイマによるポーリングで検出すると、
+自動的に IME OFF にして、コマンド終了後に IME 状態を戻す機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-prefix-key-p-set
@@ -334,7 +347,11 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 
 (defcustom
   w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
-  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か"
+  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か
+
+ポーリング時の食い違い検出の前にフックエミュレーション関数を呼ぶ機能。
+これにより未検出のウィンドウ変更やバッファ変更を検知し、
+IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :group 'w32-tr-ime-module-workaround-inconsist-ime)
@@ -380,7 +397,10 @@ bool が nil なら停止させる。"
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
   "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+IME 側トリガの状態変更（半角/全角キーやマウスでの切り替え）を
+定期的なタイマによるポーリングで検出して IM 側を同期させるための機構。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set
