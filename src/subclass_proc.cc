@@ -546,6 +546,25 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
 
       if (!wait_message (hwnd, &reconvert_string::isset))
         return 0;
+
+      himc_raii himc (hwnd);
+      if (himc)
+        {
+          std::basic_string<WCHAR> buff;
+          auto len = ImmGetCompositionStringW (himc.get (),
+                                               GCS_COMPSTR,
+                                               nullptr, 0);
+          if (len > 0)
+            {
+              buff.resize (len / sizeof (WCHAR));
+              if (ImmGetCompositionStringW (himc.get (),
+                                            GCS_COMPSTR,
+                                            &buff[0], len) > 0)
+                {
+                  reconvert_string::add_comp (buff);
+                }
+            }
+        }
     }
   if (!reconvert_string::isset ())
     {
