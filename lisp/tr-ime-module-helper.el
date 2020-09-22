@@ -226,7 +226,7 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
 IME/IM の同期や切り替えなどを行っている。
 本設定を無効にすると、ウィンドウやバッファ切り替え時に
 IME/IM が同期しなくなるなどの問題が発生する。
-特別な目的が無い限りは non-nil にしておくこと。"
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set

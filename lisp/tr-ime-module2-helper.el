@@ -175,7 +175,7 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
 メッセージフックとサブクラス化を前提としており、
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものが存在する。
-特別な目的が無い限りは non-nil にしておくこと。"
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
@@ -220,7 +220,8 @@ GNU Emacs 27 や 28 の UI スレッドは、
 スレッドメッセージをディスパッチするようにできる。
 
 ただし、将来の Emacs で
-スレッドメッセージをディスパッチするようになったら本設定を nil にすること。
+スレッドメッセージをディスパッチするようになったら
+本設定を nil (Disable) にすること。
 さもなければひとつのスレッドメッセージを
 二重にディスパッチしてしまうことになり、
 Emacs の動作がおかしくなってしまう。"
@@ -256,7 +257,7 @@ Lisp での処理結果が UI スレッドへ通知されるまで待つもの�
 Lisp が通知を受け取れなくなり処理もされず、
 UI スレッドは返ってこない通知を待つため（一時的に）
 ロックしてしまうことがある。
-特別な目的が無い限りは non-nil にしておくこと。"
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-recv-from-ui-thread-p-set
@@ -454,7 +455,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-本設定を non-nil にすると、フォーカス変更時（フレーム変更時）に
+本設定を non-nil (Enable) にすると、フォーカス変更時（フレーム変更時）に
 フレームパラメータの ime-font 設定が、
 モジュール環境の未確定文字列フォントに反映される。"
   :type '(choice (const :tag "Enable" t)
@@ -467,7 +468,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-本設定を non-nil にすると、ほとんどのコマンド実行後に
+本設定を non-nil (Enable) にすると、ほとんどのコマンド実行後に
 フレームパラメータの ime-font 設定が、
 モジュール環境の未確定文字列フォントに反映される。
 つまり、ime-font 設定を変更することで IME パッチ環境と同様、
@@ -624,7 +625,7 @@ DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップして
 に入る前の文字入力位置に設定してしまうからで、
 この設定後に位置を上書きしても未確定文字列ウィンドウがチラつくからである。
 しかし、何らかの理由で元の Emacs の処理に戻さなければならない時は、
-本設定を non-nil にすることで isearch-mode 中であっても、
+本設定を non-nil (Enable) にすることで isearch-mode 中であっても、
 DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
