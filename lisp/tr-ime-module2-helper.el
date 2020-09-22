@@ -636,6 +636,12 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 ;; isearch-mode 時の Alt + 半角/全角ワークアラウンド
 ;;
 
+(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
+  0.0001
+  "Alt + 半角/全角ワークアラウンドで使うタイマの待ち時間（秒）"
+  :type 'float
+  :group 'w32-tr-ime-module-workaround-isearch-mode)
+
 (defun w32-tr-ime-module-workaround-isearch-mode-delayed-update ()
   "アイドル状態になったら isearch-mode のエコーエリアを再表示する
 
@@ -645,7 +651,9 @@ Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
 （恐らくキー操作後にくるイベントか何かで消されている）ので、
 Emacs がアイドル状態になったら動作するタイマで再表示させる。"
   (interactive)
-  (run-with-idle-timer 0.0001 nil #'isearch-update))
+  (run-with-idle-timer
+   w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
+   nil #'isearch-update))
 
 (defun w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
     (symb bool)

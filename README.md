@@ -753,6 +753,8 @@ Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
 （恐らくキー操作後にくるイベントか何かで消されている）ので、
 Emacs がアイドル状態になったら動作するタイマで再表示させる
 ワークアラウンドを用意しました。
+このタイマは Alt + 半角/全角キー操作 1 回につき 1 回だけ動作し、
+繰り返し動作はしません。
 
 Module1 だけ使う場合は問題ありません。
 Module2 でも
@@ -765,6 +767,11 @@ Alt + 半角/全角キー操作はしないとか、
 (custom-set-variables
  '(w32-tr-ime-module-workaround-isearch-mode-delayed-update-p nil))
 ```
+
+Alt + 半角/全角キー操作後に、
+アイドル状態になってから再表示するまでの待ち時間（秒）が
+`w32-tr-ime-module-workaround-isearch-mode-delayed-update-time`
+に設定できます（デフォルト 0.0001）。
 
 #### IME 状態の食い違いを検出して修正するワークアラウンド
 
