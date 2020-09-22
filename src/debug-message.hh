@@ -42,9 +42,12 @@
 #define DEBUG_MESSAGE(x)                                                \
   do                                                                    \
     {                                                                   \
-      std::stringstream ss;                                             \
-      ss << "debug: " << __PRETTY_FUNCTION__ << ": " << x;              \
-      OutputDebugStringA (ss.str ().c_str ());                          \
+      if (verbose_level >= 5)                                           \
+        {                                                               \
+          std::stringstream ss;                                         \
+          ss << "debug: " << __PRETTY_FUNCTION__ << ": " << x;          \
+          OutputDebugStringA (ss.str ().c_str ());                      \
+        }                                                               \
     }                                                                   \
   while (false)
 #endif
@@ -52,9 +55,12 @@
 #define WARNING_MESSAGE(x)                                              \
   do                                                                    \
     {                                                                   \
-      std::stringstream ss;                                             \
-      ss << "warning: " << __PRETTY_FUNCTION__ << ": " << x;            \
-      OutputDebugStringA (ss.str ().c_str ());                          \
+      if (verbose_level >= 3)                                           \
+        {                                                               \
+          std::stringstream ss;                                         \
+          ss << "warning: " << __PRETTY_FUNCTION__ << ": " << x;        \
+          OutputDebugStringA (ss.str ().c_str ());                      \
+        }                                                               \
     }                                                                   \
   while (false)
 
@@ -66,9 +72,12 @@
 #define DEBUG_MESSAGE(x)                                                \
   do                                                                    \
     {                                                                   \
-      std::stringstream ss;                                             \
-      ss << "debug: " << __func__ << ": " << x;                         \
-      OutputDebugStringA (ss.str ().c_str ());                          \
+      if (verbose_level >= 5)                                           \
+        {                                                               \
+          std::stringstream ss;                                         \
+          ss << "debug: " << __func__ << ": " << x;                     \
+          OutputDebugStringA (ss.str ().c_str ());                      \
+        }                                                               \
     }                                                                   \
   while (false)
 #endif
@@ -76,9 +85,12 @@
 #define WARNING_MESSAGE(x)                                              \
   do                                                                    \
     {                                                                   \
-      std::stringstream ss;                                             \
-      ss << "warning: " << __func__ << ": " << x;                       \
-      OutputDebugStringA (ss.str ().c_str ());                          \
+      if (verbose_level >= 3)                                           \
+        {                                                               \
+          std::stringstream ss;                                         \
+          ss << "warning: " << __func__ << ": " << x;                   \
+          OutputDebugStringA (ss.str ().c_str ());                      \
+        }                                                               \
     }                                                                   \
   while (false)
 
@@ -90,87 +102,77 @@
 #define DEBUG_MESSAGE_STATIC(x)
 #define DEBUG_MESSAGE_RECONVERTSTRING(x)
 #else
-#define DEBUG_MESSAGE_A(x)                      \
+#define DEBUG_MESSAGE_A(x)                              \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 5)                           \
+        {                                               \
+          std::stringstream ss;                         \
+          ss << x;                                      \
+          OutputDebugStringA (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
+  while (false)
+#define DEBUG_MESSAGE_W(x)                              \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 5)                           \
+        {                                               \
+          std::basic_stringstream<WCHAR> ss;            \
+          ss << x;                                      \
+          OutputDebugStringW (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
+  while (false)
+#define DEBUG_MESSAGE_STATIC(x)                 \
   do                                            \
     {                                           \
-      std::stringstream ss;                     \
-      ss << x;                                  \
-      OutputDebugStringA (ss.str ().c_str ());  \
+      if (verbose_level >= 5)                   \
+        OutputDebugStringA ((x));               \
     }                                           \
   while (false)
-#define DEBUG_MESSAGE_W(x)                      \
+#define DEBUG_MESSAGE_RECONVERTSTRING(x)        \
   do                                            \
     {                                           \
-      std::basic_stringstream<WCHAR> ss;        \
-      ss << x;                                  \
-      OutputDebugStringW (ss.str ().c_str ());  \
+      if (verbose_level >= 5)                   \
+        debug_output_reconvert_string ((x));    \
     }                                           \
   while (false)
-#define DEBUG_MESSAGE_STATIC(x) OutputDebugStringA ((x))
-#define DEBUG_MESSAGE_RECONVERTSTRING(x) debug_output_reconvert_string ((x))
 #endif
 
-#define WARNING_MESSAGE_A(x)                    \
-  do                                            \
-    {                                           \
-      std::stringstream ss;                     \
-      ss << x;                                  \
-      OutputDebugStringA (ss.str ().c_str ());  \
-    }                                           \
+#define WARNING_MESSAGE_A(x)                            \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 3)                           \
+        {                                               \
+          std::stringstream ss;                         \
+          ss << x;                                      \
+          OutputDebugStringA (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
   while (false)
-#define WARNING_MESSAGE_W(x)                    \
-  do                                            \
-    {                                           \
-      std::basic_stringstream<WCHAR> ss;        \
-      ss << x;                                  \
-      OutputDebugStringW (ss.str ().c_str ());  \
-    }                                           \
+#define WARNING_MESSAGE_W(x)                            \
+  do                                                    \
+    {                                                   \
+      if (verbose_level >= 3)                           \
+        {                                               \
+          std::basic_stringstream<WCHAR> ss;            \
+          ss << x;                                      \
+          OutputDebugStringW (ss.str ().c_str ());      \
+        }                                               \
+    }                                                   \
   while (false)
-#define WARNING_MESSAGE_STATIC(x) OutputDebugStringA ((x))
+#define WARNING_MESSAGE_STATIC(x) \
+  do                              \
+    {                             \
+      if (verbose_level >= 3)     \
+        OutputDebugStringA ((x)); \
+    }                             \
+  while (false)
 
-inline std::string
-get_format_message (DWORD dwMessageId)
-{
-  LPSTR lpbuff;
+std::string get_format_message (DWORD dwMessageId);
+void debug_output_reconvert_string (RECONVERTSTRING *rs);
 
-  if (!FormatMessageA (FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                       FORMAT_MESSAGE_FROM_SYSTEM |
-                       FORMAT_MESSAGE_IGNORE_INSERTS,
-                       nullptr,
-                       dwMessageId,
-                       MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT),
-                       reinterpret_cast<LPSTR> (&lpbuff),
-                       0,
-                       nullptr))
-    return "error";
-
-  std::string ret {lpbuff};
-  LocalFree (lpbuff);
-
-  return ret;
-}
-
-inline void
-debug_output_reconvert_string (RECONVERTSTRING *rs)
-{
-  std::stringstream ss;
-
-  ss << "---RECONVERTSTRING---" << std::endl
-     << "  dwSize           : " << rs->dwSize << std::endl
-     << "  dwVersion        : " << rs->dwVersion << std::endl
-     << "  dwStrLen         : " << rs->dwStrLen << std::endl
-     << "  dwStrOffset      : " << rs->dwStrOffset << std::endl
-     << "  dwCompStrLen     : " << rs->dwCompStrLen << std::endl
-     << "  dwCompStrOffset  : " << rs->dwCompStrOffset << std::endl
-     << "  dwTargetStrLen   : " << rs->dwTargetStrLen << std::endl
-     << "  dwTargetStrOffset: " << rs->dwTargetStrOffset << std::endl;
-  OutputDebugStringA (ss.str ().c_str ());
-
-  auto *buff = reinterpret_cast<WCHAR*>
-    (reinterpret_cast<unsigned char*> (rs) + sizeof (RECONVERTSTRING));
-  std::basic_string<WCHAR> str (buff, rs->dwStrLen);
-  str = L"  buff = \"" + str + L"\"\n";
-  OutputDebugStringW (str.c_str ());
-}
+extern int verbose_level;
 
 #endif // INCLUDE_GUARD_DEBUG_MESSAGE_HH
