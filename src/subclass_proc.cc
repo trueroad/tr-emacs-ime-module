@@ -61,10 +61,7 @@ std::atomic<bool> subclass_proc::ab_last_ime_state_set_ {false};
 std::atomic<bool> subclass_proc::ab_reconversion_ {false};
 std::atomic<bool> subclass_proc::ab_documentfeed_ {false};
 std::atomic<int> subclass_proc::ai_delete_chars_reconversion_complete_ {0};
-
-#ifndef NDEBUG
 thread_local std::unordered_set<HWND> subclass_proc::compositioning_hwnds_;
-#endif
 
 class himc_raii final
 {
@@ -637,13 +634,11 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
 {
   bool b_extra_start = true;
 
-#ifndef NDEBUG
   if (compositioning_hwnds_.find (hwnd) == compositioning_hwnds_.end ())
     {
       b_extra_start = false;
       compositioning_hwnds_.insert (hwnd);
     }
-#endif
 
   if (!b_extra_start)
     DEBUG_MESSAGE ("WM_IME_STARTCOMPOSITION: initial\n");
@@ -713,7 +708,6 @@ subclass_proc::wm_ime_startcomposition (HWND hwnd, UINT umsg,
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }
 
-#ifndef NDEBUG
 LRESULT
 subclass_proc::wm_ime_endcomposition (HWND hwnd, UINT umsg,
                                       WPARAM wparam, LPARAM lparam)
@@ -723,7 +717,6 @@ subclass_proc::wm_ime_endcomposition (HWND hwnd, UINT umsg,
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);
 }
-#endif
 
 LRESULT CALLBACK
 subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
@@ -774,10 +767,8 @@ subclass_proc::proc (HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam,
     case WM_IME_STARTCOMPOSITION:
       return wm_ime_startcomposition (hwnd, umsg, wparam, lparam);
 
-#ifndef NDEBUG
     case WM_IME_ENDCOMPOSITION:
       return wm_ime_endcomposition (hwnd, umsg, wparam, lparam);
-#endif
     }
 
   return DefSubclassProc (hwnd, umsg, wparam, lparam);

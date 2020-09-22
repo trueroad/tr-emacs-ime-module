@@ -196,10 +196,7 @@ private:
   static LRESULT wm_ime_request (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_composition (HWND, UINT, WPARAM, LPARAM);
   static LRESULT wm_ime_startcomposition (HWND, UINT, WPARAM, LPARAM);
-
-#ifndef NDEBUG
   static LRESULT wm_ime_endcomposition (HWND, UINT, WPARAM, LPARAM);
-#endif
 
   static constexpr UINT_PTR subclass_id_ {0};
   static thread_local LOGFONTW lf_imefont_;
@@ -210,10 +207,7 @@ private:
   static std::atomic<bool> ab_reconversion_;
   static std::atomic<bool> ab_documentfeed_;
   static std::atomic<int> ai_delete_chars_reconversion_complete_;
-
-#ifndef NDEBUG
   static thread_local std::unordered_set<HWND> compositioning_hwnds_;
-#endif
 };
 
 #endif // INCLUDE_GUARD_SUBCLASS_PROC_HH
