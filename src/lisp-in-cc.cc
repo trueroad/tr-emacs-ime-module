@@ -882,6 +882,32 @@ Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
   return env->funcall (env, list, a.size (), a.data ());
 }
 
+const char *doc_w32_tr_ime_set_verbose_level =
+  "Set verbose level for module's OutputDebugStringA/W () output\n\n"
+  "ARG is verbose level in integer.\n"
+  "0: none\n"
+  "1: fatal\n"
+  "2: error\n"
+  "3: warn\n"
+  "4: info\n"
+  "5: debug\n"
+  "6: trace";
+
+emacs_value
+Fw32_tr_ime_set_verbose_level (emacs_env* env, ptrdiff_t nargs,
+                               emacs_value args[], void*)
+{
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  verbose_level = env->extract_integer (env, args[0]);
+
+  return env->intern (env, "t");
+}
+
 #ifndef NDEBUG
 
 const char *doc_w32_tr_ime_debug_output =

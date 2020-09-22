@@ -160,6 +160,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    0, 0, Fw32_tr_ime_get_dpi,
                    doc_w32_tr_ime_get_dpi,
                    nullptr);
+  regist_function (env, "w32-tr-ime-set-verbose-level",
+                   1, 1, Fw32_tr_ime_set_verbose_level,
+                   doc_w32_tr_ime_set_verbose_level,
+                   nullptr);
 
 #ifndef NDEBUG
 
