@@ -46,7 +46,7 @@ HWND subclass_proc::prefix_key::hwnd_ {0};
 bool subclass_proc::prefix_key::b_before_ime_mode_;
 
 thread_local std::basic_string<WCHAR> subclass_proc::reconvert_string::wbuff_;
-thread_local int subclass_proc::reconvert_string::point_;
+thread_local DWORD subclass_proc::reconvert_string::offset_;
 thread_local std::atomic<bool>
 subclass_proc::reconvert_string::ab_set_ {false};
 thread_local std::atomic<bool>
@@ -261,20 +261,16 @@ subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
   rs->dwVersion = 0;
   rs->dwStrLen = reconvert_string::get_wbuff ().size ();
   rs->dwStrOffset = sizeof (RECONVERTSTRING);
+  rs->dwCompStrLen = 0;
+  rs->dwCompStrOffset = reconvert_string::get_offset ();
+  rs->dwTargetStrLen = 0;
+  rs->dwTargetStrOffset = rs->dwCompStrOffset;
 
   auto *p_str = reinterpret_cast<unsigned char*> (rs) + rs->dwStrOffset;
-  auto *p_str_end = p_str + rs->dwStrLen * sizeof (WCHAR);
 
   std::copy (reconvert_string::get_wbuff ().begin (),
              reconvert_string::get_wbuff ().end (),
              reinterpret_cast<WCHAR*> (p_str));
-
-  rs->dwCompStrLen = 0;
-  rs->dwCompStrOffset = count_offset (reinterpret_cast<WCHAR*> (p_str),
-                                      reinterpret_cast<WCHAR*> (p_str_end),
-                                      reconvert_string::get_point ());
-  rs->dwTargetStrLen = 0;
-  rs->dwTargetStrOffset = rs->dwCompStrOffset;
 
   return true;
 }
@@ -382,7 +378,8 @@ subclass_proc::wm_tr_ime_notify_reconvert_string (HWND hwnd, UINT umsg,
   }
 #endif
 
-  reconvert_string::set (std::move (wbuff), lparam);
+  auto offset = count_offset (wbuff.begin (), wbuff.end (), lparam);
+  reconvert_string::set (std::move (wbuff), offset);
   DEBUG_MESSAGE_STATIC ("  set reconvert string\n");
 
   return 0;

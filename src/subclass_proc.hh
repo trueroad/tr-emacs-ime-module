@@ -89,10 +89,13 @@ private:
   class reconvert_string
   {
   public:
-    static void set (std::basic_string<WCHAR> &&b, int p)
+    // offset is a byte count from the beginning of the string
+    // to indicate the cursor position, similar to
+    // RECONVERTSTRING dwCompStrOffset.
+    static void set (std::basic_string<WCHAR> &&b, DWORD offset)
     {
       wbuff_ = std::move (b);
-      point_ = p;
+      offset_ = offset;
       ab_set_.store (true);
     }
     static void clear (void)
@@ -103,9 +106,9 @@ private:
     {
       return wbuff_;
     }
-    static int get_point (void)
+    static DWORD get_offset (void)
     {
-      return point_;
+      return offset_;
     }
     static bool isset (void)
     {
@@ -113,7 +116,7 @@ private:
     }
   private:
     static thread_local std::basic_string<WCHAR> wbuff_;
-    static thread_local int point_;
+    static thread_local DWORD offset_;
     static thread_local std::atomic<bool> ab_set_;
   };
 
