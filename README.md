@@ -120,7 +120,7 @@ Cygwin 公式パッケージにするには、
 
 `/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
 モジュール DLL を置いてある **ディレクトリ**
-をフルパスを書いた 1 行を追加します。
+をフルパスで書いた 1 行を追加します。
 
 ```
 $ cd /var/lib/rebase/dynpath.d
@@ -141,7 +141,7 @@ $ /etc/postinstall/0p_000_autorebase.dash
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の **ファイル名** をフルパスを書いた行を追加します。
+モジュール DLL の **ファイル名** をフルパスで書いた行を追加します。
 
 ```
 $ cd /var/lib/rebase/user.d
