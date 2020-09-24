@@ -188,6 +188,8 @@ private:
   static LRESULT
   wm_tr_ime_notify_backward_complete (HWND, UINT, WPARAM, LPARAM);
 
+  static bool get_reconvert_string (HWND);
+  static bool add_composition_string (HWND);
   static LRESULT imr_reconvertstring (HWND, UINT, WPARAM, LPARAM);
   static LRESULT imr_documentfeed (HWND, UINT, WPARAM, LPARAM);
 

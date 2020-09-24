@@ -249,6 +249,12 @@ subclass_proc::wait_message (HWND hwnd, std::function<bool(void)> f)
 bool
 subclass_proc::set_reconvert_string (RECONVERTSTRING *rs)
 {
+  if (!reconvert_string::isset ())
+    {
+      WARNING_MESSAGE ("no reconvert string\n");
+      return false;
+    }
+
   if (rs->dwSize < reconvert_string::get_dwSize ())
     {
       WARNING_MESSAGE ("size over\n");
@@ -366,6 +372,69 @@ subclass_proc::wm_tr_ime_notify_backward_complete (HWND hwnd, UINT umsg,
   return 0;
 }
 
+bool
+subclass_proc::get_reconvert_string (HWND hwnd)
+{
+  reconvert_string::clear ();
+
+  ui_to_lisp_queue::enqueue_one
+    (std::make_unique<queue_message>
+     (queue_message::message::reconvertstring, hwnd));
+  SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+  if (!wait_message (hwnd, &reconvert_string::isset))
+    return false;
+
+  if (!reconvert_string::isset ())
+    {
+      WARNING_MESSAGE ("no reconvert string\n");
+      return false;
+    }
+
+  return true;
+}
+
+bool
+subclass_proc::add_composition_string (HWND hwnd)
+{
+  himc_raii himc (hwnd);
+  if (himc)
+    {
+      std::basic_string<WCHAR> buff;
+      auto len = ImmGetCompositionStringW (himc.get (),
+                                           GCS_COMPSTR,
+                                           nullptr, 0);
+      if (len > 0)
+        {
+          buff.resize (len / sizeof (WCHAR));
+          if (ImmGetCompositionStringW (himc.get (),
+                                        GCS_COMPSTR,
+                                        &buff[0], len) > 0)
+            {
+              TRACE_MESSAGE_W (L"  documentfeed add_comp = \""
+                               << buff << "\"\n");
+              reconvert_string::add_comp (buff);
+
+              return true;
+            }
+          else
+            {
+              auto e = GetLastError ();
+              WARNING_MESSAGE ("ImmGetCompositionStringW 2nd failed: " +
+                               get_format_message (e) + "\n");
+            }
+        }
+      else
+        {
+          auto e = GetLastError ();
+          WARNING_MESSAGE ("ImmGetCompositionStringW 1st failed: " +
+                           get_format_message (e) + "\n");
+        }
+    }
+
+  return false;
+}
+
 LRESULT
 subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
                                     WPARAM wparam, LPARAM lparam)
@@ -374,27 +443,12 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
 
   if (!lparam)
     {
-      reconvert_string::clear ();
-
-      ui_to_lisp_queue::enqueue_one
-        (std::make_unique<queue_message>
-         (queue_message::message::reconvertstring, hwnd));
-      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-      if (!wait_message (hwnd, &reconvert_string::isset))
+      if (!get_reconvert_string (hwnd))
         return 0;
-    }
-  if (!reconvert_string::isset ())
-    {
-      WARNING_MESSAGE
-        ("IMR_RECONVERTSTRING: no reconvert string\n");
-      return 0;
-    }
 
-  if (!lparam)
-    {
       DEBUG_MESSAGE_STATIC
         ("IMR_RECONVERTSTRING: first attempt succeeded\n");
+
       return reconvert_string::get_dwSize ();
     }
 
@@ -489,54 +543,30 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
 
   if (!lparam)
     {
-      reconvert_string::clear ();
-
-      ui_to_lisp_queue::enqueue_one
-        (std::make_unique<queue_message>
-         (queue_message::message::documentfeed, hwnd));
-      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-      if (!wait_message (hwnd, &reconvert_string::isset))
+      if (!get_reconvert_string (hwnd))
         return 0;
 
-      himc_raii himc (hwnd);
-      if (himc)
-        {
-          std::basic_string<WCHAR> buff;
-          auto len = ImmGetCompositionStringW (himc.get (),
-                                               GCS_COMPSTR,
-                                               nullptr, 0);
-          if (len > 0)
-            {
-              buff.resize (len / sizeof (WCHAR));
-              if (ImmGetCompositionStringW (himc.get (),
-                                            GCS_COMPSTR,
-                                            &buff[0], len) > 0)
-                {
-                  TRACE_MESSAGE_W (L"  documentfeed add_comp = \""
-                                   << buff << "\"\n");
-                  reconvert_string::add_comp (buff);
-                }
-            }
-        }
-    }
-  if (!reconvert_string::isset ())
-    {
-      WARNING_MESSAGE ("IMR_DOCUMENTFEED: no reconvert string\n");
-      return 0;
-    }
-
-  if (lparam)
-    {
-      auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
-      if (!set_reconvert_string (rs))
+      if (!add_composition_string (hwnd))
         return 0;
 
-      DEBUG_MESSAGE_RECONVERTSTRING (rs);
+      DEBUG_MESSAGE_STATIC
+        ("IMR_DOCUMENTFEED: first attempt succeeded\n");
 
-      reconvert_string::clear ();
+      return reconvert_string::get_dwSize ();
     }
-  return reconvert_string::get_dwSize ();
+
+  DEBUG_MESSAGE_STATIC ("IMR_DOCUMENTFEED: second attempt...\n");
+
+  auto *rs = reinterpret_cast<RECONVERTSTRING*> (lparam);
+  if (!set_reconvert_string (rs))
+    return 0;
+
+  DEBUG_MESSAGE_RECONVERTSTRING (rs);
+
+  auto s = reconvert_string::get_dwSize ();
+  reconvert_string::clear ();
+
+  return s;
 }
 
 LRESULT
