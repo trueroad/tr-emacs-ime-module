@@ -732,10 +732,10 @@ BOOL が nil ならフックから削除して停止する。"
         (w32-tr-ime-set-prefix-keys
          (string-to-number (frame-parameter nil 'window-id))
          w32-tr-ime-module-prefix-key-list)
-        (add-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+        (add-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
     (w32-tr-ime-set-prefix-keys
      (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+    (remove-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-prefix-key-p t

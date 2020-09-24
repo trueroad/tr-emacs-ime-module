@@ -615,7 +615,7 @@ Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
 const char *doc_w32_tr_ime_resume_prefix_key =
   "Resume IME mode if a prefix key was pressed before\n\n"
   "If IME was automatically turned off previously by the prefix key,\n"
-  "IME is resumed to on. This function is for adding to post-command-hook.";
+  "IME is resumed to on. This function is for adding to pre-command-hook.";
 
 emacs_value
 Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,

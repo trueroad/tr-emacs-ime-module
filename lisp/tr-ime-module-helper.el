@@ -323,8 +323,8 @@ IME 状態を保存してから IME OFF にし、フラグを検出済にする�
 (defun w32-tr-ime-module-workaround-prefix-key-restore-ime-mode ()
   "プレフィックスキー検出による自動 IME OFF から IME 状態を復帰させる関数
 
-Emacs の標準的なフックの一つ post-command-hook に登録する。
-post-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
+Emacs の標準的なフックの一つ pre-command-hook に登録する。
+pre-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
 
 この関数の動作は、
 プレフィックスキー検出済であったら未検出に変え、
@@ -340,10 +340,10 @@ post-command-hook によって、ほとんどのコマンドの動作後に呼�
 
 periodic が nil ならアイドル状態検出タイマ、non-nil なら周期的タイマで、
 プレフィックスキーを検出し自動的に IME を OFF にする。
-あわせて post-command-hook をフックしてコマンドの終了を検知し
+あわせて pre-command-hook をフックしてコマンドの終了を検知し
 IME 状態を復帰させる。"
   (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag t)
-  (add-hook 'post-command-hook
+  (add-hook 'pre-command-hook
             #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
@@ -360,7 +360,7 @@ IME 状態を復帰させる。"
   "プレフィックスキーで自動 IME OFF するワークアラウンドを停止させる
 
 タイマを停止させ、フックも削除することでワークアラウンドを停止させる。"
-  (remove-hook 'post-command-hook
+  (remove-hook 'pre-command-hook
                #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
