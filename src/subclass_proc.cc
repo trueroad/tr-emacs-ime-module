@@ -435,6 +435,55 @@ subclass_proc::add_composition_string (HWND hwnd)
   return false;
 }
 
+void
+subclass_proc::process_backward_characters (HWND hwnd,
+                                            RECONVERTSTRING *rs, DWORD before)
+{
+  if (before > rs->dwCompStrOffset)
+    {
+      DEBUG_MESSAGE_STATIC ("  require backward characters\n");
+
+      auto *p_str = reinterpret_cast <unsigned char*> (rs) + rs->dwStrOffset;
+      auto *p_comp = p_str + rs->dwCompStrOffset;
+      auto *p_before = p_str + before;
+      size_t n = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
+                                   reinterpret_cast<WCHAR*> (p_before));
+
+      DEBUG_MESSAGE_A ("  backward: " << n << std::endl);
+
+      backward_complete::clear ();
+      ui_to_lisp_queue::enqueue_one
+        (std::make_unique<queue_message>
+         (queue_message::message::backward_char, hwnd, n));
+      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
+
+      if (!wait_message (hwnd, &backward_complete::isset))
+        {
+          WARNING_MESSAGE
+            ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
+        }
+    }
+}
+
+void
+subclass_proc::process_delete_characters (HWND hwnd, RECONVERTSTRING *rs)
+{
+  if (rs->dwCompStrLen)
+    {
+      DEBUG_MESSAGE_STATIC ("  require delete characters\n");
+
+      auto *p_str = reinterpret_cast <unsigned char*> (rs) + rs->dwStrOffset;
+      auto *p_comp = p_str + rs->dwCompStrOffset;
+      auto *p_comp_end = p_comp + rs->dwCompStrLen * sizeof (WCHAR);
+      size_t d = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
+                                   reinterpret_cast<WCHAR*> (p_comp_end));
+
+      DEBUG_MESSAGE_A ("  delete: " << d << std::endl);
+
+      ai_delete_chars_reconversion_complete_.store (d);
+    }
+}
+
 LRESULT
 subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
                                     WPARAM wparam, LPARAM lparam)
@@ -470,60 +519,27 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
                                  SCS_QUERYRECONVERTSTRING,
                                  rs, rs->dwSize, nullptr, 0))
     {
+      auto e = GetLastError ();
       WARNING_MESSAGE
-        ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING failed\n");
+        ("ImmSetCompositionStringW: SCS_QUERYRECONVERTSTRING failed: " +
+         get_format_message (e) + "\n");
       return 0;
     }
 
   DEBUG_MESSAGE_STATIC ("  SCS_QUERYRECONVERTSTRING succeeded\n");
   DEBUG_MESSAGE_RECONVERTSTRING (rs);
 
-  auto *p_str = reinterpret_cast <unsigned char*> (rs) + rs->dwStrOffset;
-  auto *p_comp = p_str + rs->dwCompStrOffset;
-  auto *p_comp_end = p_comp + rs->dwCompStrLen * sizeof (WCHAR);
-
-  if (before_offset > rs->dwCompStrOffset)
-    {
-      DEBUG_MESSAGE_STATIC ("  require backward characters\n");
-
-      auto *p_before = p_str + before_offset;
-      size_t n = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
-                                   reinterpret_cast<WCHAR*> (p_before));
-
-      DEBUG_MESSAGE_A ("  backward: " << n << std::endl);
-
-      backward_complete::clear ();
-      ui_to_lisp_queue::enqueue_one
-        (std::make_unique<queue_message>
-         (queue_message::message::backward_char, hwnd, n));
-      SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
-
-      if (!wait_message (hwnd, &backward_complete::isset))
-        {
-          WARNING_MESSAGE
-            ("timeout for WM_TR_IME_NOTIFY_BACKWARD_COMPLETE\n");
-        }
-    }
-
-  if (rs->dwCompStrLen)
-    {
-      DEBUG_MESSAGE_STATIC ("  require delete characters\n");
-
-      auto *p_comp_end = p_comp + rs->dwCompStrLen * sizeof (WCHAR);
-      size_t d = count_codepoints (reinterpret_cast<WCHAR*> (p_comp),
-                                   reinterpret_cast<WCHAR*> (p_comp_end));
-
-      DEBUG_MESSAGE_A ("  delete: " << d << std::endl);
-
-      ai_delete_chars_reconversion_complete_.store (d);
-    }
+  process_backward_characters (hwnd, rs, before_offset);
+  process_delete_characters (hwnd, rs);
 
   if (!ImmSetCompositionStringW (himc.get (),
                                  SCS_SETRECONVERTSTRING,
                                  rs, rs->dwSize, nullptr, 0))
     {
+      auto e = GetLastError ();
       WARNING_MESSAGE
-        ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING failed\n");
+        ("ImmSetCompositionStringW: SCS_SETRECONVERTSTRING failed: " +
+         get_format_message (e) + "\n");
     }
   else
     {

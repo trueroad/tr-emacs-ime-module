@@ -190,6 +190,8 @@ private:
 
   static bool get_reconvert_string (HWND);
   static bool add_composition_string (HWND);
+  static void process_backward_characters (HWND, RECONVERTSTRING*, DWORD);
+  static void process_delete_characters (HWND, RECONVERTSTRING*);
   static LRESULT imr_reconvertstring (HWND, UINT, WPARAM, LPARAM);
   static LRESULT imr_documentfeed (HWND, UINT, WPARAM, LPARAM);
 
