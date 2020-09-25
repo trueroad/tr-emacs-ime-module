@@ -862,7 +862,7 @@ w32-tr-ime-module-documentfeed-hook に登録して使う。"
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
 
-(defcustom w32-tr-ime-module-reconversion-p nil
+(defcustom w32-tr-ime-module-reconversion-p t
   "再変換 (RECONVERSION) 動作を行うか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。
@@ -899,7 +899,7 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
 
-(defcustom w32-tr-ime-module-documentfeed-p nil
+(defcustom w32-tr-ime-module-documentfeed-p t
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
 
 この設定を変更する場合には custom-set-variables を使うこと。

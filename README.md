@@ -171,8 +171,7 @@ Module2 の機能は以下の通りです。
 * 再変換 (RECONVERSION) および
   前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
     * Module1 だけではどちらもできません
-    * Module2 でも今のところデフォルト無効にしていますので、
-      使用したい場合は設定してください
+    * もし不安定になるようなら設定で無効にすることができます
 * すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
     * Module1 だけでは Alt + 半角/全角キー（もしくは C-\\）による
       IME ON/OFF のみ対応しており、
@@ -549,11 +548,11 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 
 #### 再変換 (RECONVERSION) 動作を行うか否か
 
-今のところデフォルト無効にしています。
-有効にしたければ以下のようにすればできます。
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-reconversion-p t))
+(custom-set-variables '(w32-tr-ime-module-reconversion-p nil))
 ```
 
 ### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (Module2)
@@ -571,11 +570,11 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 
 #### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
 
-今のところデフォルト無効にしています。
-有効にしたければ以下のようにすればできます。
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-documentfeed-p t))
+(custom-set-variables '(w32-tr-ime-module-documentfeed-p nil))
 ```
 
 ### IME フォント (Module2)
