@@ -1,4 +1,4 @@
-* Release x.x.x (xxxx-xx-xx):
+* Release 0.3.0 (2020-09-25):
     * Improve Module2
     * 再変換 (RECONVERSION) および
       前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応しました
