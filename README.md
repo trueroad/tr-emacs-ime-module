@@ -255,7 +255,7 @@ DLL はロードされません。
 
 ```el
 (if (featurep 'tr-ime-module-helper)
-    (if (featurep 'tr-ime-module-helper2)
+    (if (featurep 'tr-ime-module2-helper)
         (progn
           ;; Module2 環境用
           (global-set-key [M-kanji] 'ignore))
