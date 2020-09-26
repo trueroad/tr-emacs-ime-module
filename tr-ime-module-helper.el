@@ -33,15 +33,15 @@
 (defgroup w32-tr-ime-module-core nil
   "コア機能設定
 
-モジュールを使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+モジュールを使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module)
 
 (defgroup w32-tr-ime-module-core-emacs28 nil
   "Emacs 28 以降向け設定
 
-Emacs 28 以降で Module2 を使わない場合のコア機能の設定です。
-通常は設定変更しないでください。"
+Emacs 28 以降で Module2 を使わない場合のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module-core)
 
 (defgroup w32-tr-ime-module-workaround nil
@@ -52,14 +52,14 @@ Emacs 28 以降で Module2 を使わない場合のコア機能の設定です�
   "プレフィックスキー検出
 
 Module2 を使用するなら、このワークアラウンドではなく
-Module2 のプレフィックスキー検出を使ってください。"
+Module2 のプレフィックスキー検出を使うこと。"
   :group 'w32-tr-ime-module-workaround)
 
 (defgroup w32-tr-ime-module-workaround-inconsist-ime nil
   "IME 状態食い違い検出
 
 Module2 を使用するなら、このワークアラウンドではなく
-Module2 の IME 状態変更通知による IM 状態同期が利用できます。"
+Module2 の IME 状態変更通知による IM 状態同期が利用できる。"
   :group 'w32-tr-ime-module-workaround)
 
 ;;
@@ -206,7 +206,7 @@ set-selected-window-buffer-functions を呼ぶ。
       (setq w32-tr-ime-module-last-selected-window-buffer buffer)))))
 
 (defun w32-tr-ime-module-hook-emulator-p-set (symb bool)
-  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する
+  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
 
 bool が non-nil ならエミュレーションさせる。
 これにより post-command-hook にエミュレーション関数を追加することで、
@@ -217,12 +217,70 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-hook-emulator-p t
-  "IME パッチ特有のアブノーマルフックをエミュレーションするか否か
+  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+post-command-hook を使って
+IME パッチ特有のアブノーマルフックをエミュレーションする機能。
+
+注意：w32-ime.el はこれらのアブノーマルフックを使って
+ウィンドウやバッファの切り替えを認識して
+IME/IM の同期や切り替えなどを行っている。
+本設定を無効にすると、ウィンドウやバッファ切り替え時に
+IME/IM が同期しなくなるなどの問題が発生する。
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-hook-emulator-p-set
+  :group 'w32-tr-ime-module-core)
+
+(defun w32-tr-ime-module-hook-emulator-focus-change ()
+  "フォーカス変更を検知してIME パッチ特有のフックエミュレーションを呼ぶ
+
+after-focus-change-function は呼び出された時点では
+まだ selected-frame が変わっていないことがあるので、
+全フレームに対して frame-focus-state　でフォーカスを得ているか否かを判定し、
+フォーカスを得ていたフレームで w32-tr-ime-module-hook-emulator
+を呼び出してウィンドウやバッファの変更を検知する。
+
+after-focus-change-function （GNU Emacs 27.1 以降）
+に登録して使う。"
+  (dolist (f (frame-list))
+    (when (frame-focus-state f)
+      (with-selected-frame f (w32-tr-ime-module-hook-emulator)))))
+
+(defun w32-tr-ime-module-hook-emulator-focus-change-p-set (symb bool)
+  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
+
+BOOL が non-nil なら設定する。
+BOOL が nil ならフックから削除して設定を停止する。"
+  (if bool
+      (add-function :before
+                    after-focus-change-function
+                    #'w32-tr-ime-module-hook-emulator-focus-change)
+    (remove-function
+     after-focus-change-function
+     #'w32-tr-ime-module-hook-emulator-focus-change))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-hook-emulator-focus-change-p t
+  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+after-focus-change-function を使って
+IME パッチ特有のアブノーマルフックをエミュレーションする機能。
+
+本設定を non-nil (Enable) にすると、
+フォーカス変更時（フレーム変更時）にも
+IME パッチ特有のフックエミュレーションを呼ぶようになる。
+emacsclient などでバッファが変更になった場合は
+post-command-hook が呼ばれずに検知漏れが発生するが、
+フォーカス変更もトリガに加えることで漏れを防ぐことができる。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-hook-emulator-focus-change-p-set
   :group 'w32-tr-ime-module-core)
 
 ;;
@@ -235,7 +293,9 @@ bool が nil なら停止させる（post-command-hook から削除する）。"
   :group 'w32-tr-ime-module-workaround-prefix-key)
 (defcustom w32-tr-ime-module-workaround-prefix-key-list
   '(?\C-x ?\C-h ?\C-c ?\e)
-  "プレフィックスキー検出ワークアラウンド用検出対象リスト"
+  "プレフィックスキー検出ワークアラウンド用検出対象リスト
+
+プレフィックスキーとして検出したいキーのリスト。"
   :type '(repeat integer)
   :group 'w32-tr-ime-module-workaround-prefix-key)
 
@@ -263,8 +323,8 @@ IME 状態を保存してから IME OFF にし、フラグを検出済にする�
 (defun w32-tr-ime-module-workaround-prefix-key-restore-ime-mode ()
   "プレフィックスキー検出による自動 IME OFF から IME 状態を復帰させる関数
 
-Emacs の標準的なフックの一つ post-command-hook に登録する。
-post-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
+Emacs の標準的なフックの一つ pre-command-hook に登録する。
+pre-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
 
 この関数の動作は、
 プレフィックスキー検出済であったら未検出に変え、
@@ -280,10 +340,10 @@ post-command-hook によって、ほとんどのコマンドの動作後に呼�
 
 periodic が nil ならアイドル状態検出タイマ、non-nil なら周期的タイマで、
 プレフィックスキーを検出し自動的に IME を OFF にする。
-あわせて post-command-hook をフックしてコマンドの終了を検知し
+あわせて pre-command-hook をフックしてコマンドの終了を検知し
 IME 状態を復帰させる。"
   (setq w32-tr-ime-module-workaround-prefix-key-undetected-flag t)
-  (add-hook 'post-command-hook
+  (add-hook 'pre-command-hook
             #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
@@ -300,7 +360,7 @@ IME 状態を復帰させる。"
   "プレフィックスキーで自動 IME OFF するワークアラウンドを停止させる
 
 タイマを停止させ、フックも削除することでワークアラウンドを停止させる。"
-  (remove-hook 'post-command-hook
+  (remove-hook 'pre-command-hook
                #'w32-tr-ime-module-workaround-prefix-key-restore-ime-mode)
   (if w32-tr-ime-module-workaround-prefix-key-timer
       (cancel-timer w32-tr-ime-module-workaround-prefix-key-timer))
@@ -317,7 +377,11 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 (defcustom w32-tr-ime-module-workaround-prefix-key-p t
   "プレフィックスキー検出ワークアラウンドを動作させるか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+コマンドのキーシーケンスになる最初のキーである
+プレフィックスキー（C-x など）をタイマによるポーリングで検出すると、
+自動的に IME OFF にして、コマンド終了後に IME 状態を戻す機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-prefix-key-p-set
@@ -334,7 +398,11 @@ bool が non-nil なら動作させる。nil なら停止させる。"
 
 (defcustom
   w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
-  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か"
+  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か
+
+ポーリング時の食い違い検出の前にフックエミュレーション関数を呼ぶ機能。
+これにより未検出のウィンドウ変更やバッファ変更を検知し、
+IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :group 'w32-tr-ime-module-workaround-inconsist-ime)
@@ -380,7 +448,10 @@ bool が nil なら停止させる。"
 (defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
   "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+IME 側トリガの状態変更（半角/全角キーやマウスでの切り替え）を
+定期的なタイマによるポーリングで検出して IM 側を同期させるための機構。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set

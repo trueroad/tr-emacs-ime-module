@@ -1,3 +1,24 @@
+* Release 0.3.0 (2020-09-25):
+    * Improve Module2
+    * 再変換 (RECONVERSION) および
+      前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応しました
+        * 今のところデフォルト無効にしていますので、
+          使用したい場合は設定してください
+    * デバッグ出力レベルを変更できるようにしました
+    * Module1, 2 双方で、emacsclient でのバッファが変更が検知できず、
+      IME/IM 同期できなくなることがありましたので対応する設定を追加しました
+        * Module1 で IME 状態食い違い検出ワークアラウンドを使っていると
+          気が付きにくいものですが、Module2 だと簡単に再現しました
+    * Module2 のプレフィックスキー検出、Module1 のプレフィックスキー検出
+      ワークアラウンド双方で IME 状態復帰を post-command-hook から
+      pre-command-hook に変更しました
+        * emacsclient でファイルを開いて編集してから、IME ON のまま
+          C-x C-s C-x # のような操作を素早く実行すると、
+          C-x C-s の保存動作完了前に次の C-x を押してしまうことがあり、
+          そうすると保存動作の完了後の post-command-hook で
+          IME ON に復帰していると # が IME に吸われて未確定文字に
+          なってしまうことがありました
+
 * Release 0.2.0 (2020-09-20):
     * Improve Module2
     * Module2 で UI スレッドから Lisp への通知をできるようにし、

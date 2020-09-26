@@ -26,7 +26,7 @@
 ;; 他のライブラリ
 ;;
 
-(require 'seq)
+(autoload 'seq-drop-while "seq")
 
 ;;
 ;; ユーザ設定用
@@ -39,15 +39,15 @@
 (defgroup w32-tr-ime-module-core nil
   "コア機能設定
 
-モジュールを使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+モジュールを使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module)
 
 (defgroup w32-tr-ime-module-core-module2 nil
   "Module2 設定
 
-Module2 を使用する際のコア機能の設定です。
-通常は設定変更しないでください。"
+Module2 を使用する際のコア機能の設定。
+通常は設定変更しないこと。"
   :group 'w32-tr-ime-module-core)
 
 (defgroup w32-tr-ime-module-ime-font nil
@@ -66,6 +66,14 @@ Module2 を使用する際のコア機能の設定です。
   "IME 状態変更通知による IM 状態同期 (Module2)"
   :group 'w32-tr-ime-module)
 
+(defgroup w32-tr-ime-module-reconversion nil
+  "RECONVERSION (Module2)"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-documentfeed nil
+  "DOCUMENTFEED (Module2)"
+  :group 'w32-tr-ime-module)
+
 (defgroup w32-tr-ime-module-workaround nil
   "ワークアラウンド設定"
   :group 'w32-tr-ime-module)
@@ -73,6 +81,10 @@ Module2 を使用する際のコア機能の設定です。
 (defgroup w32-tr-ime-module-workaround-isearch-mode nil
   "isearch-mode (Module2)"
   :group 'w32-tr-ime-module-workaround)
+
+(defgroup w32-tr-ime-module-debug nil
+  "デバッグ設定 (Module2)"
+  :group 'w32-tr-ime-module)
 
 ;;
 ;; C++ 実装による DLL をロードする
@@ -107,7 +119,15 @@ Module2 を使用する際のコア機能の設定です。
                   arg1 arg2)
 (declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
 (declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
+(declare-function w32-tr-ime-notify-reconvert-string "tr-ime-module2"
+                  arg1 arg2 arg3)
+(declare-function w32-tr-ime-set-reconversion "tr-ime-module2"
+                  arg1 arg2)
+(declare-function w32-tr-ime-set-documentfeed "tr-ime-module2"
+                  arg1 arg2)
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
+(declare-function w32-tr-ime-set-verbose-level "tr-ime-module2"
+                  arg1)
 
 ;;
 ;; Module1 がロードされていなければロードする
@@ -127,7 +147,7 @@ Module2 を使用する際のコア機能の設定です。
 BOOL が non-nil ならメッセージフックしてサブクラス化する。
 BOOL が nil ならサブクラス解除してメッセージフックを停止する。
 
-注意：tr-ime-module2 のほとんどの機能は
+注意：Module2 のほとんどの機能は
 メッセージフックとサブクラス化を前提としており、
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものも存在する。"
@@ -151,11 +171,11 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-注意：tr-ime-module2 のほとんどの機能は
+注意：Module2 のほとんどの機能は
 メッセージフックとサブクラス化を前提としており、
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものが存在する。
-特別な目的が無い限りは non-nil にしておくこと。"
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
@@ -200,13 +220,47 @@ GNU Emacs 27 や 28 の UI スレッドは、
 スレッドメッセージをディスパッチするようにできる。
 
 ただし、将来の Emacs で
-スレッドメッセージをディスパッチするようになったら本設定を nil にすること。
+スレッドメッセージをディスパッチするようになったら
+本設定を nil (Disable) にすること。
 さもなければひとつのスレッドメッセージを
 二重にディスパッチしてしまうことになり、
 Emacs の動作がおかしくなってしまう。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-dispatch-thread-message-p-set
+  :group 'w32-tr-ime-module-core-module2)
+
+;;
+;; UI スレッドからの通知を Lisp で受け取る
+;;
+
+(defun w32-tr-ime-module-recv-from-ui-thread-p-set (symb bool)
+  "UI スレッドからの通知を Lisp で受け取るか否か設定する"
+  (if bool
+      (progn
+        (define-key special-event-map [language-change]
+          (lambda ()
+            (interactive)
+            (w32-tr-ime-language-change-handler))))
+    (define-key special-event-map [language-change] 'ignore))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-recv-from-ui-thread-p t
+  "UI スレッドからの通知を Lisp で受け取るか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+注意：Module2 の一部の機能は
+UI スレッドからの通知を Lisp で受け取り、
+Lisp での処理結果が UI スレッドへ通知されるまで待つものがある。
+これらの機能が有効なまま本設定を無効にしてしまうと
+Lisp が通知を受け取れなくなり処理もされず、
+UI スレッドは返ってこない通知を待つため（一時的に）
+ロックしてしまうことがある。
+特別な目的が無い限りは non-nil (Enable) にしておくこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-recv-from-ui-thread-p-set
   :group 'w32-tr-ime-module-core-module2)
 
 ;;
@@ -401,7 +455,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-本設定を non-nil にすると、フォーカス変更時（フレーム変更時）に
+本設定を non-nil (Enable) にすると、フォーカス変更時（フレーム変更時）に
 フレームパラメータの ime-font 設定が、
 モジュール環境の未確定文字列フォントに反映される。"
   :type '(choice (const :tag "Enable" t)
@@ -414,7 +468,7 @@ BOOL が nil ならフックから削除して設定を停止する。"
 
 この設定を変更する場合には custom-set-variables を使うこと。
 
-本設定を non-nil にすると、ほとんどのコマンド実行後に
+本設定を non-nil (Enable) にすると、ほとんどのコマンド実行後に
 フレームパラメータの ime-font 設定が、
 モジュール環境の未確定文字列フォントに反映される。
 つまり、ime-font 設定を変更することで IME パッチ環境と同様、
@@ -543,7 +597,11 @@ BOOL が nil ならフックから削除して設定を停止する。"
 (defcustom w32-tr-ime-module-isearch-p t
   "isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+isearch-mode 中に未確定文字列をエコーエリア（ミニバッファ）
+に表示する機能。本機能が無効の場合、
+未確定文字列は isearch-mode に入る前の入力位置に表示される。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-isearch-p-set
@@ -567,7 +625,7 @@ DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップして
 に入る前の文字入力位置に設定してしまうからで、
 この設定後に位置を上書きしても未確定文字列ウィンドウがチラつくからである。
 しかし、何らかの理由で元の Emacs の処理に戻さなければならない時は、
-本設定を non-nil にすることで isearch-mode 中であっても、
+本設定を non-nil (Enable) にすることで isearch-mode 中であっても、
 DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
@@ -578,6 +636,12 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 ;; isearch-mode 時の Alt + 半角/全角ワークアラウンド
 ;;
 
+(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
+  0.0001
+  "Alt + 半角/全角ワークアラウンドで使うタイマの待ち時間（秒）"
+  :type 'float
+  :group 'w32-tr-ime-module-workaround-isearch-mode)
+
 (defun w32-tr-ime-module-workaround-isearch-mode-delayed-update ()
   "アイドル状態になったら isearch-mode のエコーエリアを再表示する
 
@@ -587,7 +651,9 @@ Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
 （恐らくキー操作後にくるイベントか何かで消されている）ので、
 Emacs がアイドル状態になったら動作するタイマで再表示させる。"
   (interactive)
-  (run-with-idle-timer 0.0001 nil #'isearch-update))
+  (run-with-idle-timer
+   w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
+   nil #'isearch-update))
 
 (defun w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
     (symb bool)
@@ -666,16 +732,23 @@ BOOL が nil ならフックから削除して停止する。"
         (w32-tr-ime-set-prefix-keys
          (string-to-number (frame-parameter nil 'window-id))
          w32-tr-ime-module-prefix-key-list)
-        (add-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+        (add-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
     (w32-tr-ime-set-prefix-keys
      (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'post-command-hook #'w32-tr-ime-resume-prefix-key))
+    (remove-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-prefix-key-p t
   "プレフィックスキーを検出して自動的に IME OFF するか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+コマンドのキーシーケンスになる最初のキーである
+プレフィックスキー（C-x など）を検出すると、
+自動的に IME OFF にして、コマンド終了後に IME 状態を戻す機能。
+
+本機能を有効にすると Module1 用の
+プレフィックスキー検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-prefix-key-p-set
@@ -693,7 +766,12 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
 
 (defcustom
   w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
-  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か"
+  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
+
+IME 状態変更通知があった時に、IME/IM 状態同期の前に
+フックエミュレーション関数を呼ぶことで、
+未検出のウィンドウ変更やバッファ変更を検知し、
+IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :group 'w32-tr-ime-module-setopenstatus)
@@ -725,12 +803,7 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
         (custom-set-variables
          '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
         (add-hook 'w32-tr-ime-module-setopenstatus-hook
-                  #'w32-tr-ime-module-setopenstatus-sync)
-        (define-key special-event-map [language-change]
-          (lambda ()
-            (interactive)
-            (w32-tr-ime-language-change-handler))))
-    (define-key special-event-map [language-change] 'ignore)
+                  #'w32-tr-ime-module-setopenstatus-sync))
     (remove-hook 'w32-tr-ime-module-setopenstatus-hook
                  #'w32-tr-ime-module-setopenstatus-sync))
   (set-default symb bool))
@@ -738,11 +811,133 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
 (defcustom w32-tr-ime-module-setopenstatus-sync-p t
   "IME 状態変更通知による IM 状態同期をするか否か
 
-この設定を変更する場合には custom-set-variables を使うこと。"
+この設定を変更する場合には custom-set-variables を使うこと。
+
+Emacs 側トリガ（C-\\ やウィンドウ・バッファの切り替えなど）だけでなく、
+IME 側トリガ（半角/全角キーやマウスでの切り替えなど）も含め、
+IME 状態変更通知がきた時に、IME/IM 状態同期をする機能。
+
+本機能を有効にすると Module1 用の
+IME 状態食い違い検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-setopenstatus-sync-p-set
   :group 'w32-tr-ime-module-setopenstatus)
+
+;;
+;; 再変換 (RECONVERSION)
+;;
+
+(defvar w32-tr-ime-module-reconvertstring-hook nil
+  "WM_IME_REQUEST IMR_RECONVERTSTRING が来た時に呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+(defun w32-tr-ime-module-notify-reconvert-string ()
+  "RECONVERTSTRING 構造体用の材料を収集して UI スレッドへ通知する
+
+point のある行全体の文字列と、文字列中の point 位置を収集し、
+Module2 の C++ 実装である w32-tr-ime-notify-reconvert-string 関数を呼び、
+UI スレッドへ通知する。
+ノーマルフック w32-tr-ime-module-reconvertstring-hook および
+w32-tr-ime-module-documentfeed-hook に登録して使う。"
+  (w32-tr-ime-notify-reconvert-string
+   (string-to-number (frame-parameter nil 'window-id))
+   (buffer-substring-no-properties
+    (line-beginning-position) (line-end-position))
+   (- (point) (line-beginning-position))))
+
+(defun w32-tr-ime-module-reconversion-p-set (symb bool)
+  "再変換 (RECONVERSION) 動作を行うか否か設定する"
+  (if bool
+      (progn
+        (add-hook 'w32-tr-ime-module-reconvertstring-hook
+                  #'w32-tr-ime-module-notify-reconvert-string)
+        (w32-tr-ime-set-reconversion
+         (string-to-number (frame-parameter nil 'window-id)) t))
+    (w32-tr-ime-set-reconversion
+     (string-to-number (frame-parameter nil 'window-id)) nil)
+    (remove-hook 'w32-tr-ime-module-reconvertstring-hook
+                 #'w32-tr-ime-module-notify-reconvert-string))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-reconversion-p t
+  "再変換 (RECONVERSION) 動作を行うか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+確定済文字列にカーソルを置いて変換キーを押すと、
+カーソルのあった場所の確定済文字列が未確定文字列になって、
+再変換できるようになる機能。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-reconversion-p-set
+  :group 'w32-tr-ime-module-reconversion)
+
+;;
+;; 前後の確定済文字列を参照した変換 (DOCUMENTFEED)
+;;
+
+(defvar w32-tr-ime-module-documentfeed-hook nil
+  "WM_IME_REQUEST IMR_DOCUMENTFEED が来た時に呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+(defun w32-tr-ime-module-documentfeed-p-set (symb bool)
+  "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する"
+  (if bool
+      (progn
+        (add-hook 'w32-tr-ime-module-documentfeed-hook
+                  #'w32-tr-ime-module-notify-reconvert-string)
+        (w32-tr-ime-set-documentfeed
+         (string-to-number (frame-parameter nil 'window-id)) t))
+    (w32-tr-ime-set-documentfeed
+     (string-to-number (frame-parameter nil 'window-id)) nil)
+    (remove-hook 'w32-tr-ime-module-documentfeed-hook
+                 #'w32-tr-ime-module-notify-reconvert-string))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-documentfeed-p t
+  "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+確定済文字列のあるところにカーソルを置いて文字を入力・変換すると、
+カーソルのあった場所の確定済文字列によって変換候補が変わる機能。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-documentfeed-p-set
+  :group 'w32-tr-ime-module-documentfeed)
+
+;;
+;; デバッグ出力レベル
+;;
+
+(defun w32-tr-ime-module-verbose-level-set (symb level)
+  "Module2 のデバッグ出力レベルを設定する"
+  (when level
+    (w32-tr-ime-set-verbose-level level))
+  (set-default symb level))
+
+(defcustom w32-tr-ime-module-verbose-level nil
+  "Module2 のデバッグ出力レベル
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+Win32 API の OutputDebugString を使った、
+デバッグメッセージの出力レベル。"
+  :type '(choice (const :tag "none" 0)
+                 (const :tag "fatal" 1)
+                 (const :tag "error" 2)
+                 (const :tag "warn" 3)
+                 (const :tag "info" 4)
+                 (const :tag "debug" 5)
+                 (const :tag "trace" 6)
+                 (const :tag "no set" nil))
+  :set #'w32-tr-ime-module-verbose-level-set
+  :group 'w32-tr-ime-module-debug)
 
 ;;
 ;; キー設定

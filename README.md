@@ -120,7 +120,7 @@ Cygwin 公式パッケージにするには、
 
 `/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
 モジュール DLL を置いてある **ディレクトリ**
-をフルパスを書いた 1 行を追加します。
+をフルパスで書いた 1 行を追加します。
 
 ```
 $ cd /var/lib/rebase/dynpath.d
@@ -141,7 +141,7 @@ $ /etc/postinstall/0p_000_autorebase.dash
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の **ファイル名** をフルパスを書いた行を追加します。
+モジュール DLL の **ファイル名** をフルパスで書いた行を追加します。
 
 ```
 $ cd /var/lib/rebase/user.d
@@ -168,6 +168,10 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 Module2 の機能は以下の通りです。
 
+* 再変換 (RECONVERSION) および
+  前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
+    * Module1 だけではどちらもできません
+    * もし不安定になるようなら設定で無効にすることができます
 * すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
     * Module1 だけでは Alt + 半角/全角キー（もしくは C-\\）による
       IME ON/OFF のみ対応しており、
@@ -251,7 +255,7 @@ DLL はロードされません。
 
 ```el
 (if (featurep 'tr-ime-module-helper)
-    (if (featurep 'tr-ime-module-helper2)
+    (if (featurep 'tr-ime-module2-helper)
         (progn
           ;; Module2 環境用
           (global-set-key [M-kanji] 'ignore))
@@ -368,7 +372,7 @@ MinGW と同様に化けなくなるようですが、そうすると Cygwin 由
 モジュールを使用する際のコア機能の設定です。
 通常は設定変更しないでください。
 
-#### IME パッチ特有のアブノーマルフックをエミュレーションするか否か
+#### コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か
 
 IME パッチは、ウィンドウやバッファの状態が変更になったら、
 特有のアブノーマルフックを呼ぶようになっており、
@@ -377,6 +381,7 @@ IME パッチは、ウィンドウやバッファの状態が変更になった�
 モジュールでは実現困難です。
 
 そこで Emacs の標準的なフックの一つ post-command-hook を用いて、
+コマンド実行後に
 ウィンドウやバッファの変更を検出したらフックを呼ぶ、
 というフックのエミュレーション機構を用意しました。
 
@@ -386,8 +391,38 @@ IME パッチは、ウィンドウやバッファの状態が変更になった�
 (custom-set-variables '(w32-tr-ime-module-hook-emulator-p nil))
 ```
 
+#### フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か
+
+post-command-hook でコマンド実行後に
+フックエミュレーションを呼んでいるだけだと、
+emacsclient でバッファが変更になった場合など、
+post-command-hook が呼ばれずに検知漏れが発生することがあります。
+例えば、w32-ime-buffer-switch-p が t （バッファ毎に IME/IM 状態が独立）
+で使っていて、IME/IM ON のバッファを表示したフレームがある状態にして、
+emacsclient を使って他のファイルを開くと、
+バッファに紐づいた IM は OFF になりますが、
+フレームに紐づいた IME は ON になってしまうことがありました。
+これは検知漏れの発生により IME/IM 状態が同期していない状態となったもので、
+このまま文字を入力すると IME に未確定文字列として扱われますが、
+IM は OFF 扱いなので操作に混乱をきたします
+（同期が外れた時は、フレームをマウスでクリックするとか、
+IME ON/OFF 操作を数回連続して実行するとかすれば、
+バッファの変更が検知できて同期してくれます）。
+
+そこで Emacs 27.1 以降の標準的なフックの一つ
+after-focus-change-function でもエミュレーションを呼ぶ設定を用意しました。
+これにより、emacsclient でのバッファ変更であっても検知でき、
+IME/IM 状態の同期が保たれるようになります。
+
+以下の設定で無効にできます。デフォルトは有効です。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-hook-emulator-focus-change-p nil))
+```
+
 #### IME 状態変更関数使用後の状態確認回数上限（GNU Emacs 28 以降のみ）
 
+Module1 のみ使う場合に有効な設定です。
 GNU Emacs 28 では IME パッチやモジュールが無くても、
 本体だけで IME 状態の変更や確認ができる関数が用意されました。
 ですが、IME 状態変更した直後に IME 状態確認すると、
@@ -401,6 +436,9 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
 環境によるかもしれませんが、
 私の環境では 2 回目で変更完了した値が得られるようでしたので、
 安全を見て 1 回増やして 3 回をデフォルトににしています。
+
+Module2 では IME 状態の変更を監視する必要があって、
+自前の状態変更関数を使用するため、本設定は使われません。
 
 #### メッセージフックしてフレームをサブクラス化するか否か (Module2)
 
@@ -434,6 +472,109 @@ Emacs の動作がおかしくなると思います。
 
 ```el
 (custom-set-variables '(w32-tr-ime-module-dispatch-thread-message-p nil))
+```
+
+#### UI スレッドからの通知を Lisp で受け取る
+
+UI スレッドにきた通知を Lisp 側で受け取る機構です。
+
+本機能の動作の仕組みとしては、まず
+UI スレッドに Lisp 側へ通知すべきメッセージがきたら、
+UI スレッドから Lisp スレッドへの本モジュール内部専用のキューに、
+その旨のメッセージを格納してから WM_INPUTLANGCHANGE を post/send します。
+これにより Lisp 側で language-change イベントが発生します。
+このイベントを受けて Module2 の C++ 実装にある
+`w32-tr-ime-language-change-handler` 関数を呼びます。
+この関数は内部専用キューからメッセージを取り出し、
+その種類に応じてノーマルフックを呼び出すなどの動作を行います。
+
+この中で、language-change イベントの発生を受けて、
+`w32-tr-ime-language-change-handler` 関数を呼ぶところについて、
+以下のような設定を行っています。
+
+```el
+(define-key special-event-map [language-change]
+  (lambda ()
+    (interactive)
+    (w32-tr-ime-language-change-handler))))
+```
+
+本モジュールとは別の language-change イベントを使うツール類と
+共存させたい場合は、上記設定をうまく調整してください。
+本モジュールの `w32-tr-ime-language-change-handler` 関数は、
+内部専用キューが空であれば何もしませんので、
+イベントが来たらとにかく呼ばれるようになっていればよいです。
+他のツール類が発生させた language-change イベントの際に
+一緒に呼んでしまって構いません。
+
+本機能では、上記の通り
+UI スレッドにきた通知を Lisp 側へ通知する動作をしていますが、
+これがかなり困難でした。
+IME パッチは C 実装でメッセージ処理を追加して、
+kanji キーのイベントという形で通知しているようです。
+当初、これと同じような処理にするため、WM_KEYDOWN, WM_KEYUP で VK_KANJI を
+PostMessage する方法を思いついたのですが、修飾キーがあるとおかしくなり、
+一筋縄ではいきませんでした。
+一方、w32-imeadv は別プロセスを経由して通知するという
+かなり大がかりで複雑な機構を採用しています。
+結局色々調べて、
+ダイナミックモジュールの情報が集まったページ
+](https://github.com/jkitchin/emacs-modules) からリンクが貼られていた[
+Asynchronous Requests from Emacs Dynamic Modules
+](https://nullprogram.com/blog/2017/02/14/)を参考に、
+上記のような WM_INPUTLANGCHANGE による方法を実装しました。
+
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-recv-from-ui-thread-p nil))
+```
+
+### 再変換 (RECONVERSION) (Module2)
+
+確定済文字列にカーソルを置いて変換キーを押すと、
+カーソルのあった場所の確定済文字列が未確定文字列になって、
+再変換できるようになるという機能です。
+
+本機能は、UI スレッドに WM_IME_REQUEST IMR_RECONVERTSTRING
+メッセージが来たら、内部専用キューにその旨を格納して Lisp に通知し、
+Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI スレッドに通知し、
+再変換の処理を始める、という通知の往復があります。
+さらに、再変換処理中に、再変換に合わせてカーソルを移動させたり、
+再変換前の確定済文字列を消したりといった動作が必要で、
+これらも UI スレッドから Lisp への通知などをする、
+かなり複雑な動作になっています。
+
+#### 再変換 (RECONVERSION) 動作を行うか否か
+
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-reconversion-p nil))
+```
+
+### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (Module2)
+
+確定済文字列のあるところにカーソルを置いて文字を入力・変換すると、
+カーソルのあった場所の確定済文字列によって変換候補が変わる機能です。
+たとえば、通常は「いっぱつ」を変換すると「一発」が最初の候補に出ても、
+「危機」の直後にカーソルがある状態だと「一髪」が最初の候補になる、
+というものです。
+
+本機能は、UI スレッドに WM_IME_REQUEST IMR_DOCUMENTFEED
+メッセージが来たら、内部専用キューにその旨を格納して Lisp に通知し、
+Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI スレッドに通知し、
+という通知の往復が必要で、かなり複雑な動作になっています。
+
+#### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
+
+この動作を無効にするには、以下のようにすればできます
+（デフォルトは有効）。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-documentfeed-p nil))
 ```
 
 ### IME フォント (Module2)
@@ -543,7 +684,7 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 残念ながら Emacs には存在しないようなので、
 単純に以下で指定したプレフィックスキー検出リストに登録された
 キーが押下されたら（WM_KEYDOWN メッセージが来たら）IME OFFにして、
-post-command-hook で IME 状態を戻す処理をしています。
+pre-command-hook で IME 状態を戻す処理をしています。
 
 Module1 向けにタイマを使って同様の機能を実現したワークアラウンドがありますが、
 Module2 の本機能はタイマを使わないためタイミング的にも負荷的にも有利です。
@@ -583,6 +724,8 @@ C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定
 
 ### IME 状態変更通知による IME/IM 状態同期 (Module2)
 
+Emacs 側トリガ（C-\\ やウィンドウ・バッファの切り替えなど）だけでなく、
+IME 側トリガ（半角/全角キーやマウスでの切り替えなど）も含め、
 IME 状態が変更されたら WM_IME_NOTIFY IMN_SETOPENSTATUS
 が送られてきます。この通知を受けて IM 状態を同期させます。
 
@@ -592,52 +735,14 @@ Module2 の本機能はタイマを使わないためタイミング的にも負
 本機能を有効にすると Module1 のワークアラウンドによる
 食い違い検出は無効になります。
 
-本機能の動作の仕組みとしては、まず
+本機能は、
 UI スレッドに WM_IME_NOTIFY IMN_SETOPENSTATUS がきたら、
-UI スレッドから Lisp スレッドへの、本モジュール内部専用のキューに、
-その旨のメッセージを格納し WM_INPUTLANGCHANGE を post します。
-これにより Lisp 側で language-change イベントが発生します。
-このイベントを受けて Module2 の C++ 実装にある
-`w32-tr-ime-language-change-handler` 関数を呼ぶと、
-内部専用キューからメッセージを取り出し、それが setopenstatus であれば
+UI スレッドからの通知を Lisp で受け取る機構を利用して
+setopenstatus を内部専用キューに格納して通知し、
+`w32-tr-ime-language-change-handler` 関数が、
+内部専用キューから setopenstatus を受け取ると、
 ノーマルフック `w32-tr-ime-module-setopenstatus-hook` を呼び出し、
 そこで一連の IME/IM 同期の動作が行われるようになっています。
-
-この中で、language-change イベントの発生を受けて、
-`w32-tr-ime-language-change-handler` 関数を呼ぶところについて、
-以下のような設定を行っています。
-
-```el
-(define-key special-event-map [language-change]
-  (lambda ()
-    (interactive)
-    (w32-tr-ime-language-change-handler))))
-```
-
-本モジュールとは別の language-change イベントを使うツール類と
-共存させたい場合は、上記設定をうまく調整してください。
-本モジュールの `w32-tr-ime-language-change-handler` 関数は、
-内部専用キューが空であれば何もしませんので、
-イベントが来たらとにかく呼ばれるようになっていればよいです。
-他のツール類が発生させた language-change イベントの際に
-一緒に呼んでしまって構いません。
-
-本機能では、上記の通り
-UI スレッドにきた通知を Lisp 側へ通知する動作をしていますが、
-これがかなり困難でした。
-IME パッチは C 実装でメッセージ処理を追加して、
-kanji キーのイベントという形で通知しているようです。
-当初、これと同じような処理にするため、WM_KEYDOWN, WM_KEYUP で VK_KANJI を
-PostMessage する方法を思いついたのですが、修飾キーがあるとおかしくなり、
-一筋縄ではいきませんでした。
-一方、w32-imeadv は別プロセスを経由して通知するという
-かなり大がかりで複雑な機構を採用しています。
-結局色々調べて、
-ダイナミックモジュールの情報が集まったページ
-](https://github.com/jkitchin/emacs-modules) からリンクが貼られていた[
-Asynchronous Requests from Emacs Dynamic Modules
-](https://nullprogram.com/blog/2017/02/14/)を参考に、
-上記のような WM_INPUTLANGCHANGE による方法を実装しました。
 
 #### IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
 
@@ -677,6 +782,8 @@ Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
 （恐らくキー操作後にくるイベントか何かで消されている）ので、
 Emacs がアイドル状態になったら動作するタイマで再表示させる
 ワークアラウンドを用意しました。
+このタイマは Alt + 半角/全角キー操作 1 回につき 1 回だけ動作し、
+繰り返し動作はしません。
 
 Module1 だけ使う場合は問題ありません。
 Module2 でも
@@ -689,6 +796,11 @@ Alt + 半角/全角キー操作はしないとか、
 (custom-set-variables
  '(w32-tr-ime-module-workaround-isearch-mode-delayed-update-p nil))
 ```
+
+Alt + 半角/全角キー操作後に、
+アイドル状態になってから再表示するまでの待ち時間（秒）が
+`w32-tr-ime-module-workaround-isearch-mode-delayed-update-time`
+に設定できます（デフォルト 0.0001）。
 
 #### IME 状態の食い違いを検出して修正するワークアラウンド
 
@@ -731,7 +843,7 @@ Module1 だけ使いたい場合に
 ワークアラウンドとして、
 Emacs がアイドル状態になったら動くタイマでポーリングし、
 プレフィックスキーが押されていたら IME OFF にし、
-コマンドが終了したら IME を復帰させる、という機構を残してあります。
+pre-command-hook で IME を復帰させる、という機構を残してあります。
 
 以下の設定で無効にできます。デフォルトは Module2 が無い場合のみ有効です。
 
@@ -746,6 +858,41 @@ Emacs がアイドル状態になったら動くタイマでポーリングし�
 `w32-tr-ime-module-workaround-prefix-key-list`
 に設定できます（デフォルト `'(?\C-x ?\C-h ?\C-c ?\e)`、
 C-x, C-h, C-c と ESC です）。
+
+### デバッグ出力
+
+Module1, Module2 ともに Win32 API の OutputDebugString を使って、
+デバッグメッセージの出力をしています。
+Module2 では出力するレベルを変更することができます。
+
+ほぼ何も出力しないようにしたいなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 0))
+```
+
+API の失敗などを出力するなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 3))
+```
+
+さらに詳細なデバッグ情報も出力するなら以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 5))
+```
+
+以上の設定では編集中や入力中の文字列はデバッグ出力に含まれません。
+再変換や確定済文字列を利用した変換などで、
+編集中や入力中の文字列も含んだデバッグ情報も出力したいなら、
+以下を実行してください。
+
+```el
+(custom-set-variables '(w32-tr-ime-module-verbose-level 6))
+```
+
+バイナリリリースのデフォルトは 5 にしてあります。
 
 ## ビルド
 
@@ -878,13 +1025,6 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 わかっているだけで以下のような制約があります。
 
-* 再変換 (RECONVERSION) や前後の確定済文字列を参照した変換 (DOCUMENTFEED)
-  には対応できない
-    * 対応するには
-      UI スレッドのメッセージループから Lisp へ通知を行った上に、
-      Lisp から情報を UI スレッドへ戻して動作を継続する必要がある
-      （一方通行ではなくて往復が必要になる）、
-      というかなり困難な処理が必要です
 * Module2 で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
   エコーエリアの表示が消えてしまう
     * ワークアラウンドでなんとかしています
