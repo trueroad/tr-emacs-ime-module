@@ -29,15 +29,38 @@
 ;; GNU Emacs for Windows (MinGW/Cygwin) to make Japanese input with IME
 ;; easier to use by using the dynamic module in Emacs, e.g. for GNU binary
 ;; distributions/Cygwin packages that are not applied IME patches.
+;;
+;; To use Module1 (stable but less functionality) of this package,
+;; add the following code to your init.el or .emacs
+;;
+;;   (tr-ime-module-helper-install)
+;;
+;; To use Module2 (experimental but more functionality) of this package,
+;; add the following code to your init.el or .emacs
+;;
+;;   (tr-ime-module2-helper-install)
 
 ;;; Code:
 
-;;;###autoload(when (and (eq window-system 'w32)
-;;;###autoload           (not (fboundp 'ime-get-mode))
-;;;###autoload           (string= module-file-suffix ".dll")
-;;;###autoload           (locate-library "tr-ime-module2-helper"))
-;;;###autoload  (require 'tr-ime-module2-helper)
-;;;###autoload  (require 'w32-ime "w32-ime-for-tr-ime-module"))
+;;;###autoload
+(defun tr-ime-module-helper-install ()
+  "Install tr-emacs-ime-module Module1 (stable but less functionality)"
+  (when (and (eq window-system 'w32)
+             (not (fboundp 'ime-get-mode))
+             (string= module-file-suffix ".dll")
+             (locate-library "tr-ime-module-helper"))
+    (require 'tr-ime-module-helper)
+    (require 'w32-ime "w32-ime-for-tr-ime-module")))
+
+;;;###autoload
+(defun tr-ime-module2-helper-install ()
+  "Install tr-emacs-ime-module Module2 (experimental but more functionality)"
+  (when (and (eq window-system 'w32)
+             (not (fboundp 'ime-get-mode))
+             (string= module-file-suffix ".dll")
+             (locate-library "tr-ime-module2-helper"))
+    (require 'tr-ime-module2-helper)
+    (require 'w32-ime "w32-ime-for-tr-ime-module")))
 
 ;; Local Variables:
 ;; coding: utf-8
