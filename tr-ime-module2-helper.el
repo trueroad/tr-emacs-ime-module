@@ -23,6 +23,12 @@
 ;; If not, see <https://www.gnu.org/licenses/>.
 
 ;;
+;; 他のライブラリ
+;;
+
+(require 'seq)
+
+;;
 ;; ユーザ設定用
 ;;
 
@@ -56,11 +62,17 @@ Module2 を使用する際のコア機能の設定です。
   "プレフィックスキー検出 (Module2)"
   :group 'w32-tr-ime-module)
 
-;;
-;; Module1 がロードされていなければロードする
-;;
+(defgroup w32-tr-ime-module-setopenstatus nil
+  "IME 状態変更通知による IM 状態同期 (Module2)"
+  :group 'w32-tr-ime-module)
 
-(require 'tr-ime-module-helper)
+(defgroup w32-tr-ime-module-workaround nil
+  "ワークアラウンド設定"
+  :group 'w32-tr-ime-module)
+
+(defgroup w32-tr-ime-module-workaround-isearch-mode nil
+  "isearch-mode (Module2)"
+  :group 'w32-tr-ime-module-workaround)
 
 ;;
 ;; C++ 実装による DLL をロードする
@@ -79,15 +91,31 @@ Module2 を使用する際のコア機能の設定です。
                   arg1 &optional arg2)
 (declare-function w32-tr-ime-set-dispatch-thread-message "tr-ime-module2"
                   arg1)
+(declare-function w32-tr-ime-setopenstatus2 "tr-ime-module2"
+                  arg1 arg2)
+(declare-function w32-tr-ime-getopenstatus2 "tr-ime-module2"
+                  arg1)
 (declare-function w32-tr-ime-set-font "tr-ime-module2"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8)
 (declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
                   arg11 arg12 arg13 arg14 arg15)
+(declare-function w32-tr-ime-set-startcomposition-defsubclassproc
+                  "tr-ime-module2"
+                  arg1 arg2)
 (declare-function w32-tr-ime-set-prefix-keys "tr-ime-module2"
                   arg1 arg2)
 (declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
+(declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
 (declare-function w32-tr-ime-get-dpi "tr-ime-module2")
+
+;;
+;; Module1 がロードされていなければロードする
+;;
+
+;; Module1 ヘルパのみロードして Module1 DLL はロードしない
+;; （Module1 ヘルパは Module2 DLL があると Module1 DLL をロードしない）
+(require 'tr-ime-module-helper)
 
 ;;
 ;; メッセージフックとサブクラス化
@@ -182,8 +210,64 @@ Emacs の動作がおかしくなってしまう。"
   :group 'w32-tr-ime-module-core-module2)
 
 ;;
+;; IME 状態変更・状態取得関数のエミュレーション
+;;
+
+(defun ime-force-on (&optional _dummy)
+  "IME を ON にする関数
+
+Module2 で IME パッチの ime-force-on をエミュレーションする。"
+  (w32-tr-ime-setopenstatus2
+   (string-to-number (frame-parameter nil 'window-id)) t))
+
+(defun ime-force-off (&optional _dummy)
+  "IME を OFF にする関数
+
+Module2 で IME パッチの ime-force-off をエミュレーションする。"
+  (w32-tr-ime-setopenstatus2
+   (string-to-number (frame-parameter nil 'window-id)) nil))
+
+(defun ime-get-mode ()
+  "IME 状態を返す関数
+
+Module2 で IME パッチの ime-get-mode をエミュレーションする。
+IME が OFF なら nil を、ON ならそれ以外を返す。"
+  (w32-tr-ime-getopenstatus2
+   (string-to-number (frame-parameter nil 'window-id))))
+
+;;
 ;; IME フォント設定（未定義文字列のフォント）
 ;;
+
+(defun w32-tr-ime-font-encode-weight (symb)
+  "フェイス属性の weight から LOGFONT 構造体の lfWeight へ変換する"
+  (let* ((result
+	  (seq-drop-while
+	   (lambda (x)
+	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) [] ))
+	   font-weight-table))
+         (weight
+	  (if (eq result []) 100 (aref (aref result 0) 0))))
+    (cond ((>= weight 210) 900) ;; FW_HEAVY
+	  ((>= weight 205) 800) ;; FW_EXTRABOLD
+	  ((>= weight 200) 700) ;; FW_BOLD
+	  ((>= weight 180) 600) ;; FW_SEMIBOLD
+	  ((>= weight 100) 400) ;; FW_NORMAL
+	  ((>= weight 50) 300)  ;; FW_LIGHT
+	  ((>= weight 40) 200)  ;; FW_EXTRALIGHT
+	  ((>= weight 20) 100)  ;; FW_THIN
+	  (t 0))))
+
+(defun w32-tr-ime-font-encode-slant (symb)
+  "フェイス属性の slant から LOGFONT 構造体の lfItalic へ変換する"
+  (let* ((result
+	  (seq-drop-while
+	   (lambda (x)
+	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) [] ))
+	   font-slant-table))
+         (slant
+	  (if (eq result []) 100 (aref (aref result 0) 0))))
+    (if (> slant 150) t nil)))
 
 (defun w32-tr-ime-reflect-frame-parameter-ime-font (&optional frame)
   "フレームの ime-font 設定をモジュールのフォント設定に反映させる
@@ -192,7 +276,7 @@ FRAME の frame-parameter から ime-font 設定を読み取り、
 モジュールで C++ 実装されている低レベルフォント設定関数
 w32-tr-ime-set-font を使って未確定文字列のフォントを設定する。
 FRAME が nil または省略された場合は選択されているフレームが対象となる。
-現状では family と height のみが設定され、他の属性は無視される。
+family に generic family を指定することはできない。
 
 IME パッチではフレームの ime-font 設定を変更すると即座に反映されるが、
 モジュール環境では、フレームの ime-font 設定と、
@@ -231,7 +315,10 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
             (w32-tr-ime-set-font
              (string-to-number
               (frame-parameter frame 'window-id))
-             h 0 0 0 0 nil nil nil 0 0 0 0 0 family)))))))
+             h 0 0 0
+             (w32-tr-ime-font-encode-weight (plist-get attributes :weight))
+             (w32-tr-ime-font-encode-slant (plist-get attributes :slant))
+             nil nil 1 0 0 0 0 family)))))))
 
 (defvar w32-tr-ime-module-last-ime-font nil
   "未確定文字列フォント変更検出用")
@@ -462,6 +549,75 @@ BOOL が nil ならフックから削除して設定を停止する。"
   :set #'w32-tr-ime-module-isearch-p-set
   :group 'w32-tr-ime-module-isearch-mode)
 
+(defun w32-tr-ime-module-isearch-defsubclassproc-p-set (symb bool)
+  "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か設定する"
+  (w32-tr-ime-set-startcomposition-defsubclassproc
+   (string-to-number (frame-parameter nil 'window-id)) bool)
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-isearch-defsubclassproc-p nil
+  "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+WM_IME_STARTCOMPOSITION ハンドラにおいて、
+isearch-mode 中（未確定文字列ウィンドウの位置設定中）は
+DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップしている。
+これは Emacs で未確定文字列ウィンドウの位置を isearch-mode
+に入る前の文字入力位置に設定してしまうからで、
+この設定後に位置を上書きしても未確定文字列ウィンドウがチラつくからである。
+しかし、何らかの理由で元の Emacs の処理に戻さなければならない時は、
+本設定を non-nil にすることで isearch-mode 中であっても、
+DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになる。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-isearch-defsubclassproc-p-set
+  :group 'w32-tr-ime-module-isearch-mode)
+
+;;
+;; isearch-mode 時の Alt + 半角/全角ワークアラウンド
+;;
+
+(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update ()
+  "アイドル状態になったら isearch-mode のエコーエリアを再表示する
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう。
+キー操作時に再表示させても効果が無い
+（恐らくキー操作後にくるイベントか何かで消されている）ので、
+Emacs がアイドル状態になったら動作するタイマで再表示させる。"
+  (interactive)
+  (run-with-idle-timer 0.0001 nil #'isearch-update))
+
+(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
+    (symb bool)
+  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か設定
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう対策のワークアラウンドを動作させるか否か
+設定する。
+bool が non-nil なら動作させる。それ以外なら停止させる。"
+  (if bool
+      (define-key isearch-mode-map [M-kanji]
+        'w32-tr-ime-module-workaround-isearch-mode-delayed-update)
+    (define-key isearch-mode-map [M-kanji] 'ignore))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-p t
+  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。
+
+Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+なぜかエコーエリアが消えてしまう。
+キー操作時に再表示させても効果が無い
+（恐らくキー操作後にくるイベントか何かで消されている）ので、
+Emacs がアイドル状態になったら動作するタイマで再表示させるワークアラウンド。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
+  :group 'w32-tr-ime-module-workaround-isearch-mode)
+
 ;;
 ;; プレフィックスキー（C-x など）を検出して自動的に IME OFF する
 ;;
@@ -524,6 +680,79 @@ BOOL が nil ならフックから削除して停止する。"
                  (const :tag "Disable" nil))
   :set #'w32-tr-ime-module-prefix-key-p-set
   :group 'w32-tr-ime-module-prefix-key)
+
+;;
+;; IME 状態変更通知による IME/IM 状態同期
+;;
+
+(defvar w32-tr-ime-module-setopenstatus-hook nil
+  "IME 状態変更通知があったときに呼ばれるノーマルフック
+
+Module2 の C++ 実装である
+w32-tr-ime-language-change-handler 関数から呼ばれる。")
+
+(defcustom
+  w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
+  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :group 'w32-tr-ime-module-setopenstatus)
+
+(defun w32-tr-ime-module-setopenstatus-sync ()
+  "IME 状態変更通知時に呼ばれる関数
+
+w32-tr-ime-module-setopenstatus-call-hook-emulator-p
+が non-nil であれば、まずフックエミュレーション関数を呼ぶ。
+これによってウィンドウやバッファの切り替え未検出があったら、
+アブノーマルフックが呼ばれて、IME/IM 状態が整えられる。
+
+その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
+これにより、IME 側トリガの状態変更を IM に反映させる。"
+  (when w32-tr-ime-module-setopenstatus-call-hook-emulator-p
+    (w32-tr-ime-module-hook-emulator))
+  (let ((ime-status (ime-get-mode)))
+    (cond ((and ime-status
+                (not current-input-method))
+           (activate-input-method "W32-IME"))
+          ((and (not ime-status)
+                current-input-method)
+           (deactivate-input-method)))))
+
+(defun w32-tr-ime-module-setopenstatus-sync-p-set (symb bool)
+  "IME 状態変更通知による IM 状態同期をするか否か設定する"
+  (if bool
+      (progn
+        (custom-set-variables
+         '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
+        (add-hook 'w32-tr-ime-module-setopenstatus-hook
+                  #'w32-tr-ime-module-setopenstatus-sync)
+        (define-key special-event-map [language-change]
+          (lambda ()
+            (interactive)
+            (w32-tr-ime-language-change-handler))))
+    (define-key special-event-map [language-change] 'ignore)
+    (remove-hook 'w32-tr-ime-module-setopenstatus-hook
+                 #'w32-tr-ime-module-setopenstatus-sync))
+  (set-default symb bool))
+
+(defcustom w32-tr-ime-module-setopenstatus-sync-p t
+  "IME 状態変更通知による IM 状態同期をするか否か
+
+この設定を変更する場合には custom-set-variables を使うこと。"
+  :type '(choice (const :tag "Enable" t)
+                 (const :tag "Disable" nil))
+  :set #'w32-tr-ime-module-setopenstatus-sync-p-set
+  :group 'w32-tr-ime-module-setopenstatus)
+
+;;
+;; キー設定
+;;
+
+;; Alt + 半角全角の設定
+(define-key global-map [M-kanji] 'ignore)
+
+;; C-s (isearch-forward) などでの Alt + 半角全角の設定は
+;; ワークアラウンドの中で実施済
 
 ;;
 ;; provide

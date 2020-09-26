@@ -4,7 +4,7 @@
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "27.1"))
 
 ;; Simple IME module for GNU Emacs (tr-emacs-ime-module)
