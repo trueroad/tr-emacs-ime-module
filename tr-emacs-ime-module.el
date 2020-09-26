@@ -4,8 +4,8 @@
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
-;; Version: 0.0.0
-;; Package-Requires: ((emacs "26.2"))
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "27.1"))
 
 ;; Simple IME module for GNU Emacs (tr-emacs-ime-module)
 ;; is free software: you can redistribute it and/or modify
@@ -35,8 +35,8 @@
 ;;;###autoload(when (and (eq window-system 'w32)
 ;;;###autoload           (not (fboundp 'ime-get-mode))
 ;;;###autoload           (string= module-file-suffix ".dll")
-;;;###autoload           (locate-library "tr-ime-module-helper"))
-;;;###autoload  (require 'tr-ime-module-helper)
+;;;###autoload           (locate-library "tr-ime-module2-helper"))
+;;;###autoload  (require 'tr-ime-module2-helper)
 ;;;###autoload  (require 'w32-ime "w32-ime-for-tr-ime-module"))
 
 ;; Local Variables:
