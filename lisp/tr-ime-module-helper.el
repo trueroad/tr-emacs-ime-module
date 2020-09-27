@@ -71,7 +71,7 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
 (unless (or (fboundp #'w32-get-ime-open-status)
             (featurep 'tr-ime-module)
             (featurep 'tr-ime-module2))
-  (load (concat "tr-ime-module-" system-configuration) t))
+  (load (concat "tr-ime-module-" system-configuration)))
 
 (declare-function w32-tr-ime-setopenstatus "tr-ime-module"
                   arg1 arg2)

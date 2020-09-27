@@ -91,7 +91,7 @@ Module2 を使用する際のコア機能の設定。
 ;;
 
 (unless (featurep 'tr-ime-module2)
-  (load (concat "tr-ime-module2-" system-configuration) t))
+  (load (concat "tr-ime-module2-" system-configuration)))
 
 (declare-function w32-tr-ime-install-message-hook-hwnd "tr-ime-module2"
                   arg1)
