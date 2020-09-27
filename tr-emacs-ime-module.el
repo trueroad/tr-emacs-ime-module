@@ -1,4 +1,4 @@
-;;; tr-emacs-ime-module.el --- Simple IME module for GNU Emacs -*- lexical-binding: t -*-
+;;; tr-emacs-ime-module.el --- Simple IME module -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2020 Masamichi Hosoda
 
@@ -23,7 +23,7 @@
 ;; along with tr-emacs-ime-module.
 ;; If not, see <https://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; Simple IME module for GNU Emacs (tr-emacs-ime-module) is an attempt in
 ;; GNU Emacs for Windows (MinGW/Cygwin) to make Japanese input with IME
@@ -33,17 +33,17 @@
 ;; To use Module1 (stable but less functionality) of this package,
 ;; add the following code to your init.el or .emacs
 ;;
-;;   (tr-ime-module-helper-install)
+;;   (tr-emacs-ime-module-install)
 ;;
 ;; To use Module2 (experimental but more functionality) of this package,
 ;; add the following code to your init.el or .emacs
 ;;
-;;   (tr-ime-module2-helper-install)
+;;   (tr-emacs-ime-module2-install)
 
 ;;; Code:
 
 ;;;###autoload
-(defun tr-ime-module-helper-install ()
+(defun tr-emacs-ime-module-install ()
   "Install tr-emacs-ime-module Module1 (stable but less functionality)"
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
@@ -53,7 +53,7 @@
     (require 'w32-ime "w32-ime-for-tr-ime-module")))
 
 ;;;###autoload
-(defun tr-ime-module2-helper-install ()
+(defun tr-emacs-ime-module2-install ()
   "Install tr-emacs-ime-module Module2 (experimental but more functionality)"
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
@@ -61,6 +61,8 @@
              (locate-library "tr-ime-module2-helper"))
     (require 'tr-ime-module2-helper)
     (require 'w32-ime "w32-ime-for-tr-ime-module")))
+
+(provide 'tr-emacs-ime-module)
 
 ;; Local Variables:
 ;; coding: utf-8
