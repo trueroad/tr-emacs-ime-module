@@ -1,5 +1,13 @@
 # Simple IME module for GNU Emacs (tr-emacs-ime-module)
 
+※注意：各種名称が混乱しているところがあるため、
+パッケージ名、ファイル名、関数名、変数名、設定方法などを整理して変更します。
+そのためしばらく不安定になるかもしれません。
+安定版を使いたい場合は
+[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+にある過去のリリース版をご利用ください。
+ドキュメントもリリース版のドキュメントをご参照ください。
+
 Windows 用 (MinGW/Cygwin) GNU Emacs でダイナミックモジュールの機構を利用し、
 IME パッチ無しの公式バイナリなどでも、
 IME による日本語入力を使いやすくする試みです。
