@@ -25,6 +25,16 @@ AC_DEFINE_UNQUOTED([PACKAGE_COPYRIGHT], ["$PACKAGE_COPYRIGHT"],
 AC_DEFINE_UNQUOTED([PACKAGE_LICENSE], ["$PACKAGE_LICENSE"],
   [Define to the license of this package.])
 
+MOD_ABI_VERSION='1'
+MODADV_ABI_VERSION='1'
+
+AC_DEFINE_UNQUOTED([MOD_ABI_VERSION], ["$MOD_ABI_VERSION"],
+  [Define to the module ABI version of this package.])
+AC_DEFINE_UNQUOTED([MODADV_ABI_VERSION], ["$MODADV_ABI_VERSION"],
+  [Define to the advanced module ABI version of this package.])
+AC_SUBST([MOD_ABI_VERSION])
+AC_SUBST([MODADV_ABI_VERSION])
+
 AC_DEFINE_UNQUOTED([HOST_PLATFORM], ["$host"],
   [Define to the host platform name.])
 

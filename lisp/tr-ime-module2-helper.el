@@ -91,7 +91,7 @@ Module2 を使用する際のコア機能の設定。
 ;;
 
 (unless (featurep 'tr-ime-module2)
-  (load (concat "tr-ime-modadv-" system-configuration)))
+  (load (concat "tr-ime-modadv-1-" system-configuration)))
 
 (declare-function w32-tr-ime-install-message-hook-hwnd "tr-ime-module2"
                   arg1)

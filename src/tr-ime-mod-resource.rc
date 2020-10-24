@@ -47,7 +47,8 @@ BEGIN
             VALUE "LegalCopyright", \
                 PACKAGE_COPYRIGHT " " PACKAGE_LICENSE "\0"
             VALUE "LegalTrademarks",  PACKAGE_URL "\0"
-            VALUE "OriginalFilename", "tr-ime-mod-" HOST_PLATFORM ".dll\0"
+            VALUE "OriginalFilename", "tr-ime-mod-" \
+                MOD_ABI_VERSION "-" HOST_PLATFORM ".dll\0"
             VALUE "ProductName",      PACKAGE_NAME "\0"
             VALUE "ProductVersion",   PACKAGE_VERSION "\0"
         END

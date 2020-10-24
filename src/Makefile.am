@@ -3,13 +3,13 @@
 #
 
 noinst_LTLIBRARIES = tr-ime-mod.la
-pkglisp_DATA = tr-ime-mod-$(host)$(SHREXT)
-CLEANFILES = tr-ime-mod-$(host)$(SHREXT)
+pkglisp_DATA = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
+CLEANFILES = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
 
 if ENABLE_MODULE2
 noinst_LTLIBRARIES += tr-ime-modadv.la
-pkglisp_DATA += tr-ime-modadv-$(host)$(SHREXT)
-CLEANFILES += tr-ime-modadv-$(host)$(SHREXT)
+pkglisp_DATA += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
+CLEANFILES += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
 endif
 
 #
@@ -27,7 +27,8 @@ tr_ime_mod_la_LDFLAGS += -rpath $(pkglispdir)
 
 $(objdir)/tr-ime-mod$(SHREXT): tr-ime-mod.la
 
-tr-ime-mod-$(host)$(SHREXT): $(objdir)/tr-ime-mod$(SHREXT)
+tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT): \
+		$(objdir)/tr-ime-mod$(SHREXT)
 	cp -p $< $@
 
 #
@@ -49,7 +50,8 @@ tr_ime_modadv_la_LDFLAGS += -rpath $(pkglispdir)
 
 $(objdir)/tr-ime-modadv$(SHREXT): tr-ime-modadv.la
 
-tr-ime-modadv-$(host)$(SHREXT): $(objdir)/tr-ime-modadv$(SHREXT)
+tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT): \
+		$(objdir)/tr-ime-modadv$(SHREXT)
 	cp -p $< $@
 
 #
