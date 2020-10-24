@@ -1,4 +1,4 @@
-# Simple IME module for GNU Emacs (tr-emacs-ime-module)
+# Emulator of GNU Emacs IME patch for Windows (tr-ime)
 
 ※注意：各種名称が混乱しているところがあるため、
 パッケージ名、ファイル名、関数名、変数名、設定方法などを整理して変更します。
