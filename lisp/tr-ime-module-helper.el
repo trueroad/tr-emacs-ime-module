@@ -69,13 +69,13 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
 ;; Emacs 28 で導入された関数がある場合、
 ;; もしくは既に DLL モジュールがある場合はロードしない
 (unless (or (fboundp #'w32-get-ime-open-status)
-            (featurep 'tr-ime-module)
+            (featurep 'tr-ime-mod)
             (featurep 'tr-ime-module2))
   (load (concat "tr-ime-mod-1-" system-configuration)))
 
-(declare-function w32-tr-ime-setopenstatus "tr-ime-module"
+(declare-function tr-ime-mod--setopenstatus "tr-ime-mod"
                   arg1 arg2)
-(declare-function w32-tr-ime-getopenstatus "tr-ime-module"
+(declare-function tr-ime-mod--getopenstatus "tr-ime-mod"
                   arg1)
 (declare-function w32-set-ime-open-status "w32fns.c" status) ; Emacs 28
 (declare-function w32-get-ime-open-status "w32fns.c") ; Emacs 28
@@ -132,14 +132,14 @@ IME パッチの ime-force-off をエミュレーションする。"
     "IME を ON にする関数
 
 モジュールで IME パッチの ime-force-on をエミュレーションする。"
-    (w32-tr-ime-setopenstatus
+    (tr-ime-mod--setopenstatus
      (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
 
   (defun ime-force-off (&optional _dummy)
     "IME を OFF にする関数
 
 IME パッチの ime-force-off をエミュレーションする。"
-    (w32-tr-ime-setopenstatus
+    (tr-ime-mod--setopenstatus
      (string-to-number (frame-parameter (selected-frame) 'window-id)) nil)))
 
 (if (fboundp #'w32-get-ime-open-status)
@@ -154,7 +154,7 @@ IME パッチの ime-get-mode を割り当てることでエミュレーショ�
 
 IME パッチの ime-get-mode をエミュレーションする。
 IME が OFF なら nil を、ON ならそれ以外を返す。"
-    (w32-tr-ime-getopenstatus
+    (tr-ime-mod--getopenstatus
      (string-to-number (frame-parameter (selected-frame) 'window-id)))))
 
 ;;

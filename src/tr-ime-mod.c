@@ -1,28 +1,28 @@
 // -*- mode: c; coding: utf-8 -*-
 
 // This file is part of
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
 // Copyright (C) 2020 Masamichi Hosoda
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with tr-emacs-ime-module.
+// along with tr-ime.
 // If not, see <https://www.gnu.org/licenses/>.
 
-#define TR_IME_MODULE_DLL __declspec(dllexport)
+#define TR_IME_MOD_DLL __declspec(dllexport)
 
 #include "config.h"
 
@@ -38,15 +38,15 @@
 #define IMC_SETOPENSTATUS 0x0006
 #endif
 
-int TR_IME_MODULE_DLL plugin_is_GPL_compatible;
+int TR_IME_MOD_DLL plugin_is_GPL_compatible;
 
 static emacs_value
-w32_tr_ime_setopenstatus
+tr_ime_mod__setopenstatus
 (emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data)
 {
   if (nargs != 2)
     {
-      OutputDebugString ("w32_tr_ime_setopenstatus: nargs != 2\n");
+      OutputDebugString ("tr_ime_mod__setopenstatus: nargs != 2\n");
       return env->intern (env, "nil");
     }
 
@@ -55,7 +55,7 @@ w32_tr_ime_setopenstatus
 
   if (!IsWindow (hwnd))
     {
-      OutputDebugString ("w32_tr_ime_setopenstatus: hwnd is not window\n");
+      OutputDebugString ("tr_ime_mod__setopenstatus: hwnd is not window\n");
       return env->intern (env, "nil");
     }
 
@@ -63,7 +63,7 @@ w32_tr_ime_setopenstatus
   if (!hwnd_ime)
     {
       OutputDebugString
-        ("w32_tr_ime_setopenstatus: ImmGetDefaultIMEWnd failed\n");
+        ("tr_ime_mod__setopenstatus: ImmGetDefaultIMEWnd failed\n");
       return env->intern (env, "nil");
     }
 
@@ -74,7 +74,7 @@ w32_tr_ime_setopenstatus
   if (r)
     {
       OutputDebugString
-        ("w32_tr_ime_setopenstatus: IMC_SETOPENSTATUS failed\n");
+        ("tr_ime_mod__setopenstatus: IMC_SETOPENSTATUS failed\n");
       return env->intern (env, "nil");
     }
 
@@ -82,12 +82,12 @@ w32_tr_ime_setopenstatus
 }
 
 static emacs_value
-w32_tr_ime_getopenstatus
+tr_ime_mod__getopenstatus
 (emacs_env *env, ptrdiff_t nargs, emacs_value *args, void *data)
 {
   if (nargs != 1)
     {
-      OutputDebugString ("w32_tr_ime_getopenstatus: nargs != 1\n");
+      OutputDebugString ("tr_ime_mod__getopenstatus: nargs != 1\n");
       return env->intern (env, "nil");
     }
 
@@ -95,7 +95,7 @@ w32_tr_ime_getopenstatus
 
   if (!IsWindow (hwnd))
     {
-      OutputDebugString ("w32_tr_ime_getopenstatus: hwnd is not window\n");
+      OutputDebugString ("tr_ime_mod__getopenstatus: hwnd is not window\n");
       return env->intern (env, "nil");
     }
 
@@ -103,7 +103,7 @@ w32_tr_ime_getopenstatus
   if (!hwnd_ime)
     {
       OutputDebugString
-        ("w32_tr_ime_getopenstatus: ImmGetDefaultIMEWnd failed\n");
+        ("tr_ime_mod__getopenstatus: ImmGetDefaultIMEWnd failed\n");
       return env->intern (env, "nil");
     }
 
@@ -148,37 +148,37 @@ provide_feature (emacs_env *env, const char *name)
   env->funcall (env, provide, sizeof (args) / sizeof (args[0]), args);
 }
 
-int TR_IME_MODULE_DLL
+int TR_IME_MOD_DLL
 emacs_module_init (struct emacs_runtime *ert)
 {
   if (ert->size < sizeof (*ert))
     {
-      OutputDebugString ("tr-ime-module: ert->size < sizeof (*ert)\n");
+      OutputDebugString ("tr-ime-mod: ert->size < sizeof (*ert)\n");
       return 1;
     }
 
   emacs_env *env = ert->get_environment (ert);
   if (env->size < sizeof (*env))
     {
-      OutputDebugString ("tr-ime-module: env->size < sizeof (*env)\n");
+      OutputDebugString ("tr-ime-mod: env->size < sizeof (*env)\n");
       return 2;
     }
 
-  regist_function (env, "w32-tr-ime-setopenstatus",
-                   2, 2, w32_tr_ime_setopenstatus,
+  regist_function (env, "tr-ime-mod--setopenstatus",
+                   2, 2, tr_ime_mod__setopenstatus,
 "Send WM_IME_CONTROL message with IMC_SETOPENSTATUS (MSDN undocumented)\n\n"
 "ARG1 is interpreted as HWND and ARG2 is interpreted as BOOL.\n"
 "The message is then sent to the default IME window of the HWND.\n"
 "If the BOOL is FALSE, IME is turned off, otherwise, IME is turned on.",
                    NULL);
-  regist_function (env, "w32-tr-ime-getopenstatus",
-                   1, 1, w32_tr_ime_getopenstatus,
+  regist_function (env, "tr-ime-mod--getopenstatus",
+                   1, 1, tr_ime_mod__getopenstatus,
 "Send WM_IME_CONTROL message with IMC_GETOPENSTATUS (MSDN undocumented)\n\n"
 "ARG1 is interpreted as HWND.\n"
 "The message is then sent to the default IME window of the HWND.\n"
 "If IME is OFF, nil is returned, otherwise other than nil is returned.",
                    NULL);
-  provide_feature (env, "tr-ime-module");
+  provide_feature (env, "tr-ime-mod");
 
   return 0;
 }
