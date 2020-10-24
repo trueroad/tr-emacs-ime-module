@@ -30,7 +30,7 @@
 #include <windows.h>
 #include <imm.h>
 
-// MSDN undocumented
+// Microsoft undocumented
 #ifndef IMC_GETOPENSTATUS
 #define IMC_GETOPENSTATUS 0x0005
 #endif
@@ -166,17 +166,23 @@ emacs_module_init (struct emacs_runtime *ert)
 
   regist_function (env, "tr-ime-mod--setopenstatus",
                    2, 2, tr_ime_mod__setopenstatus,
-"Send WM_IME_CONTROL message with IMC_SETOPENSTATUS (MSDN undocumented)\n\n"
+"Send WM_IME_CONTROL message with IMC_SETOPENSTATUS (undocumented).\n\n"
 "ARG1 is interpreted as HWND and ARG2 is interpreted as BOOL.\n"
 "The message is then sent to the default IME window of the HWND.\n"
-"If the BOOL is FALSE, IME is turned off, otherwise, IME is turned on.",
+"If the BOOL is FALSE, IME is turned off, otherwise, IME is turned on.\n\n"
+"Sample usage:\n"
+"(tr-ime-mod--setopenstatus\n"
+" (string-to-number (frame-parameter nil 'window-id)) t)",
                    NULL);
   regist_function (env, "tr-ime-mod--getopenstatus",
                    1, 1, tr_ime_mod__getopenstatus,
-"Send WM_IME_CONTROL message with IMC_GETOPENSTATUS (MSDN undocumented)\n\n"
+"Send WM_IME_CONTROL message with IMC_GETOPENSTATUS (undocumented).\n\n"
 "ARG1 is interpreted as HWND.\n"
 "The message is then sent to the default IME window of the HWND.\n"
-"If IME is OFF, nil is returned, otherwise other than nil is returned.",
+"If IME is off, nil is returned, otherwise non-nil is returned.\n\n"
+"Sample usage:\n"
+"(tr-ime-mod--getopenstatus\n"
+" (string-to-number (frame-parameter nil 'window-id)))",
                    NULL);
   provide_feature (env, "tr-ime-mod");
 
