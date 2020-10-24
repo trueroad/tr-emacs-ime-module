@@ -91,7 +91,7 @@ Module2 を使用する際のコア機能の設定。
 ;;
 
 (unless (featurep 'tr-ime-module2)
-  (load (concat "tr-ime-module2-" system-configuration)))
+  (load (concat "tr-ime-modadv-" system-configuration)))
 
 (declare-function w32-tr-ime-install-message-hook-hwnd "tr-ime-module2"
                   arg1)
@@ -135,7 +135,7 @@ Module2 を使用する際のコア機能の設定。
 
 ;; Module1 ヘルパのみロードして Module1 DLL はロードしない
 ;; （Module1 ヘルパは Module2 DLL があると Module1 DLL をロードしない）
-(require 'tr-ime-module-helper)
+(load "tr-ime-module-helper")
 
 ;;
 ;; メッセージフックとサブクラス化

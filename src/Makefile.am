@@ -2,54 +2,54 @@
 # Targets
 #
 
-noinst_LTLIBRARIES = tr-ime-module.la
-pkglisp_DATA = tr-ime-module-$(host)$(SHREXT)
-CLEANFILES = tr-ime-module-$(host)$(SHREXT)
+noinst_LTLIBRARIES = tr-ime-mod.la
+pkglisp_DATA = tr-ime-mod-$(host)$(SHREXT)
+CLEANFILES = tr-ime-mod-$(host)$(SHREXT)
 
 if ENABLE_MODULE2
-noinst_LTLIBRARIES += tr-ime-module2.la
-pkglisp_DATA += tr-ime-module2-$(host)$(SHREXT)
-CLEANFILES += tr-ime-module2-$(host)$(SHREXT)
+noinst_LTLIBRARIES += tr-ime-modadv.la
+pkglisp_DATA += tr-ime-modadv-$(host)$(SHREXT)
+CLEANFILES += tr-ime-modadv-$(host)$(SHREXT)
 endif
 
 #
-# For tr-ime-module
+# For tr-ime-mod
 #
 
-tr_ime_module_la_SOURCES = tr-ime-module.c tr-ime-module-resource.rc
+tr_ime_mod_la_SOURCES = tr-ime-mod.c tr-ime-mod-resource.rc
 
-tr_ime_module_la_LIBADD = -limm32
+tr_ime_mod_la_LIBADD = -limm32
 
-tr_ime_module_la_LDFLAGS = -no-undefined
-tr_ime_module_la_LDFLAGS += -module
-tr_ime_module_la_LDFLAGS += -avoid-version
-tr_ime_module_la_LDFLAGS += -rpath $(pkglispdir)
+tr_ime_mod_la_LDFLAGS = -no-undefined
+tr_ime_mod_la_LDFLAGS += -module
+tr_ime_mod_la_LDFLAGS += -avoid-version
+tr_ime_mod_la_LDFLAGS += -rpath $(pkglispdir)
 
-$(objdir)/tr-ime-module$(SHREXT): tr-ime-module.la
+$(objdir)/tr-ime-mod$(SHREXT): tr-ime-mod.la
 
-tr-ime-module-$(host)$(SHREXT): $(objdir)/tr-ime-module$(SHREXT)
+tr-ime-mod-$(host)$(SHREXT): $(objdir)/tr-ime-mod$(SHREXT)
 	cp -p $< $@
 
 #
-# For tr-ime-module2
+# For tr-ime-modadv
 #
 
-tr_ime_module2_la_SOURCES = tr-ime-module2.cc tr-ime-module2-resource.rc \
+tr_ime_modadv_la_SOURCES = tr-ime-modadv.cc tr-ime-modadv-resource.rc \
 	debug-message.cc debug-message.hh lisp-in-cc.cc lisp-in-cc.hh \
 	get_msg_hook.cc get_msg_hook.hh get_msg_proc.cc get_msg_proc.hh \
 	message.cc message.hh subclass_proc.cc subclass_proc.hh \
 	queue.cc queue.hh
 
-tr_ime_module2_la_LIBADD = -lgdi32 -lcomctl32 -limm32
+tr_ime_modadv_la_LIBADD = -lgdi32 -lcomctl32 -limm32
 
-tr_ime_module2_la_LDFLAGS = -no-undefined
-tr_ime_module2_la_LDFLAGS += -module
-tr_ime_module2_la_LDFLAGS += -avoid-version
-tr_ime_module2_la_LDFLAGS += -rpath $(pkglispdir)
+tr_ime_modadv_la_LDFLAGS = -no-undefined
+tr_ime_modadv_la_LDFLAGS += -module
+tr_ime_modadv_la_LDFLAGS += -avoid-version
+tr_ime_modadv_la_LDFLAGS += -rpath $(pkglispdir)
 
-$(objdir)/tr-ime-module2$(SHREXT): tr-ime-module2.la
+$(objdir)/tr-ime-modadv$(SHREXT): tr-ime-modadv.la
 
-tr-ime-module2-$(host)$(SHREXT): $(objdir)/tr-ime-module2$(SHREXT)
+tr-ime-modadv-$(host)$(SHREXT): $(objdir)/tr-ime-modadv$(SHREXT)
 	cp -p $< $@
 
 #
