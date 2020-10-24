@@ -70,7 +70,7 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
 ;; もしくは既に DLL モジュールがある場合はロードしない
 (unless (or (fboundp #'w32-get-ime-open-status)
             (featurep 'tr-ime-mod)
-            (featurep 'tr-ime-module2))
+            (featurep 'tr-ime-modadv))
   (load (concat "tr-ime-mod-1-" system-configuration)))
 
 (declare-function tr-ime-mod--setopenstatus "tr-ime-mod"

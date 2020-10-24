@@ -90,43 +90,43 @@ Module2 を使用する際のコア機能の設定。
 ;; C++ 実装による DLL をロードする
 ;;
 
-(unless (featurep 'tr-ime-module2)
+(unless (featurep 'tr-ime-modadv)
   (load (concat "tr-ime-modadv-1-" system-configuration)))
 
-(declare-function w32-tr-ime-install-message-hook-hwnd "tr-ime-module2"
+(declare-function tr-ime-modadv--install-message-hook-hwnd "tr-ime-modadv"
                   arg1)
-(declare-function w32-tr-ime-uninstall-message-hook-hwnd "tr-ime-module2"
+(declare-function tr-ime-modadv--uninstall-message-hook-hwnd "tr-ime-modadv"
                   arg1)
-(declare-function w32-tr-ime-subclassify-hwnd "tr-ime-module2"
+(declare-function tr-ime-modadv--subclassify-hwnd "tr-ime-modadv"
                   arg1 &optional arg2)
-(declare-function w32-tr-ime-unsubclassify-hwnd "tr-ime-module2"
+(declare-function tr-ime-modadv--unsubclassify-hwnd "tr-ime-modadv"
                   arg1 &optional arg2)
-(declare-function w32-tr-ime-set-dispatch-thread-message "tr-ime-module2"
+(declare-function tr-ime-modadv--set-dispatch-thread-message "tr-ime-modadv"
                   arg1)
-(declare-function w32-tr-ime-setopenstatus2 "tr-ime-module2"
+(declare-function tr-ime-modadv--setopenstatus "tr-ime-modadv"
                   arg1 arg2)
-(declare-function w32-tr-ime-getopenstatus2 "tr-ime-module2"
+(declare-function tr-ime-modadv--getopenstatus "tr-ime-modadv"
                   arg1)
-(declare-function w32-tr-ime-set-font "tr-ime-module2"
+(declare-function tr-ime-modadv--set-font "tr-ime-modadv"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8)
-(declare-function w32-tr-ime-set-composition-window "tr-ime-module2"
+(declare-function tr-ime-modadv--set-composition-window "tr-ime-modadv"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
                   arg11 arg12 arg13 arg14 arg15)
-(declare-function w32-tr-ime-set-startcomposition-defsubclassproc
-                  "tr-ime-module2"
+(declare-function tr-ime-modadv--set-startcomposition-defsubclassproc
+                  "tr-ime-modadv"
                   arg1 arg2)
-(declare-function w32-tr-ime-set-prefix-keys "tr-ime-module2"
+(declare-function tr-ime-modadv--set-prefix-keys "tr-ime-modadv"
                   arg1 arg2)
-(declare-function w32-tr-ime-resume-prefix-key "tr-ime-module2")
-(declare-function w32-tr-ime-language-change-handler "tr-ime-module2")
-(declare-function w32-tr-ime-notify-reconvert-string "tr-ime-module2"
+(declare-function tr-ime-modadv--resume-prefix-key "tr-ime-modadv")
+(declare-function tr-ime-modadv--language-change-handler "tr-ime-modadv")
+(declare-function tr-ime-modadv--notify-reconvert-string "tr-ime-modadv"
                   arg1 arg2 arg3)
-(declare-function w32-tr-ime-set-reconversion "tr-ime-module2"
+(declare-function tr-ime-modadv--set-reconversion "tr-ime-modadv"
                   arg1 arg2)
-(declare-function w32-tr-ime-set-documentfeed "tr-ime-module2"
+(declare-function tr-ime-modadv--set-documentfeed "tr-ime-modadv"
                   arg1 arg2)
-(declare-function w32-tr-ime-get-dpi "tr-ime-module2")
-(declare-function w32-tr-ime-set-verbose-level "tr-ime-module2"
+(declare-function tr-ime-modadv--get-dpi "tr-ime-modadv")
+(declare-function tr-ime-modadv--set-verbose-level "tr-ime-modadv"
                   arg1)
 
 ;;
@@ -153,16 +153,16 @@ BOOL が nil ならサブクラス解除してメッセージフックを停止�
 設定変更すらできないものも存在する。"
   (if bool
       (progn
-        (w32-tr-ime-install-message-hook-hwnd
+        (tr-ime-modadv--install-message-hook-hwnd
          (string-to-number (frame-parameter nil 'window-id)))
-        (w32-tr-ime-subclassify-hwnd
+        (tr-ime-modadv--subclassify-hwnd
          (string-to-number (frame-parameter nil 'window-id)) nil))
-    (w32-tr-ime-unsubclassify-hwnd
+    (tr-ime-modadv--unsubclassify-hwnd
      (string-to-number (frame-parameter nil 'window-id)) nil)
     ;; サブクラス解除は非同期に実施されるが、
     ;; 解除前にメッセージフック停止すると解除できなくなるので少し待機する。
     (sleep-for 1)
-    (w32-tr-ime-uninstall-message-hook-hwnd
+    (tr-ime-modadv--uninstall-message-hook-hwnd
      (string-to-number (frame-parameter nil 'window-id))))
   (set-default symb bool))
 
@@ -203,8 +203,8 @@ GNU Emacs 27 や 28 の UI スレッドは、
 二重にディスパッチしてしまうことになり、
 Emacs の動作がおかしくなってしまう。"
   (if bool
-      (w32-tr-ime-set-dispatch-thread-message t)
-    (w32-tr-ime-set-dispatch-thread-message nil))
+      (tr-ime-modadv--set-dispatch-thread-message t)
+    (tr-ime-modadv--set-dispatch-thread-message nil))
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-dispatch-thread-message-p t
@@ -241,7 +241,7 @@ Emacs の動作がおかしくなってしまう。"
         (define-key special-event-map [language-change]
           (lambda ()
             (interactive)
-            (w32-tr-ime-language-change-handler))))
+            (tr-ime-modadv--language-change-handler))))
     (define-key special-event-map [language-change] 'ignore))
   (set-default symb bool))
 
@@ -271,14 +271,14 @@ UI スレッドは返ってこない通知を待つため（一時的に）
   "IME を ON にする関数
 
 Module2 で IME パッチの ime-force-on をエミュレーションする。"
-  (w32-tr-ime-setopenstatus2
+  (tr-ime-modadv--setopenstatus
    (string-to-number (frame-parameter nil 'window-id)) t))
 
 (defun ime-force-off (&optional _dummy)
   "IME を OFF にする関数
 
 Module2 で IME パッチの ime-force-off をエミュレーションする。"
-  (w32-tr-ime-setopenstatus2
+  (tr-ime-modadv--setopenstatus
    (string-to-number (frame-parameter nil 'window-id)) nil))
 
 (defun ime-get-mode ()
@@ -286,7 +286,7 @@ Module2 で IME パッチの ime-force-off をエミュレーションする。"
 
 Module2 で IME パッチの ime-get-mode をエミュレーションする。
 IME が OFF なら nil を、ON ならそれ以外を返す。"
-  (w32-tr-ime-getopenstatus2
+  (tr-ime-modadv--getopenstatus
    (string-to-number (frame-parameter nil 'window-id))))
 
 ;;
@@ -328,7 +328,7 @@ IME が OFF なら nil を、ON ならそれ以外を返す。"
 
 FRAME の frame-parameter から ime-font 設定を読み取り、
 モジュールで C++ 実装されている低レベルフォント設定関数
-w32-tr-ime-set-font を使って未確定文字列のフォントを設定する。
+tr-ime-modadv--set-font を使って未確定文字列のフォントを設定する。
 FRAME が nil または省略された場合は選択されているフレームが対象となる。
 family に generic family を指定することはできない。
 
@@ -340,7 +340,7 @@ IME パッチではフレームの ime-font 設定を変更すると即座に反
 フレームの ime-font 設定変更を検出して本関数を呼ぶようなどすれば、
 IME パッチと同様の設定で使うことができる。
 
-なお、低レベルフォント設定関数 w32-tr-ime-set-font で設定される、
+なお、低レベルフォント設定関数 tr-ime-modadv--set-font で設定される、
 モジュール内部の設定はスレッド毎の設定となっており、
 一度設定すると他のフレームでも同じ設定が使われる。
 そのため、全フレームで同一の設定にしたい場合は、
@@ -364,9 +364,9 @@ focus-in-hook などで ime-font 設定が変わったことを検出して
              (height (plist-get attributes :height)))
         (when (and family height)
           (let ((h (round (/ (* height
-                                (cdr (w32-tr-ime-get-dpi)))
+                                (cdr (tr-ime-modadv--get-dpi)))
                              -720.0))))
-            (w32-tr-ime-set-font
+            (tr-ime-modadv--set-font
              (string-to-number
               (frame-parameter frame 'window-id))
              h 0 0 0
@@ -560,7 +560,7 @@ isearch-mode 中の未確定文字列の表示位置を
       ;;  (format-message
       ;;   "left %s, top %s, right %s, bottom %s, px %s, py %s"
       ;;   left top right bottom px py))
-      (w32-tr-ime-set-composition-window
+      (tr-ime-modadv--set-composition-window
        (string-to-number (frame-parameter nil 'window-id))
        1 px py left top right bottom))))
 
@@ -569,7 +569,7 @@ isearch-mode 中の未確定文字列の表示位置を
 
 isearch-mode-end-hook に登録することにより、isearch-mode 終了後に
 未確定文字列の表示位置を通常のバッファ内のカーソル位置に戻す。"
-  (w32-tr-ime-set-composition-window
+  (tr-ime-modadv--set-composition-window
    (string-to-number (frame-parameter nil 'window-id))
    0 0 0 0 0 0 0))
 
@@ -609,7 +609,7 @@ isearch-mode 中に未確定文字列をエコーエリア（ミニバッファ�
 
 (defun w32-tr-ime-module-isearch-defsubclassproc-p-set (symb bool)
   "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か設定する"
-  (w32-tr-ime-set-startcomposition-defsubclassproc
+  (tr-ime-modadv--set-startcomposition-defsubclassproc
    (string-to-number (frame-parameter nil 'window-id)) bool)
   (set-default symb bool))
 
@@ -696,7 +696,7 @@ Emacs がアイドル状態になったら動作するタイマで再表示さ�
 SETTINGS はプレフィックスキーとして検出したいコードのリスト。"
   (set-default symb settings)
   (if w32-tr-ime-module-prefix-key-p
-      (w32-tr-ime-set-prefix-keys
+      (tr-ime-modadv--set-prefix-keys
        (string-to-number (frame-parameter nil 'window-id))
        settings)))
 
@@ -729,13 +729,13 @@ BOOL が nil ならフックから削除して停止する。"
       (progn
         (custom-set-variables
          '(w32-tr-ime-module-workaround-prefix-key-p nil))
-        (w32-tr-ime-set-prefix-keys
+        (tr-ime-modadv--set-prefix-keys
          (string-to-number (frame-parameter nil 'window-id))
          w32-tr-ime-module-prefix-key-list)
-        (add-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
-    (w32-tr-ime-set-prefix-keys
+        (add-hook 'pre-command-hook #'tr-ime-modadv--resume-prefix-key))
+    (tr-ime-modadv--set-prefix-keys
      (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'pre-command-hook #'w32-tr-ime-resume-prefix-key))
+    (remove-hook 'pre-command-hook #'tr-ime-modadv--resume-prefix-key))
   (set-default symb bool))
 
 (defcustom w32-tr-ime-module-prefix-key-p t
@@ -758,11 +758,11 @@ BOOL が nil ならフックから削除して停止する。"
 ;; IME 状態変更通知による IME/IM 状態同期
 ;;
 
-(defvar w32-tr-ime-module-setopenstatus-hook nil
+(defvar tr-ime-modadv--setopenstatus-hook nil
   "IME 状態変更通知があったときに呼ばれるノーマルフック
 
 Module2 の C++ 実装である
-w32-tr-ime-language-change-handler 関数から呼ばれる。")
+tr-ime-modadv--language-change-handler 関数から呼ばれる。")
 
 (defcustom
   w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
@@ -802,9 +802,9 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
       (progn
         (custom-set-variables
          '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
-        (add-hook 'w32-tr-ime-module-setopenstatus-hook
+        (add-hook 'tr-ime-modadv--setopenstatus-hook
                   #'w32-tr-ime-module-setopenstatus-sync))
-    (remove-hook 'w32-tr-ime-module-setopenstatus-hook
+    (remove-hook 'tr-ime-modadv--setopenstatus-hook
                  #'w32-tr-ime-module-setopenstatus-sync))
   (set-default symb bool))
 
@@ -828,21 +828,21 @@ IME 状態食い違い検出ワークアラウンドが無効になる。"
 ;; 再変換 (RECONVERSION)
 ;;
 
-(defvar w32-tr-ime-module-reconvertstring-hook nil
+(defvar tr-ime-modadv--reconvertstring-hook nil
   "WM_IME_REQUEST IMR_RECONVERTSTRING が来た時に呼ばれるノーマルフック
 
 Module2 の C++ 実装である
-w32-tr-ime-language-change-handler 関数から呼ばれる。")
+tr-ime-modadv--language-change-handler 関数から呼ばれる。")
 
 (defun w32-tr-ime-module-notify-reconvert-string ()
   "RECONVERTSTRING 構造体用の材料を収集して UI スレッドへ通知する
 
 point のある行全体の文字列と、文字列中の point 位置を収集し、
-Module2 の C++ 実装である w32-tr-ime-notify-reconvert-string 関数を呼び、
+Module2 の C++ 実装である tr-ime-modadv--notify-reconvert-string 関数を呼び、
 UI スレッドへ通知する。
-ノーマルフック w32-tr-ime-module-reconvertstring-hook および
-w32-tr-ime-module-documentfeed-hook に登録して使う。"
-  (w32-tr-ime-notify-reconvert-string
+ノーマルフック tr-ime-modadv--reconvertstring-hook および
+tr-ime-modadv--documentfeed-hook に登録して使う。"
+  (tr-ime-modadv--notify-reconvert-string
    (string-to-number (frame-parameter nil 'window-id))
    (buffer-substring-no-properties
     (line-beginning-position) (line-end-position))
@@ -852,13 +852,13 @@ w32-tr-ime-module-documentfeed-hook に登録して使う。"
   "再変換 (RECONVERSION) 動作を行うか否か設定する"
   (if bool
       (progn
-        (add-hook 'w32-tr-ime-module-reconvertstring-hook
+        (add-hook 'tr-ime-modadv--reconvertstring-hook
                   #'w32-tr-ime-module-notify-reconvert-string)
-        (w32-tr-ime-set-reconversion
+        (tr-ime-modadv--set-reconversion
          (string-to-number (frame-parameter nil 'window-id)) t))
-    (w32-tr-ime-set-reconversion
+    (tr-ime-modadv--set-reconversion
      (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'w32-tr-ime-module-reconvertstring-hook
+    (remove-hook 'tr-ime-modadv--reconvertstring-hook
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
 
@@ -879,23 +879,23 @@ w32-tr-ime-module-documentfeed-hook に登録して使う。"
 ;; 前後の確定済文字列を参照した変換 (DOCUMENTFEED)
 ;;
 
-(defvar w32-tr-ime-module-documentfeed-hook nil
+(defvar tr-ime-modadv--documentfeed-hook nil
   "WM_IME_REQUEST IMR_DOCUMENTFEED が来た時に呼ばれるノーマルフック
 
 Module2 の C++ 実装である
-w32-tr-ime-language-change-handler 関数から呼ばれる。")
+tr-ime-modadv--language-change-handler 関数から呼ばれる。")
 
 (defun w32-tr-ime-module-documentfeed-p-set (symb bool)
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する"
   (if bool
       (progn
-        (add-hook 'w32-tr-ime-module-documentfeed-hook
+        (add-hook 'tr-ime-modadv--documentfeed-hook
                   #'w32-tr-ime-module-notify-reconvert-string)
-        (w32-tr-ime-set-documentfeed
+        (tr-ime-modadv--set-documentfeed
          (string-to-number (frame-parameter nil 'window-id)) t))
-    (w32-tr-ime-set-documentfeed
+    (tr-ime-modadv--set-documentfeed
      (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'w32-tr-ime-module-documentfeed-hook
+    (remove-hook 'tr-ime-modadv--documentfeed-hook
                  #'w32-tr-ime-module-notify-reconvert-string))
   (set-default symb bool))
 
@@ -918,7 +918,7 @@ w32-tr-ime-language-change-handler 関数から呼ばれる。")
 (defun w32-tr-ime-module-verbose-level-set (symb level)
   "Module2 のデバッグ出力レベルを設定する"
   (when level
-    (w32-tr-ime-set-verbose-level level))
+    (tr-ime-modadv--set-verbose-level level))
   (set-default symb level))
 
 (defcustom w32-tr-ime-module-verbose-level nil

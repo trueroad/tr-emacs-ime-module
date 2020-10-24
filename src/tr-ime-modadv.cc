@@ -1,28 +1,28 @@
 // -*- mode: c++; coding: utf-8 -*-
 
 // This file is part of
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
 // Copyright (C) 2020 Masamichi Hosoda
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with tr-emacs-ime-module.
+// along with tr-ime.
 // If not, see <https://www.gnu.org/licenses/>.
 
-#define TR_IME_MODULE2_DLL __declspec(dllexport)
+#define TR_IME_MODADV_DLL __declspec(dllexport)
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -37,7 +37,7 @@
 #include "debug-message.hh"
 #include "lisp-in-cc.hh"
 
-int TR_IME_MODULE2_DLL plugin_is_GPL_compatible;
+int TR_IME_MODADV_DLL plugin_is_GPL_compatible;
 
 namespace
 {
@@ -74,7 +74,7 @@ namespace
   }
 };
 
-int TR_IME_MODULE2_DLL
+int TR_IME_MODADV_DLL
 emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
 {
   DEBUG_MESSAGE ("enter\n");
@@ -92,93 +92,93 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
       return 2;
     }
 
-  regist_function (env, "w32-tr-ime-install-message-hook-hwnd",
-                   1, 1, Fw32_tr_ime_install_message_hook_hwnd,
-                   doc_w32_tr_ime_install_message_hook_hwnd,
+  regist_function (env, "tr-ime-modadv--install-message-hook-hwnd",
+                   1, 1, Ftr_ime_modadv__install_message_hook_hwnd,
+                   doc_tr_ime_modadv__install_message_hook_hwnd,
                    nullptr);
-  regist_function (env, "w32-tr-ime-uninstall-message-hook-hwnd",
-                   1, 1, Fw32_tr_ime_uninstall_message_hook_hwnd,
-                   doc_w32_tr_ime_uninstall_message_hook_hwnd,
+  regist_function (env, "tr-ime-modadv--uninstall-message-hook-hwnd",
+                   1, 1, Ftr_ime_modadv__uninstall_message_hook_hwnd,
+                   doc_tr_ime_modadv__uninstall_message_hook_hwnd,
                    nullptr);
-  regist_function (env, "w32-tr-ime-subclassify-hwnd",
-                   1, 2, Fw32_tr_ime_subclassify_hwnd,
-                   doc_w32_tr_ime_subclassify_hwnd,
+  regist_function (env, "tr-ime-modadv--subclassify-hwnd",
+                   1, 2, Ftr_ime_modadv__subclassify_hwnd,
+                   doc_tr_ime_modadv__subclassify_hwnd,
                    nullptr);
-  regist_function (env, "w32-tr-ime-unsubclassify-hwnd",
-                   1, 2, Fw32_tr_ime_unsubclassify_hwnd,
-                   doc_w32_tr_ime_unsubclassify_hwnd,
+  regist_function (env, "tr-ime-modadv--unsubclassify-hwnd",
+                   1, 2, Ftr_ime_modadv__unsubclassify_hwnd,
+                   doc_tr_ime_modadv__unsubclassify_hwnd,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-dispatch-thread-message",
-                   1, 1, Fw32_tr_ime_set_dispatch_thread_message,
-                   doc_w32_tr_ime_set_dispatch_thread_message,
+  regist_function (env, "tr-ime-modadv--set-dispatch-thread-message",
+                   1, 1, Ftr_ime_modadv__set_dispatch_thread_message,
+                   doc_tr_ime_modadv__set_dispatch_thread_message,
                    nullptr);
-  regist_function (env, "w32-tr-ime-setopenstatus2",
-                   2, 2, Fw32_tr_ime_setopenstatus2,
-                   doc_w32_tr_ime_setopenstatus2,
+  regist_function (env, "tr-ime-modadv--setopenstatus",
+                   2, 2, Ftr_ime_modadv__setopenstatus,
+                   doc_tr_ime_modadv__setopenstatus,
                    nullptr);
-  regist_function (env, "w32-tr-ime-getopenstatus2",
-                   1, 1, Fw32_tr_ime_getopenstatus2,
-                   doc_w32_tr_ime_getopenstatus2,
+  regist_function (env, "tr-ime-modadv--getopenstatus",
+                   1, 1, Ftr_ime_modadv__getopenstatus,
+                   doc_tr_ime_modadv__getopenstatus,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-font",
-                   15, 15, Fw32_tr_ime_set_font,
-                   doc_w32_tr_ime_set_font,
+  regist_function (env, "tr-ime-modadv--set-font",
+                   15, 15, Ftr_ime_modadv__set_font,
+                   doc_tr_ime_modadv__set_font,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-composition-window",
-                   8, 8, Fw32_tr_ime_set_composition_window,
-                   doc_w32_tr_ime_set_composition_window,
+  regist_function (env, "tr-ime-modadv--set-composition-window",
+                   8, 8, Ftr_ime_modadv__set_composition_window,
+                   doc_tr_ime_modadv__set_composition_window,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-startcomposition-defsubclassproc",
-                   2, 2, Fw32_tr_ime_set_startcomposition_defsubclassproc,
-                   doc_w32_tr_ime_set_startcomposition_defsubclassproc,
+  regist_function (env, "tr-ime-modadv--set-startcomposition-defsubclassproc",
+                   2, 2, Ftr_ime_modadv__set_startcomposition_defsubclassproc,
+                   doc_tr_ime_modadv__set_startcomposition_defsubclassproc,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-prefix-keys",
-                   2, 2, Fw32_tr_ime_set_prefix_keys,
-                   doc_w32_tr_ime_set_prefix_keys,
+  regist_function (env, "tr-ime-modadv--set-prefix-keys",
+                   2, 2, Ftr_ime_modadv__set_prefix_keys,
+                   doc_tr_ime_modadv__set_prefix_keys,
                    nullptr);
-  regist_function (env, "w32-tr-ime-resume-prefix-key",
-                   0, 0, Fw32_tr_ime_resume_prefix_key,
-                   doc_w32_tr_ime_resume_prefix_key,
+  regist_function (env, "tr-ime-modadv--resume-prefix-key",
+                   0, 0, Ftr_ime_modadv__resume_prefix_key,
+                   doc_tr_ime_modadv__resume_prefix_key,
                    nullptr);
-  regist_function (env, "w32-tr-ime-language-change-handler",
-                   0, 0, Fw32_tr_ime_language_change_handler,
-                   doc_w32_tr_ime_language_change_handler,
+  regist_function (env, "tr-ime-modadv--language-change-handler",
+                   0, 0, Ftr_ime_modadv__language_change_handler,
+                   doc_tr_ime_modadv__language_change_handler,
                    nullptr);
-  regist_function (env, "w32-tr-ime-notify-reconvert-string",
-                   3, 3, Fw32_tr_ime_notify_reconvert_string,
-                   doc_w32_tr_ime_notify_reconvert_string,
+  regist_function (env, "tr-ime-modadv--notify-reconvert-string",
+                   3, 3, Ftr_ime_modadv__notify_reconvert_string,
+                   doc_tr_ime_modadv__notify_reconvert_string,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-reconversion",
-                   2, 2, Fw32_tr_ime_set_reconversion,
-                   doc_w32_tr_ime_set_reconversion,
+  regist_function (env, "tr-ime-modadv--set-reconversion",
+                   2, 2, Ftr_ime_modadv__set_reconversion,
+                   doc_tr_ime_modadv__set_reconversion,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-documentfeed",
-                   2, 2, Fw32_tr_ime_set_documentfeed,
-                   doc_w32_tr_ime_set_documentfeed,
+  regist_function (env, "tr-ime-modadv--set-documentfeed",
+                   2, 2, Ftr_ime_modadv__set_documentfeed,
+                   doc_tr_ime_modadv__set_documentfeed,
                    nullptr);
-  regist_function (env, "w32-tr-ime-get-dpi",
-                   0, 0, Fw32_tr_ime_get_dpi,
-                   doc_w32_tr_ime_get_dpi,
+  regist_function (env, "tr-ime-modadv--get-dpi",
+                   0, 0, Ftr_ime_modadv__get_dpi,
+                   doc_tr_ime_modadv__get_dpi,
                    nullptr);
-  regist_function (env, "w32-tr-ime-set-verbose-level",
-                   1, 1, Fw32_tr_ime_set_verbose_level,
-                   doc_w32_tr_ime_set_verbose_level,
+  regist_function (env, "tr-ime-modadv--set-verbose-level",
+                   1, 1, Ftr_ime_modadv__set_verbose_level,
+                   doc_tr_ime_modadv__set_verbose_level,
                    nullptr);
 
 #ifndef NDEBUG
 
-  regist_function (env, "w32-tr-ime-debug-output",
-                   1, 1, Fw32_tr_ime_debug_output,
-                   doc_w32_tr_ime_debug_output,
+  regist_function (env, "tr-ime-modadv--debug-output",
+                   1, 1, Ftr_ime_modadv__debug_output,
+                   doc_tr_ime_modadv__debug_output,
                    nullptr);
-  regist_function (env, "w32-tr-ime-debug-rectangle",
-                   5, 5, Fw32_tr_ime_debug_rectangle,
-                   doc_w32_tr_ime_debug_rectangle,
+  regist_function (env, "tr-ime-modadv--debug-rectangle",
+                   5, 5, Ftr_ime_modadv__debug_rectangle,
+                   doc_tr_ime_modadv__debug_rectangle,
                    nullptr);
 
 #endif // NDEBUG
 
-  provide_feature (env, "tr-ime-module2");
+  provide_feature (env, "tr-ime-modadv");
 
   return 0;
 }

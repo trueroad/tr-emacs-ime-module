@@ -1,25 +1,25 @@
 // -*- mode: c++; coding: utf-8 -*-
 
 // This file is part of
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
 // Copyright (C) 2020 Masamichi Hosoda
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Simple IME module for GNU Emacs (tr-emacs-ime-module)
+// Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with tr-emacs-ime-module.
+// along with tr-ime.
 // If not, see <https://www.gnu.org/licenses/>.
 
 #include "lisp-in-cc.hh"
@@ -107,19 +107,19 @@ namespace
   }
 };
 
-const char *doc_w32_tr_ime_install_message_hook_hwnd =
-  "Install a message hook into a frame for subclassify\n\n"
+const char *doc_tr_ime_modadv__install_message_hook_hwnd =
+  "Install a message hook into a frame for subclassify.\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"
   "Note: The message hook is installed to the thread to which the frame\n"
-  "belongs, not the frame. Since most frames belong to a single thread,\n"
+  "belongs, not the frame.  Since most frames belong to a single thread,\n"
   "using this function only once will affect the most frames.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-install-message-hook-hwnd\n"
+  "(tr-ime-modadv--install-message-hook-hwnd\n"
   " (string-to-number (frame-parameter nil 'window-id)))";
 
 emacs_value
-Fw32_tr_ime_install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
-                                       emacs_value args[], void*)
+Ftr_ime_modadv__install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                           emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -145,20 +145,20 @@ Fw32_tr_ime_install_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_uninstall_message_hook_hwnd =
-  "Uninstall a message hook into a frame for subclassify\n\n"
+const char *doc_tr_ime_modadv__uninstall_message_hook_hwnd =
+  "Uninstall a message hook into a frame for subclassify.\n\n"
   "ARG1 is interpreted as HWND of the frame.\n\n"
   "Note: The message hook is installed to the thread to which the frame\n"
-  "belongs, not the frame. Since most frames belong to a single thread,\n"
+  "belongs, not the frame.  Since most frames belong to a single thread,\n"
   "using this function only once will uninstall the message hook for\n"
   "the most frames.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-uninstall-message-hook-hwnd\n"
+  "(tr-ime-modadv--uninstall-message-hook-hwnd\n"
   " (string-to-number (frame-parameter nil 'window-id)))";
 
 emacs_value
-Fw32_tr_ime_uninstall_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
-                                         emacs_value args[], void*)
+Ftr_ime_modadv__uninstall_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                             emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -180,21 +180,21 @@ Fw32_tr_ime_uninstall_message_hook_hwnd (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_subclassify_hwnd =
-  "Subclassify a frame to controlling IME\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
+const char *doc_tr_ime_modadv__subclassify_hwnd =
+  "Subclassify a frame to controlling IME.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil or omitted,\n"
   "this function subclasses all frames found in the thread to which the\n"
-  "HWND belongs. Otherwise, it subclasses only the specified HWND.\n"
+  "HWND belongs.  Otherwise, it subclasses only the specified HWND.\n"
   "Note: To subclassify, a message hook by\n"
   "w32-tr-ime-install-message-hook-hwnd is required to be installed in\n"
   "the thread to which the HWND belongs.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-subclassify-hwnd\n"
+  "(tr-ime-modadv--subclassify-hwnd\n"
   " (string-to-number (frame-parameter nil 'window-id)) nil)";
 
 emacs_value
-Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
-                              emacs_value args[], void*)
+Ftr_ime_modadv__subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                  emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -219,24 +219,24 @@ Fw32_tr_ime_subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_unsubclassify_hwnd =
-  "Unsubclassify a frame to release controlling IME\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
+const char *doc_tr_ime_modadv__unsubclassify_hwnd =
+  "Unsubclassify a frame to release controlling IME.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil or omitted,\n"
   "this function unsubclasses all frames in the thread to which the\n"
-  "HWND belongs. Otherwise, it unsubclasses only the specified HWND.\n"
+  "HWND belongs.  Otherwise, it unsubclasses only the specified HWND.\n"
   "Note: To unsubclassify, a message hook by\n"
-  "w32-tr-ime-install-message-hook-hwnd is required to be installed in\n"
+  "tr-ime-modadv--install-message-hook-hwnd is required to be installed in\n"
   "the thread to which the HWND belongs.\n"
-  "Note: After using this function, w32-tr-ime-subclassify-hwnd's\n"
+  "Note: After using this function, tr-ime-modadv--subclassify-hwnd's\n"
   "specification to subclassify all frames is disabled and does not\n"
   "subclassify frames found.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-unsubclassify-hwnd\n"
+  "(tr-ime-modadv--unsubclassify-hwnd\n"
   " (string-to-number (frame-parameter nil 'window-id)) nil)";
 
 emacs_value
-Fw32_tr_ime_unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
-                                emacs_value args[], void*)
+Ftr_ime_modadv__unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
+                                    emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -261,14 +261,14 @@ Fw32_tr_ime_unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_dispatch_thread_message =
-  "Set whether or not to dispatch thread messages\n\n"
+const char *doc_tr_ime_modadv__set_dispatch_thread_message =
+  "Set whether or not to dispatch thread messages.\n\n"
   "If ARG1 is non-nil, a message hook dispatches the thread messages.\n"
   "Otherwise, it does not.";
 
 emacs_value
-Fw32_tr_ime_set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
-                                         emacs_value args[], void*)
+Ftr_ime_modadv__set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
+                                             emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -284,17 +284,17 @@ Fw32_tr_ime_set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_setopenstatus2 =
-  "Set IME open status to a frame\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is non-nil, turn on\n"
-  "IME. Otherwise, turn off IME.\n\n"
+const char *doc_tr_ime_modadv__setopenstatus =
+  "Set IME open status to a frame.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is non-nil, turn on\n"
+  "IME.  Otherwise, turn off IME.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-setopenstatus2\n"
+  "(tr-ime-modadv--setopenstatus\n"
   " (string-to-number (frame-parameter nil 'window-id)) t)\n";
 
 emacs_value
-Fw32_tr_ime_setopenstatus2 (emacs_env* env, ptrdiff_t nargs,
-                            emacs_value args[], void*)
+Ftr_ime_modadv__setopenstatus (emacs_env* env, ptrdiff_t nargs,
+                               emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -323,17 +323,17 @@ Fw32_tr_ime_setopenstatus2 (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_getopenstatus2 =
-  "Get IME open status from a frame\n\n"
-  "ARG1 is interpreted as HWND of the frame. If IME is on, it returns\n"
-  "non-nil. Otherwise, it returns nil.\n\n"
+const char *doc_tr_ime_modadv__getopenstatus =
+  "Get IME open status from a frame.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If IME is on, it returns\n"
+  "non-nil.  Otherwise, it returns nil.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-getopenstatus2\n"
+  "(tr-ime-modadv--getopenstatus\n"
   " (string-to-number (frame-parameter nil 'window-id)))\n";
 
 emacs_value
-Fw32_tr_ime_getopenstatus2 (emacs_env* env, ptrdiff_t nargs,
-                            emacs_value args[], void*)
+Ftr_ime_modadv__getopenstatus (emacs_env* env, ptrdiff_t nargs,
+                               emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -365,8 +365,8 @@ Fw32_tr_ime_getopenstatus2 (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "nil");
 }
 
-const char *doc_w32_tr_ime_set_font =
-  "Set an IME font expressed in the LOGFONTW items to a frame\n\n"
+const char *doc_tr_ime_modadv__set_font =
+  "Set an IME font expressed in the LOGFONTW items to a frame.\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"
   "ARG2 is interpreted as lfHeight of the LOGFONTW.\n"
   "ARG3 is interpreted as lfWidth of the LOGFONTW.\n"
@@ -383,18 +383,18 @@ const char *doc_w32_tr_ime_set_font =
   "ARG14 is interpreted as lfPitchAndFamily of the LOGFONTW.\n"
   "ARG15 is interpreted as lfFaceName of the LOGFONTW.\n\n"
   "ARG15 is required to be a string and is internally converted to UTF-16.\n"
-  "ARG7, ARG8, and ARG9 are required to be nil or non-nil. nil means FALSE.\n"
-  "Otherwise means TRUE. Others are required to be integer and are\n"
-  "internally converted to the appropriate type. This setting is also\n"
+  "ARG7, ARG8, and ARG9 are required to be nil or non-nil.  nil means FALSE.\n"
+  "Otherwise means TRUE.  Others are required to be integer and are\n"
+  "internally converted to the appropriate type.  This setting is also\n"
   "applied to other frames in the same thread as the specified frame.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-font\n"
-  "  (string-to-number (frame-parameter (selected-frame) 'window-id))\n"
-  "  50 0 0 0 0 nil nil nil 0 0 0 0 0 \"Harano Aji Mincho Heavy\")";
+  "(tr-ime-modadv--set-font\n"
+  " (string-to-number (frame-parameter nil 'window-id))\n"
+  " 50 0 0 0 0 nil nil nil 0 0 0 0 0 \"Harano Aji Mincho Heavy\")";
 
 emacs_value
-Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
-                      emacs_value args[], void*)
+Ftr_ime_modadv__set_font (emacs_env* env, ptrdiff_t nargs,
+                          emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -450,8 +450,8 @@ Fw32_tr_ime_set_font (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_composition_window =
-  "Set a composition window expressed in the COMPOSITIONFORM items to a frame"
+const char *doc_tr_ime_modadv__set_composition_window =
+  "Set a composition window expressed in the COMPOSITIONFORM items to a frame."
   "\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"
   "ARG2 is interpreted as dwStyle of the COMPOSITIONFORM.\n"
@@ -462,19 +462,19 @@ const char *doc_w32_tr_ime_set_composition_window =
   "ARG7 is interpreted as rcArea.right the COMPOSITIONFORM.\n"
   "ARG8 is interpreted as rcArea.bottom of the COMPOSITIONFORM.\n"
   "ARG2 to 8 are required to be integer and are internally converted to the"
-  "appropriate type. If ARG2 is 0, this module does not set the composition"
-  "window, and Emacs' settings are enabled. Otherwise, the module sets the"
-  "composition window and overrides the Emacs' settings. This setting is"
+  "appropriate type.  If ARG2 is 0, this module does not set the composition"
+  "window, and Emacs' settings are enabled.  Otherwise, the module sets the"
+  "composition window and overrides the Emacs' settings.  This setting is"
   "also applied to other frames in the same thread as the specified frame."
   "\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-composition-window\n"
-  "  (string-to-number (frame-parameter (selected-frame) 'window-id))\n"
-  "  1 0 0 0 0 640 32)";
+  "(tr-ime-modadv--set-composition-window\n"
+  " (string-to-number (frame-parameter nil 'window-id))\n"
+  " 1 0 0 0 0 640 32)";
 
 emacs_value
-Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
-                                    emacs_value args[], void*)
+Ftr_ime_modadv__set_composition_window (emacs_env* env, ptrdiff_t nargs,
+                                        emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -516,21 +516,22 @@ Fw32_tr_ime_set_composition_window (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_startcomposition_defsubclassproc =
-  "Set whether or not the WM_IME_STARTCOMPOSITION always call DefSubclassProc"
+const char *doc_tr_ime_modadv__set_startcomposition_defsubclassproc =
+  "Set whether or not the WM_IME_STARTCOMPOSITION always call DefSubclassProc."
   "\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil or omitted,\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil or omitted,\n"
   "WM_IME_STARTCOMPOSITION does not call DefSubclassProc when the \n"
-  "composition window is set. Otherwise, it always calls DefSubclassProc."
+  "composition window is set.  Otherwise, it always calls DefSubclassProc."
   "\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-startcomposition_defsubclassproc\n"
-  "  (string-to-number (frame-parameter nil 'window-id)) nil)";
+  "(tr-ime-modadv--set-startcomposition-defsubclassproc\n"
+  " (string-to-number (frame-parameter nil 'window-id)) nil)";
 
 emacs_value
-Fw32_tr_ime_set_startcomposition_defsubclassproc (emacs_env* env,
-                                                  ptrdiff_t nargs,
-                                                  emacs_value args[], void*)
+Ftr_ime_modadv__set_startcomposition_defsubclassproc (emacs_env* env,
+                                                      ptrdiff_t nargs,
+                                                      emacs_value args[],
+                                                      void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -553,28 +554,28 @@ Fw32_tr_ime_set_startcomposition_defsubclassproc (emacs_env* env,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_prefix_keys =
-  "Set prefix keys to turn off IME\n\n"
+const char *doc_tr_ime_modadv__set_prefix_keys =
+  "Set prefix keys to turn off IME.\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"
   "ARG2 is interpreted as a list of prefix key codes to be detected.\n"
   "The upper 16 bits of the code are specified the modified key and the\n"
-  "lower 16 bits are specified the virtual key code to be modified. The\n"
+  "lower 16 bits are specified the virtual key code to be modified.  The\n"
   "modifier keys are #x10000 for the shift key, #x20000 for the control key,\n"
   " and #x40000 for the ALT key, respectively, and specify by the bitwise OR\n"
-  "of them. The virtual key code is specified Windows' code. For example, if\n"
-  "you want to specify C-x, specify #x20058 because it is the bitwise OR of\n"
-  "#x20000, the modifier of the control key, and #x58, the virtual key code\n"
-  "of X key. If you want to specify C-M-x, specify #x60058, including the\n"
-  "ALT key modifier. This setting is also applied to other frames in the\n"
-  "same thread as the specified frame.\n\n"
+  "of them.  The virtual key code is specified Windows' code.  For example,\n"
+  "if you want to specify C-x, specify #x20058 because it is the bitwise OR\n"
+  "of #x20000, the modifier of the control key, and #x58, the virtual key\n"
+  "code of X key.  If you want to specify C-M-x, specify #x60058, including\n"
+  "the ALT key modifier.  This setting is also applied to other frames in\n"
+  "the same thread as the specified frame.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-prefix-keys\n"
+  "(tr-ime-modadv--set-prefix-keys\n"
   " (string-to-number (frame-parameter nil 'window-id))\n"
   " '(#x20058 #x20048 #x20043 #x1b)";
 
 emacs_value
-Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
-                             emacs_value args[], void*)
+Ftr_ime_modadv__set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
+                                 emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -612,14 +613,14 @@ Fw32_tr_ime_set_prefix_keys (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_resume_prefix_key =
-  "Resume IME mode if a prefix key was pressed before\n\n"
+const char *doc_tr_ime_modadv__resume_prefix_key =
+  "Resume IME mode if a prefix key was pressed before.\n\n"
   "If IME was automatically turned off previously by the prefix key,\n"
-  "IME is resumed to on. This function is for adding to pre-command-hook.";
+  "IME is resumed to on.  This function is for adding to pre-command-hook.";
 
 emacs_value
-Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
-                               emacs_value args[], void*)
+Ftr_ime_modadv__resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
+                                   emacs_value args[], void*)
 {
   if (nargs != 0)
     {
@@ -632,20 +633,20 @@ Fw32_tr_ime_resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_language_change_handler =
-  "WM_INPUTLANGCHANGE special-event-map language-change handler\n\n"
-  "Check the queue from the UI thread. This function does nothing\n"
-  "if it's empty. This function is called from language-change in the\n"
+const char *doc_tr_ime_modadv__language_change_handler =
+  "WM_INPUTLANGCHANGE special-event-map language-change handler.\n\n"
+  "Check the queue from the UI thread.  This function does nothing\n"
+  "if it's empty.  This function is called from language-change in the\n"
   "special-event-map.\n\n"
   "Sample usage:\n"
   "(define-key special-event-map [language-change]\n"
   "  (lambda ()\n"
   "    (interactive)\n"
-  "    (w32-tr-ime-language-change-handler)))";
+  "    (tr-ime-modadv--language-change-handler)))";
 
 emacs_value
-Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
-                                     emacs_value args[], void*)
+Ftr_ime_modadv__language_change_handler (emacs_env* env, ptrdiff_t nargs,
+                                         emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -668,7 +669,7 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
           {
             emacs_value run_hooks = env->intern (env, "run-hooks");
             emacs_value hook_symbol
-              = env->intern (env, "w32-tr-ime-module-setopenstatus-hook");
+              = env->intern (env, "tr-ime-modadv--setopenstatus-hook");
             std::array<emacs_value, 1> arg {hook_symbol};
 
             env->funcall (env, run_hooks, arg.size (), arg.data ());
@@ -679,7 +680,7 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
           {
             emacs_value run_hooks = env->intern (env, "run-hooks");
             emacs_value hook_symbol
-              = env->intern (env, "w32-tr-ime-module-reconvertstring-hook");
+              = env->intern (env, "tr-ime-modadv--reconvertstring-hook");
             std::array<emacs_value, 1> arg {hook_symbol};
 
             env->funcall (env, run_hooks, arg.size (), arg.data ());
@@ -690,7 +691,7 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
           {
             emacs_value run_hooks = env->intern (env, "run-hooks");
             emacs_value hook_symbol
-              = env->intern (env, "w32-tr-ime-module-documentfeed-hook");
+              = env->intern (env, "tr-ime-modadv--documentfeed-hook");
             std::array<emacs_value, 1> arg {hook_symbol};
 
             env->funcall (env, run_hooks, arg.size (), arg.data ());
@@ -734,22 +735,22 @@ Fw32_tr_ime_language_change_handler (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_notify_reconvert_string =
-  "Notify reconvert string to UI thread\n\n"
-  "ARG1 is interpreted as HWND of the frame. ARG2 is a string of the line\n"
-  "where the point exists. ARG3 is the position of the point counting from\n"
-  "the beginning of the string. If the point is at the beginning of the\n"
+const char *doc_tr_ime_modadv__notify_reconvert_string =
+  "Notify reconvert string to UI thread.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  ARG2 is a string of the line\n"
+  "where the point exists.  ARG3 is the position of the point counting from\n"
+  "the beginning of the string.  If the point is at the beginning of the\n"
   "string, it is zero.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-notify-reconvert-string\n"
+  "(tr-ime-modadv--notify-reconvert-string\n"
   " (string-to-number (frame-parameter nil 'window-id))\n"
   " (buffer-substring-no-properties\n"
   "  (line-beginning-position) (line-end-position))\n"
   " (- (point) (line-beginning-position)))";
 
 emacs_value
-Fw32_tr_ime_notify_reconvert_string (emacs_env* env, ptrdiff_t nargs,
-                                     emacs_value args[], void*)
+Ftr_ime_modadv__notify_reconvert_string (emacs_env* env, ptrdiff_t nargs,
+                                         emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -778,17 +779,17 @@ Fw32_tr_ime_notify_reconvert_string (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_reconversion =
-  "Set whether to use reconversion or not\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil, the module does\n"
-  "not perform reconversion. Otherwise, it performs reconversion.\n\n"
+const char *doc_tr_ime_modadv__set_reconversion =
+  "Set whether to use reconversion or not.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil, the module\n"
+  "does not perform reconversion.  Otherwise, it performs reconversion.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-reconversion\n"
+  "(tr-ime-modadv--set-reconversion\n"
   " (string-to-number (frame-parameter nil 'window-id)) t)";
 
 emacs_value
-Fw32_tr_ime_set_reconversion (emacs_env* env, ptrdiff_t nargs,
-                              emacs_value args[], void*)
+Ftr_ime_modadv__set_reconversion (emacs_env* env, ptrdiff_t nargs,
+                                  emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -811,17 +812,17 @@ Fw32_tr_ime_set_reconversion (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_set_documentfeed =
-  "Set whether to use documentfeed or not\n\n"
-  "ARG1 is interpreted as HWND of the frame. If ARG2 is nil, the module does\n"
-  "not perform documentfeed. Otherwise, it performs documentfeed.\n\n"
+const char *doc_tr_ime_modadv__set_documentfeed =
+  "Set whether to use documentfeed or not.\n\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil, the module\n"
+  "does not perform documentfeed.  Otherwise, it performs documentfeed.\n\n"
   "Sample usage:\n"
-  "(w32-tr-ime-set-documentfeed\n"
+  "(tr-ime-modadv--set-documentfeed\n"
   " (string-to-number (frame-parameter nil 'window-id)) t)";
 
 emacs_value
-Fw32_tr_ime_set_documentfeed (emacs_env* env, ptrdiff_t nargs,
-                              emacs_value args[], void*)
+Ftr_ime_modadv__set_documentfeed (emacs_env* env, ptrdiff_t nargs,
+                                  emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -844,13 +845,13 @@ Fw32_tr_ime_set_documentfeed (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_get_dpi =
-  "Get DPI of the desktop\n\n"
+const char *doc_tr_ime_modadv__get_dpi =
+  "Get DPI of the desktop.\n\n"
   "The return value is a cons containing the DPI in the x and y directions.";
 
 emacs_value
-Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
-                     emacs_value args[], void*)
+Ftr_ime_modadv__get_dpi (emacs_env* env, ptrdiff_t nargs,
+                         emacs_value args[], void*)
 {
   DEBUG_MESSAGE ("enter\n");
 
@@ -882,8 +883,8 @@ Fw32_tr_ime_get_dpi (emacs_env* env, ptrdiff_t nargs,
   return env->funcall (env, list, a.size (), a.data ());
 }
 
-const char *doc_w32_tr_ime_set_verbose_level =
-  "Set verbose level for module's OutputDebugStringA/W () output\n\n"
+const char *doc_tr_ime_modadv__set_verbose_level =
+  "Set verbose level for module's OutputDebugStringA/W () output.\n\n"
   "ARG is verbose level in integer.\n"
   "0: none\n"
   "1: fatal\n"
@@ -894,8 +895,8 @@ const char *doc_w32_tr_ime_set_verbose_level =
   "6: trace";
 
 emacs_value
-Fw32_tr_ime_set_verbose_level (emacs_env* env, ptrdiff_t nargs,
-                               emacs_value args[], void*)
+Ftr_ime_modadv__set_verbose_level (emacs_env* env, ptrdiff_t nargs,
+                                   emacs_value args[], void*)
 {
   if (nargs != 1)
     {
@@ -910,12 +911,12 @@ Fw32_tr_ime_set_verbose_level (emacs_env* env, ptrdiff_t nargs,
 
 #ifndef NDEBUG
 
-const char *doc_w32_tr_ime_debug_output =
-  "Output ARG1 string by OutputDebugStringW ()";
+const char *doc_tr_ime_modadv__debug_output =
+  "Output ARG1 string by OutputDebugStringW ().";
 
 emacs_value
-Fw32_tr_ime_debug_output (emacs_env* env, ptrdiff_t nargs,
-                          emacs_value args[], void*)
+Ftr_ime_modadv__debug_output (emacs_env* env, ptrdiff_t nargs,
+                              emacs_value args[], void*)
 {
   if (nargs != 1)
     {
@@ -931,15 +932,15 @@ Fw32_tr_ime_debug_output (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
-const char *doc_w32_tr_ime_debug_rectangle =
-  "Draw a rectangle to a frame\n\n"
+const char *doc_tr_ime_modadv__debug_rectangle =
+  "Draw a rectangle to a frame.\n\n"
   "ARG1 is interpreted as HWND of the frame.\n"
   "ARG2, ARG3, ARG4, and ARG5 are interpreted as left, top, right, and"
   "bottom of the rectangle coordinates.";
 
 emacs_value
-Fw32_tr_ime_debug_rectangle (emacs_env* env, ptrdiff_t nargs,
-                             emacs_value args[], void*)
+Ftr_ime_modadv__debug_rectangle (emacs_env* env, ptrdiff_t nargs,
+                                 emacs_value args[], void*)
 {
   if (nargs != 5)
     {
