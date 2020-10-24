@@ -6,11 +6,9 @@ noinst_LTLIBRARIES = tr-ime-mod.la
 pkglisp_DATA = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
 CLEANFILES = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
 
-if ENABLE_MODULE2
 noinst_LTLIBRARIES += tr-ime-modadv.la
 pkglisp_DATA += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
 CLEANFILES += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
-endif
 
 #
 # For tr-ime-mod
