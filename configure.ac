@@ -102,6 +102,5 @@ AC_LANG_POP([C++])
 
 AC_CONFIG_FILES([Makefile
                  lisp/Makefile
-                 src/Makefile
-                 w32-ime/Makefile])
+                 src/Makefile])
 AC_OUTPUT
