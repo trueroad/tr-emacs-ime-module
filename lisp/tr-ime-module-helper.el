@@ -73,89 +73,15 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
             (featurep 'tr-ime-modadv))
   (load (concat "tr-ime-mod-1-" system-configuration)))
 
-(declare-function tr-ime-mod--setopenstatus "tr-ime-mod"
-                  arg1 arg2)
-(declare-function tr-ime-mod--getopenstatus "tr-ime-mod"
-                  arg1)
-(declare-function w32-set-ime-open-status "w32fns.c" status) ; Emacs 28
-(declare-function w32-get-ime-open-status "w32fns.c") ; Emacs 28
-
-(declare-function ime-force-on "tr-ime-module-helper.el" &optional _dummy)
-(declare-function ime-force-off "tr-ime-module-helper.el" &optional _dummy)
-(declare-function ime-get-mode "tr-ime-module-helper.el")
-
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(defcustom w32-tr-ime-module-set-ime-open-check-counter 3
-  "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限
+(load "tr-ime-openstatus")
 
-GNU Emacs 28 で Module 2 を使わない場合は
-IME 状態変更関数 w32-set-ime-open-status を使うが、
-これを呼んだ直後に IME 状態確認関数 w32-get-ime-open-status を呼んでも、
-状態変更前を示す返り値が得られることがある。
-そこで、ここで設定した回数を上限として状態変更が完了するまで確認する。
-デフォルト値の 3 であれば最大で 3 回確認するが、
-1 回目や 2 回目で完了していたらそこで打ち切る。
-0 を設定した場合は一切完了確認しない。"
-  :type 'integer
-  :group 'w32-tr-ime-module-core-emacs28)
-
-(if (fboundp #'w32-set-ime-open-status)
-    (progn
-      (defun ime-force-on (&optional _dummy)
-        "IME を ON にする関数
-
-GNU Emacs 28 の w32-set-ime-open-status で
-IME パッチの ime-force-on をエミュレーションする。"
-        (w32-set-ime-open-status t)
-        (let ((counter 0))
-          (while
-              (and (< counter w32-tr-ime-module-set-ime-open-check-counter)
-                   (not (ime-get-mode)))
-            (setq counter (1+ counter)))))
-
-      (defun ime-force-off (&optional _dummy)
-        "IME を OFF にする関数
-
-GNU Emacs 28 の w32-set-ime-open-status で
-IME パッチの ime-force-off をエミュレーションする。"
-        (w32-set-ime-open-status nil)
-        (let ((counter 0))
-          (while
-              (and (< counter w32-tr-ime-module-set-ime-open-check-counter)
-                   (ime-get-mode))
-            (setq counter (1+ counter))))))
-
-  (defun ime-force-on (&optional _dummy)
-    "IME を ON にする関数
-
-モジュールで IME パッチの ime-force-on をエミュレーションする。"
-    (tr-ime-mod--setopenstatus
-     (string-to-number (frame-parameter (selected-frame) 'window-id)) t))
-
-  (defun ime-force-off (&optional _dummy)
-    "IME を OFF にする関数
-
-IME パッチの ime-force-off をエミュレーションする。"
-    (tr-ime-mod--setopenstatus
-     (string-to-number (frame-parameter (selected-frame) 'window-id)) nil)))
-
-(if (fboundp #'w32-get-ime-open-status)
-    (defalias #'ime-get-mode #'w32-get-ime-open-status
-      "IME 状態を返す関数
-
-GNU Emacs 28 の w32-set-ime-open-status のエイリアスとして
-IME パッチの ime-get-mode を割り当てることでエミュレーションする。")
-
-  (defun ime-get-mode ()
-    "IME 状態を返す関数
-
-IME パッチの ime-get-mode をエミュレーションする。
-IME が OFF なら nil を、ON ならそれ以外を返す。"
-    (tr-ime-mod--getopenstatus
-     (string-to-number (frame-parameter (selected-frame) 'window-id)))))
+(declare-function ime-force-on "tr-ime-openstatus.el" &optional _dummy)
+(declare-function ime-force-off "tr-ime-openstatus.el" &optional _dummy)
+(declare-function ime-get-mode "tr-ime-openstatus.el")
 
 ;;
 ;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション

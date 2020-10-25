@@ -103,10 +103,6 @@ Module2 を使用する際のコア機能の設定。
                   arg1 &optional arg2)
 (declare-function tr-ime-modadv--set-dispatch-thread-message "tr-ime-modadv"
                   arg1)
-(declare-function tr-ime-modadv--setopenstatus "tr-ime-modadv"
-                  arg1 arg2)
-(declare-function tr-ime-modadv--getopenstatus "tr-ime-modadv"
-                  arg1)
 (declare-function tr-ime-modadv--set-font "tr-ime-modadv"
                   arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8)
 (declare-function tr-ime-modadv--set-composition-window "tr-ime-modadv"
@@ -267,27 +263,11 @@ UI スレッドは返ってこない通知を待つため（一時的に）
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(defun ime-force-on (&optional _dummy)
-  "IME を ON にする関数
+(load "tr-ime-openstatus")
 
-Module2 で IME パッチの ime-force-on をエミュレーションする。"
-  (tr-ime-modadv--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) t))
-
-(defun ime-force-off (&optional _dummy)
-  "IME を OFF にする関数
-
-Module2 で IME パッチの ime-force-off をエミュレーションする。"
-  (tr-ime-modadv--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) nil))
-
-(defun ime-get-mode ()
-  "IME 状態を返す関数
-
-Module2 で IME パッチの ime-get-mode をエミュレーションする。
-IME が OFF なら nil を、ON ならそれ以外を返す。"
-  (tr-ime-modadv--getopenstatus
-   (string-to-number (frame-parameter nil 'window-id))))
+(declare-function ime-force-on "tr-ime-openstatus.el" &optional _dummy)
+(declare-function ime-force-off "tr-ime-openstatus.el" &optional _dummy)
+(declare-function ime-get-mode "tr-ime-openstatus.el")
 
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
