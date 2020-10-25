@@ -80,7 +80,8 @@
     (require 'tr-ime-hook)
     (require 'tr-ime-workaround-prefix-key)
     (require 'tr-ime-workaround-inconsistent)
-    (require 'tr-ime-module-helper)
+    (define-key global-map [M-kanji] 'toggle-input-method)
+    (define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
     (require 'w32-ime)))
 
 ;;;###autoload
