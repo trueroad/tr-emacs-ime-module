@@ -123,11 +123,12 @@ Module2 を使用する際のコア機能の設定。
                   arg1)
 
 ;;
-;; Module1 がロードされていなければロードする
+;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション
 ;;
 
-;; Module1 ヘルパのみロードして Module1 DLL はロードしない
-(load "tr-ime-module-helper")
+;;(load "tr-ime-hook")
+
+(declare-function tr-ime-hook-check "tr-ime-hook.el")
 
 ;;
 ;; メッセージフックとサブクラス化
@@ -763,7 +764,7 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
 その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
 これにより、IME 側トリガの状態変更を IM に反映させる。"
   (when w32-tr-ime-module-setopenstatus-call-hook-emulator-p
-    (w32-tr-ime-module-hook-emulator))
+    (tr-ime-hook-check))
   (let ((ime-status (ime-get-mode)))
     (cond ((and ime-status
                 (not current-input-method))

@@ -77,6 +77,7 @@
                                    "-"
                                    system-configuration)))
     (require 'tr-ime-openstatus)
+    (require 'tr-ime-hook)
     (require 'tr-ime-module-helper)
     (require 'w32-ime)))
 
@@ -91,6 +92,7 @@
                                     "-"
                                     system-configuration))
     (require 'tr-ime-openstatus)
+    (require 'tr-ime-hook)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

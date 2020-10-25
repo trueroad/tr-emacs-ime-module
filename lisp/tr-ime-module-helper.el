@@ -76,127 +76,9 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
 ;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション
 ;;
 
-(defvar select-window-functions nil
-  "ウィンドウが変更されると呼ばれるアブノーマルフック
+;;(load "tr-ime-hook")
 
-IME パッチ特有のフックで、 IME パッチでは C 実装されているが、
-Lisp でエミュレーションする。")
-
-(defvar set-selected-window-buffer-functions nil
-  "ウィンドウに紐づいたバッファが変更されると呼ばれるアブノーマルフック
-
-IME パッチ特有のフックで、 IME パッチでは C 実装されているが、
-Lisp でエミュレーションする。")
-
-(defvar w32-tr-ime-module-last-selected-window nil
-  "選択ウィンドウの変更検出用変数")
-(defvar w32-tr-ime-module-last-selected-window-buffer nil
-  "選択ウィンドウのバッファ変更検出用変数")
-
-(defun w32-tr-ime-module-hook-emulator ()
-  "IME パッチ特有のアブノーマルフックをエミュレーションする関数
-
-Emacs の標準的なフックの一つ post-command-hook に登録する。
-post-command-hook によって、ほとんどのコマンドの動作後に呼ばれる。
-
-この関数の動作は、
-選択ウィンドウが変更されていたら select-window-functions を呼び、
-ウィンドウが変わらずバッファが変更されていたら
-set-selected-window-buffer-functions を呼ぶ。
-どちらも変わっていなければ何もしない。"
-  (let* ((window (selected-window))
-         (buffer (window-buffer window)))
-    (cond
-     ((not (eq window w32-tr-ime-module-last-selected-window))
-      (run-hook-with-args 'select-window-functions
-                          w32-tr-ime-module-last-selected-window
-                          window)
-      (setq w32-tr-ime-module-last-selected-window window)
-      (setq w32-tr-ime-module-last-selected-window-buffer buffer))
-     ((not (eq buffer w32-tr-ime-module-last-selected-window-buffer))
-      (run-hook-with-args 'set-selected-window-buffer-functions
-                          w32-tr-ime-module-last-selected-window-buffer
-                          window
-                          buffer)
-      (setq w32-tr-ime-module-last-selected-window-buffer buffer)))))
-
-(defun w32-tr-ime-module-hook-emulator-p-set (symb bool)
-  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
-
-bool が non-nil ならエミュレーションさせる。
-これにより post-command-hook にエミュレーション関数を追加することで、
-ほとんどのコマンドの動作後に関数が呼ばれるようになる。
-bool が nil なら停止させる（post-command-hook から削除する）。"
-  (if bool (add-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator)
-    (remove-hook 'post-command-hook #'w32-tr-ime-module-hook-emulator))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-hook-emulator-p t
-  "コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-post-command-hook を使って
-IME パッチ特有のアブノーマルフックをエミュレーションする機能。
-
-注意：w32-ime.el はこれらのアブノーマルフックを使って
-ウィンドウやバッファの切り替えを認識して
-IME/IM の同期や切り替えなどを行っている。
-本設定を無効にすると、ウィンドウやバッファ切り替え時に
-IME/IM が同期しなくなるなどの問題が発生する。
-特別な目的が無い限りは non-nil (Enable) にしておくこと。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-hook-emulator-p-set
-  :group 'w32-tr-ime-module-core)
-
-(defun w32-tr-ime-module-hook-emulator-focus-change ()
-  "フォーカス変更を検知してIME パッチ特有のフックエミュレーションを呼ぶ
-
-after-focus-change-function は呼び出された時点では
-まだ selected-frame が変わっていないことがあるので、
-全フレームに対して frame-focus-state　でフォーカスを得ているか否かを判定し、
-フォーカスを得ていたフレームで w32-tr-ime-module-hook-emulator
-を呼び出してウィンドウやバッファの変更を検知する。
-
-after-focus-change-function （GNU Emacs 27.1 以降）
-に登録して使う。"
-  (dolist (f (frame-list))
-    (when (frame-focus-state f)
-      (with-selected-frame f (w32-tr-ime-module-hook-emulator)))))
-
-(defun w32-tr-ime-module-hook-emulator-focus-change-p-set (symb bool)
-  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か設定
-
-BOOL が non-nil なら設定する。
-BOOL が nil ならフックから削除して設定を停止する。"
-  (if bool
-      (add-function :before
-                    after-focus-change-function
-                    #'w32-tr-ime-module-hook-emulator-focus-change)
-    (remove-function
-     after-focus-change-function
-     #'w32-tr-ime-module-hook-emulator-focus-change))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-hook-emulator-focus-change-p t
-  "フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-after-focus-change-function を使って
-IME パッチ特有のアブノーマルフックをエミュレーションする機能。
-
-本設定を non-nil (Enable) にすると、
-フォーカス変更時（フレーム変更時）にも
-IME パッチ特有のフックエミュレーションを呼ぶようになる。
-emacsclient などでバッファが変更になった場合は
-post-command-hook が呼ばれずに検知漏れが発生するが、
-フォーカス変更もトリガに加えることで漏れを防ぐことができる。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-hook-emulator-focus-change-p-set
-  :group 'w32-tr-ime-module-core)
+(declare-function tr-ime-hook-check "tr-ime-hook.el")
 
 ;;
 ;; プレフィックスキー（C-x など）を検出して IME OFF するワークアラウンド
@@ -336,7 +218,7 @@ w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
 その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
 これにより、IME 側トリガの状態変更を IM に反映させる。"
   (when w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
-    (w32-tr-ime-module-hook-emulator))
+    (tr-ime-hook-check))
   (let ((ime-status (ime-get-mode)))
     (cond ((and ime-status
                 (not current-input-method))
