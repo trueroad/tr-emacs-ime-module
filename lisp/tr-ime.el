@@ -96,6 +96,7 @@
                                     system-configuration))
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
+    (require 'tr-ime-subclassify)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

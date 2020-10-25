@@ -134,46 +134,6 @@ Module2 を使用する際のコア機能の設定。
 ;; メッセージフックとサブクラス化
 ;;
 
-(defun w32-tr-ime-module-message-hook-and-subclassify-p-set (symb bool)
-  "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か設定
-
-BOOL が non-nil ならメッセージフックしてサブクラス化する。
-BOOL が nil ならサブクラス解除してメッセージフックを停止する。
-
-注意：Module2 のほとんどの機能は
-メッセージフックとサブクラス化を前提としており、
-これらが有効でなければ機能しないだけではなく、
-設定変更すらできないものも存在する。"
-  (if bool
-      (progn
-        (tr-ime-modadv--install-message-hook-hwnd
-         (string-to-number (frame-parameter nil 'window-id)))
-        (tr-ime-modadv--subclassify-hwnd
-         (string-to-number (frame-parameter nil 'window-id)) nil))
-    (tr-ime-modadv--unsubclassify-hwnd
-     (string-to-number (frame-parameter nil 'window-id)) nil)
-    ;; サブクラス解除は非同期に実施されるが、
-    ;; 解除前にメッセージフック停止すると解除できなくなるので少し待機する。
-    (sleep-for 1)
-    (tr-ime-modadv--uninstall-message-hook-hwnd
-     (string-to-number (frame-parameter nil 'window-id))))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-message-hook-and-subclassify-p t
-  "IME 制御のためメッセージフックしてフレームをサブクラス化するか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-注意：Module2 のほとんどの機能は
-メッセージフックとサブクラス化を前提としており、
-これらが有効でなければ機能しないだけではなく、
-設定変更すらできないものが存在する。
-特別な目的が無い限りは non-nil (Enable) にしておくこと。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-message-hook-and-subclassify-p-set
-  :group 'w32-tr-ime-module-core-module2)
-
 ;;
 ;; スレッドメッセージのディスパッチ
 ;;
