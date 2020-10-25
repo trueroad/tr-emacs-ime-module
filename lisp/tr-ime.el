@@ -78,6 +78,7 @@
                                    system-configuration)))
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
+    (require 'tr-ime-workaround-prefix-key)
     (require 'tr-ime-module-helper)
     (require 'w32-ime)))
 

@@ -705,7 +705,7 @@ BOOL が nil ならフックから削除して停止する。"
   (if bool
       (progn
         (custom-set-variables
-         '(w32-tr-ime-module-workaround-prefix-key-p nil))
+         '(tr-ime-workaround-prefix-key-p nil))
         (tr-ime-modadv--set-prefix-keys
          (string-to-number (frame-parameter nil 'window-id))
          w32-tr-ime-module-prefix-key-list)
