@@ -98,6 +98,7 @@
     (require 'tr-ime-hook)
     (require 'tr-ime-subclassify)
     (require 'tr-ime-thread-message)
+    (require 'tr-ime-recv-notify)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

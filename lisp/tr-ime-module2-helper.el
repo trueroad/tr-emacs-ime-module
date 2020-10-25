@@ -142,35 +142,6 @@ Module2 を使用する際のコア機能の設定。
 ;; UI スレッドからの通知を Lisp で受け取る
 ;;
 
-(defun w32-tr-ime-module-recv-from-ui-thread-p-set (symb bool)
-  "UI スレッドからの通知を Lisp で受け取るか否か設定する"
-  (if bool
-      (progn
-        (define-key special-event-map [language-change]
-          (lambda ()
-            (interactive)
-            (tr-ime-modadv--language-change-handler))))
-    (define-key special-event-map [language-change] 'ignore))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-recv-from-ui-thread-p t
-  "UI スレッドからの通知を Lisp で受け取るか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-注意：Module2 の一部の機能は
-UI スレッドからの通知を Lisp で受け取り、
-Lisp での処理結果が UI スレッドへ通知されるまで待つものがある。
-これらの機能が有効なまま本設定を無効にしてしまうと
-Lisp が通知を受け取れなくなり処理もされず、
-UI スレッドは返ってこない通知を待つため（一時的に）
-ロックしてしまうことがある。
-特別な目的が無い限りは non-nil (Enable) にしておくこと。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-recv-from-ui-thread-p-set
-  :group 'w32-tr-ime-module-core-module2)
-
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
