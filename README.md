@@ -80,13 +80,13 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
 ## インストール
 
 モジュール DLL のファイル名は、
-環境によって名前が異なって `tr-ime-module-環境名.dll`
-および `tr-ime-module2-環境名.dll` のようになります。
+環境によって名前が異なって `tr-ime-mod-ABIバージョン-環境名.dll`
+および `tr-ime-modadv-ABIバージョン-環境名.dll` のようになります。
 具体的な環境名は以下の通りです。
 これにより、例えば Cygwin 64 bit の場合の
-モジュール DLL ファイル名は `tr-ime-module-x86_64-pc-cygwin.dll`
-および `tr-ime-module2-x86_64-pc-cygwin.dll`
-となります。
+モジュール DLL ファイル名は `tr-ime-mod-1-x86_64-pc-cygwin.dll`
+および `tr-ime-modadv-1-x86_64-pc-cygwin.dll`
+のようになります。
 
 * Cygwin
     * 64 bit: `x86_64-pc-cygwin`
@@ -98,10 +98,13 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
 バイナリリリースを使う場合は、
 [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
 にあるバイナリ配布ファイル
-tr-emacs-ime-module-VERSION-binary.zip
+（ファイル名の末尾が `-binary.zip` になっているファイル）
 をダウンロードして、中に入っているモジュール DLL ファイルと、
 モジュールのヘルパとなる Lisp 実装である拡張子 `.el`
 のファイルを Emacs の load-path が通っているディレクトリに置いてください。
+なお、バージョンによってファイル名や設定方法などが異なるので、
+バイナリリリースを使う場合には、
+zip に同梱されているドキュメントの方をご覧ください。
 
 ご自分でビルドしてみたい場合は、下の方の「ビルド」をご覧ください。
 
@@ -123,7 +126,7 @@ Cygwin 公式パッケージにするには、
 
 #### ホームディレクトリ以外にインストールした場合
 
-インストール先が `/usr/share/emacs/site-lisp/tr-emacs-ime-module`
+インストール先が `/usr/share/emacs/site-lisp/tr-ime`
 として説明します。適宜お使いの環境に読み替えてください。
 
 `/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
@@ -132,8 +135,8 @@ Cygwin 公式パッケージにするには、
 
 ```
 $ cd /var/lib/rebase/dynpath.d
-$ touch tr-emacs-ime-module
-$ echo '/usr/share/emacs/site-lisp/tr-emacs-ime-module' >> tr-emacs-ime-module
+$ touch tr-ime
+$ echo '/usr/share/emacs/site-lisp/tr-ime' >> tr-ime
 ```
 
 autorebase を手動で実行します。
@@ -145,6 +148,8 @@ $ /etc/postinstall/0p_000_autorebase.dash
 #### ホームディレクトリの下にインストールした場合
 
 以下、Cygwin 64 bit （環境名 `x86_64-pc-cygwin`）で、
+`tr-ime-mod` の ABI バージョンが `1`、
+`tr-ime-modadv` の ABI バージョンが `1`、
 ユーザ名 `foobar` で、インストール先が `/home/foobar/.emacs.d/site-lisp`
 として説明します。適宜お使いの環境に読み替えてください。
 
@@ -154,9 +159,9 @@ $ /etc/postinstall/0p_000_autorebase.dash
 ```
 $ cd /var/lib/rebase/user.d
 $ touch foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-module-x86_64-pc-cygwin.dll' \
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-mod-1-x86_64-pc-cygwin.dll' \
     >> foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-module2-x86_64-pc-cygwin.dll' \
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-modadv-1-x86_64-pc-cygwin.dll' \
     >> foobar
 ```
 
@@ -168,96 +173,95 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 ## 設定
 
-モジュールは、最低限の単純で基本的な機能のみを実装した Module1 と、
+最低限の単純で基本的な機能のみを実装した standard と、
 メッセージフックやサブクラス化といった多少複雑な機構で、
-より高度な機能を実装した実験的な Module2 の 2 つに分かれています。
-安定性を取りたい場合は Module1 を、
-実験的でもいいから高度な機能が欲しい場合は Module2 を選んでください。
+より高度な機能を実装した実験的な advanced の 2 つがあります。
+安定性を取りたい場合は standard を、
+実験的でもいいから高度な機能が欲しい場合は advanced を選んでください。
 
-Module2 の機能は以下の通りです。
+advanced の機能は以下の通りです。
 
 * 再変換 (RECONVERSION) および
   前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
-    * Module1 だけではどちらもできません
-    * もし不安定になるようなら設定で無効にすることができます
+    * standard ではどちらもできません
+    * もし不安定になるようなら advanced でも設定で無効にすることができます
 * すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
-    * Module1 だけでは Alt + 半角/全角キー（もしくは C-\\）による
+    * standard では Alt + 半角/全角キー（もしくは C-\\）による
       IME ON/OFF のみ対応しており、
       半角/全角キー単独やマウスで切り替えた場合には IM
-      状態との食い違いが発生しました
-    * Module1 でも、食い違いを何とかするワークアラウンドはありますが、
-      タイマ動作なのでタイミングや負荷が問題になる可能性があります
+      状態との食い違いが発生します
+        * standard 向けに、
+          食い違いを何とかするワークアラウンドを用意してありますが、
+          タイマ動作なのでタイミングや負荷が問題になる可能性があるため、
+          デフォルト無効です
+        * advanced を使いたくないが、食い違いを何とかしたい場合には、
+          ワークアラウンドの設定を参照してください
 * C-s など isearch-mode の検索中に未確定文字列をミニバッファの
   文字入力位置に表示できる
-    * Module1 だけでは、
+    * standard は、
       isearch-mode へ入る前に元々入力していた位置へ表示されます
 * 未確定文字列のフォントが設定できる
-    * Module1 だけでは設定できないため、
+    * standard は設定できないため、
       変換中は☃や🍣のような文字がおかしな表示（いわゆるトーフ）になります
 * IME ON/OFF に連動してタスクバーの IME 状態表示アイコンが切り替わる
-    * Module1 ではもちろん IME パッチでもアイコン表示が変わりません
+    * standard はもちろん IME パッチでもアイコン表示が変わりません
 * IME ON の状態で C-x, C-c, C-h など、
   コマンドのキーシーケンスになる最初の文字（以下、プレフィックスキー）
   を押すと自動的に IME OFF になる
-    * Module1 はタイマ動作によるワークアラウンドで
+    * standard はタイマ動作によるワークアラウンドで
       なんとか同じような動作を実現していますが、
       タイマ動作なのでタイミングによっては自動 OFF にならない、
       負荷が問題となる、などの可能性があります
 * IME ON/OFF 制御や状態取得に Microsoft
   の公式なドキュメントに記載されている方法を使用
-    * Module1 は（Emacs 28 以前の場合）
+    * standard は（Emacs 27 の場合）
       公式ドキュメントに記載されていない方法を使用しているので、
       最悪の場合は Windows のアップデートなどにより、
       いきなり動かなくなる可能性もあります
+    * Emacs 28 なら standard でも問題ありません
 
-なお、Emacs 28 では Module1 に実装した機能だけであれば
-既に本体に取り込まれているため、
-Lisp だけ入れれば一応動くようにしてあります。
-Module2 の機能が必要であれば DLL も入れてください。
+なお、Emacs 28 で standard を使う場合、
+standard 用モジュール DLL に実装した機能が既に
+Emacs 本体に取り込まれているため、
+Lisp だけ入れれば動くようにしてあります。
+advanced を使う場合は DLL も入れてください。
 
 ### ロード
 
 以下のようにするとロードできます。
 ~/.emacs.d/init.el などに追加しておくとよいと思います。
+ウィンドウシステムが w32 であることや、
+IME パッチが存在しないことを確認しますので、
+他の環境と共通の設定に書いていただいても大丈夫です。
 
-#### Module1
+#### standard
 
 ```el
-;; IME パッチ無しモジュール有りならば Module1 をロードする
-(when (and (eq window-system 'w32)
-           (not (fboundp 'ime-get-mode))
-           (string= module-file-suffix ".dll")
-           (locate-library "tr-ime-module-helper"))
-  (require 'tr-ime-module-helper)
-  (require 'w32-ime "w32-ime-for-tr-ime-module"))
+(require 'tr-ime nil t)
+(when (fboundp 'tr-ime-standard-install)
+  (tr-ime-standard-install))
 ```
 
-Emacs 28 で上記のようにModule1 をロードした場合、
-Module1 の DLL に実装した機能は Emacs 本体が持っているため、
+Emacs 28 以降で上記のようにロードした場合、
+standard のモジュール DLL に実装した機能は Emacs 本体が持っているため、
 DLL はロードされません。
 
-#### Module2 （実験的）
+#### advanced （実験的）
 
 ```el
-;; IME パッチ無しモジュール有りならば Module2 をロードする
-(when (and (eq window-system 'w32)
-           (not (fboundp 'ime-get-mode))
-           (string= module-file-suffix ".dll")
-           (locate-library "tr-ime-module2-helper"))
-  (require 'tr-ime-module2-helper)
-  (require 'w32-ime "w32-ime-for-tr-ime-module"))
+(require 'tr-ime nil t)
+(when (fboundp 'tr-ime-advanced-install)
+  (tr-ime-advanced-install))
 ```
-
-上記で Module2 をロードした場合は自動的に Module1 もロードされます。
 
 ### IME パッチ設定
 
 #### 基本設定
 
 一部を除き IME パッチと同じような設定ができます。
-ただし Module1 のみ使用する場合は
+ただし standard で使用する場合は
 `(global-set-key [M-kanji] 'ignore)` をしないでください
-（Module2 なら問題ありません）。
+（advanced なら問題ありません）。
 モジュール環境か IME パッチ環境かで設定を分けるならば、
 以下のようにしてください。（分ける必要が無ければ不要です。）
 
@@ -265,9 +269,9 @@ DLL はロードされません。
 (if (featurep 'tr-ime-module-helper)
     (if (featurep 'tr-ime-module2-helper)
         (progn
-          ;; Module2 環境用
+          ;; advanced 環境用
           (global-set-key [M-kanji] 'ignore))
-      ;; Module1 環境用
+      ;; standard 環境用
       (global-set-key [M-kanji] 'toggle-input-method))
   ;; IME パッチ環境用
   (global-set-key [M-kanji] 'ignore))
@@ -318,7 +322,7 @@ C-s (isearch-forward) などの IME パッチ向けの設定についてです�
 ほとんど害も無いので IME パッチ環境と共用の設定ファイルならば、
 書いておいても特に問題ないと思います。
 
-なお、Module1 で isearch-mode 中に Alt + 半角/全角で IME ON/OFF するには、
+なお、standard で isearch-mode 中に Alt + 半角/全角で IME ON/OFF するには、
 
 ```
 (define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
@@ -328,7 +332,7 @@ C-s (isearch-forward) などの IME パッチ向けの設定についてです�
 これはすでにモジュールのヘルパに書いてありますので、
 追加する必要はありません。
 
-#### フォント設定（Module2 のみ）
+#### フォント設定（advanced のみ）
 
 IME の未確定文字列のフォント設定は、
 IME パッチと同様にフレームパラメータ `ime-font` を設定しておけば、
@@ -430,7 +434,7 @@ IME/IM 状態の同期が保たれるようになります。
 
 #### IME 状態変更関数使用後の状態確認回数上限（GNU Emacs 28 以降のみ）
 
-Module1 のみ使う場合に有効な設定です。
+standard を使う場合に有効な設定です。
 GNU Emacs 28 では IME パッチやモジュールが無くても、
 本体だけで IME 状態の変更や確認ができる関数が用意されました。
 ですが、IME 状態変更した直後に IME 状態確認すると、
@@ -445,12 +449,12 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
 私の環境では 2 回目で変更完了した値が得られるようでしたので、
 安全を見て 1 回増やして 3 回をデフォルトににしています。
 
-Module2 では IME 状態の変更を監視する必要があって、
+advanced では IME 状態の変更を監視する必要があって、
 自前の状態変更関数を使用するため、本設定は使われません。
 
-#### メッセージフックしてフレームをサブクラス化するか否か (Module2)
+#### メッセージフックしてフレームをサブクラス化するか否か (advanced)
 
-Module2 のほとんどの機能は、メッセージフックとサブクラス化により
+advanced のほとんどの機能は、メッセージフックとサブクラス化により
 Emacs のメッセージ処理を奪い取ることによって実現しています。
 これらが有効でなければ機能しないだけではなく、
 設定変更すらできないものが存在します。
@@ -462,7 +466,7 @@ Emacs のメッセージ処理を奪い取ることによって実現してい�
 (custom-set-variables '(w32-tr-ime-module-message-hook-and-subclassify-p nil))
 ```
 
-#### スレッドメッセージをディスパッチするか否か (Module2)
+#### スレッドメッセージをディスパッチするか否か (advanced)
 
 GNU Emacs 27 や 28 の UI スレッドでは、
 スレッドメッセージがディスパッチされません。
@@ -482,7 +486,7 @@ Emacs の動作がおかしくなると思います。
 (custom-set-variables '(w32-tr-ime-module-dispatch-thread-message-p nil))
 ```
 
-#### UI スレッドからの通知を Lisp で受け取る
+#### UI スレッドからの通知を Lisp で受け取る (advanced)
 
 UI スレッドにきた通知を Lisp 側で受け取る機構です。
 
@@ -491,7 +495,7 @@ UI スレッドに Lisp 側へ通知すべきメッセージがきたら、
 UI スレッドから Lisp スレッドへの本モジュール内部専用のキューに、
 その旨のメッセージを格納してから WM_INPUTLANGCHANGE を post/send します。
 これにより Lisp 側で language-change イベントが発生します。
-このイベントを受けて Module2 の C++ 実装にある
+このイベントを受けて advanced の C++ 実装のモジュールにある
 `w32-tr-ime-language-change-handler` 関数を呼びます。
 この関数は内部専用キューからメッセージを取り出し、
 その種類に応じてノーマルフックを呼び出すなどの動作を行います。
@@ -539,7 +543,7 @@ Asynchronous Requests from Emacs Dynamic Modules
 (custom-set-variables '(w32-tr-ime-module-recv-from-ui-thread-p nil))
 ```
 
-### 再変換 (RECONVERSION) (Module2)
+### 再変換 (RECONVERSION) (advanced)
 
 確定済文字列にカーソルを置いて変換キーを押すと、
 カーソルのあった場所の確定済文字列が未確定文字列になって、
@@ -554,7 +558,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 これらも UI スレッドから Lisp への通知などをする、
 かなり複雑な動作になっています。
 
-#### 再変換 (RECONVERSION) 動作を行うか否か
+#### 再変換 (RECONVERSION) 動作を行うか否か (advanced)
 
 この動作を無効にするには、以下のようにすればできます
 （デフォルトは有効）。
@@ -563,7 +567,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 (custom-set-variables '(w32-tr-ime-module-reconversion-p nil))
 ```
 
-### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (Module2)
+### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (advanced)
 
 確定済文字列のあるところにカーソルを置いて文字を入力・変換すると、
 カーソルのあった場所の確定済文字列によって変換候補が変わる機能です。
@@ -576,7 +580,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI スレッドに通知し、
 という通知の往復が必要で、かなり複雑な動作になっています。
 
-#### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か
+#### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か (advanced)
 
 この動作を無効にするには、以下のようにすればできます
 （デフォルトは有効）。
@@ -585,7 +589,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 (custom-set-variables '(w32-tr-ime-module-documentfeed-p nil))
 ```
 
-### IME フォント (Module2)
+### IME フォント (advanced)
 
 IME パッチではフレームパラーメータの `ime-font` 設定を変更すると、
 即座に未確定文字列フォントの設定に反映されます。
@@ -618,7 +622,7 @@ GNU Emacs 27 や 28 では、全フレームが同じ UI スレッドで動作�
 (w32-tr-ime-reflect-frame-parameter-ime-font)
 ```
 
-#### フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か (Module2)
+#### フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か (advanced)
 
 フォーカス変更時の反映を無効にしたい場合は、以下でできます
 （デフォルトは有効）。
@@ -627,7 +631,7 @@ GNU Emacs 27 や 28 では、全フレームが同じ UI スレッドで動作�
 (custom-set-variables '(w32-tr-ime-module-ime-font-focus-p nil))
 ```
 
-#### コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か (Module2)
+#### コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か (advanced)
 
 post-command-hook によるコマンド実行後の反映を有効にしたい場合は、
 以下でできます（デフォルトは無効）。
@@ -635,9 +639,9 @@ post-command-hook によるコマンド実行後の反映を有効にしたい�
 ```el
 (custom-set-variables '(w32-tr-ime-module-ime-font-post-command-p t))
 ```
-### isearch-mode (Module2)
+### isearch-mode (advanced)
 
-Module1 だと C-s など isearch-mode の検索中、
+standard だと C-s など isearch-mode の検索中、
 未確定文字列はミニバッファの文字入力位置ではなくて、
 検索開始前に元々入力していた位置に表示されてしまいます。
 isearch-mode 時に選択されているウィンドウはミニバッファではないので、
@@ -645,11 +649,11 @@ isearch-mode 時に選択されているウィンドウはミニバッファで�
 確定するとミニバッファに表示されるので、
 位置が食い違っていて使いにくいです。
 
-Module2 では IME パッチと同じように、
+advanced では IME パッチと同じように、
 こうした未確定文字列をミニバッファの文字入力位置に表示できます。
 ただし、実現方法が異なるので、微妙な動作の違いがあるかもしれません。
 
-#### isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か (Module2)
+#### isearch-mode 中の未確定文字列表示位置を文字入力位置にするか否か (advanced)
 
 isearch-mode 中の位置設定を無効にするには、以下のようにすればできます
 （デフォルトは有効）。
@@ -658,7 +662,7 @@ isearch-mode 中の位置設定を無効にするには、以下のようにす�
 (custom-set-variables '(w32-tr-ime-module-isearch-p nil))
 ```
 
-#### WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か (Module2)
+#### WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か (advanced)
 
 WM_IME_STARTCOMPOSITION ハンドラにおいて、
 isearch-mode 中（未確定文字列ウィンドウの位置設定中）は
@@ -680,7 +684,7 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 (custom-set-variables '(w32-tr-ime-module-isearch-defsubclassproc-p t)
 ```
 
-### プレフィックスキー検出 (Module2)
+### プレフィックスキー検出 (advanced)
 
 コマンドのキーシーケンスになる最初のキーである
 プレフィックスキー（C-x など）を検出すると、
@@ -694,16 +698,16 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 キーが押下されたら（WM_KEYDOWN メッセージが来たら）IME OFFにして、
 pre-command-hook で IME 状態を戻す処理をしています。
 
-Module1 向けにタイマを使って同様の機能を実現したワークアラウンドがありますが、
-Module2 の本機能はタイマを使わないためタイミング的にも負荷的にも有利です。
-本機能を有効にすると Module1 のワークアラウンドによる
+standard 向けにタイマを使って同様の機能を実現したワークアラウンドがありますが、
+advanced の本機能はタイマを使わないためタイミング的にも負荷的にも有利です。
+本機能を有効にすると standard のワークアラウンドによる
 プレフィックスキー検出は無効になります。
 
-#### プレフィックスキー検出対象リスト (Module2)
+#### プレフィックスキー検出対象リスト (advanced)
 
 検出リストは以下のように
 プレフィックスキーとして検出したいコードのリストとして設定できます
-（Module1 ワークアラウンドの設定方法とはコード体系が異なります）。
+（standard 向けワークアラウンドの設定方法とはコード体系が異なります）。
 
 ```el
 (custom-set-variables '(w32-tr-ime-module-prefix-key-list
@@ -721,7 +725,7 @@ X キーのバーチャルキーコード #x58 のビット論理和なので #x
 C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定します。
 上位の例では、C-x, C-h, C-c, ESC を指定したものとなっています。
 
-#### プレフィックスキーを検出して自動的に IME OFF するか否か (Module2)
+#### プレフィックスキーを検出して自動的に IME OFF するか否か (advanced)
 
 プレフィックスキー検出を無効にするには、以下のようにすればできます
 （デフォルトは有効）。
@@ -730,17 +734,17 @@ C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定
 (custom-set-variables '(w32-tr-ime-module-prefix-key-p nil))
 ```
 
-### IME 状態変更通知による IME/IM 状態同期 (Module2)
+### IME 状態変更通知による IME/IM 状態同期 (advanced)
 
 Emacs 側トリガ（C-\\ やウィンドウ・バッファの切り替えなど）だけでなく、
 IME 側トリガ（半角/全角キーやマウスでの切り替えなど）も含め、
 IME 状態が変更されたら WM_IME_NOTIFY IMN_SETOPENSTATUS
 が送られてきます。この通知を受けて IM 状態を同期させます。
 
-Module1 向けにタイマを使って
+standard 向けにタイマを使って
 IME 状態の食い違いを検出して修正するワークアラウンドがありますが、
-Module2 の本機能はタイマを使わないためタイミング的にも負荷的にも有利です。
-本機能を有効にすると Module1 のワークアラウンドによる
+advanced の本機能はタイマを使わないためタイミング的にも負荷的にも有利です。
+本機能を有効にすると standard のワークアラウンドによる
 食い違い検出は無効になります。
 
 本機能は、
@@ -752,7 +756,7 @@ setopenstatus を内部専用キューに格納して通知し、
 ノーマルフック `w32-tr-ime-module-setopenstatus-hook` を呼び出し、
 そこで一連の IME/IM 同期の動作が行われるようになっています。
 
-#### IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
+#### IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か (advanced)
 
 IME 状態変更通知があった時に、
 IME/IM 状態同期の前にフックエミュレーション関数を呼ぶことで、
@@ -767,7 +771,7 @@ IME パッチ特有のアブノーマルフックが呼ばれて IME/IM 状態�
  '(w32-tr-ime-module-setopenstatus-call-hook-emulator-p nil))
 ```
 
-#### IME 状態変更通知による IM 状態同期をするか否か
+#### IME 状態変更通知による IM 状態同期をするか否か (advanced)
 
 IME 状態変更通知による IM 状態同期を無効にするには、
 以下のようにすればできます（デフォルトは有効）。
@@ -782,9 +786,9 @@ IME 状態変更通知による IM 状態同期を無効にするには、
 Lisp でタイマを使ってなんとかしているものです。
 モジュールの高機能化によって不要になるものもあります。
 
-#### isearch-mode 時の Alt + 半角/全角ワークアラウンド (Module2)
+#### isearch-mode 時の Alt + 半角/全角ワークアラウンド (advanced)
 
-Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
+advanced で isearch-mode 時に Alt + 半角/全角キー操作をすると、
 なぜかエコーエリアが消えてしまいます。
 キー操作時に再表示させるようにしても効果が無い
 （恐らくキー操作後にくるイベントか何かで消されている）ので、
@@ -793,8 +797,8 @@ Emacs がアイドル状態になったら動作するタイマで再表示さ�
 このタイマは Alt + 半角/全角キー操作 1 回につき 1 回だけ動作し、
 繰り返し動作はしません。
 
-Module1 だけ使う場合は問題ありません。
-Module2 でも
+standard を使う場合は問題ありません。
+advanced でも
 C-\\ や半角/全角単独など、他の方法で IME ON/OFF する場合は問題ありません。
 Alt + 半角/全角キー操作はしないとか、
 エコーエリアが消えても問題ないという場合は
@@ -815,15 +819,15 @@ Alt + 半角/全角キー操作後に、
 IME 側トリガの状態変更（半角/全角キーやマウスでの切り替え）
 を検出して IM 側を同期させるための機構です。
 
-Module2 ではもっと筋が良い対応ができるため、そちらを使えば不要ですが、
-Module1 だけ使いたい場合に
+advanced ではもっと筋が良い対応ができるため、そちらを使えば不要ですが、
+standard を使いたい場合に
 ワークアラウンドとして、
 定期的に動くタイマでポーリングし、
 IME と IM の状態が食い違ったら IM 状態を反転して一致させる、
 という機構を用意しました。
 
 定期的なタイマで動作するため負荷が気になるため、
-Module2 がなくてもデフォルトは無効にしています。
+standard でもデフォルトは無効にしています。
 
 以下の設定で有効にできます。
 
@@ -846,14 +850,14 @@ IME 状態食い違い検出修正前にフックエミュレーション関数�
 これにより IME ON のまま C-x 1 のような操作をしたときに、
 1 が IME に吸われて未確定文字扱いされなくなります。
 
-Module2 ではもっと筋が良い対応ができているため不要ですが、
-Module1 だけ使いたい場合に
+advanced ではもっと筋が良い対応ができているため不要ですが、
+standard を使いたい場合に
 ワークアラウンドとして、
 Emacs がアイドル状態になったら動くタイマでポーリングし、
 プレフィックスキーが押されていたら IME OFF にし、
 pre-command-hook で IME を復帰させる、という機構を残してあります。
 
-以下の設定で無効にできます。デフォルトは Module2 が無い場合のみ有効です。
+以下の設定で無効にできます。デフォルトは standard の時のみ有効です。
 
 ```el
 (custom-set-variables '(w32-tr-ime-module-workaround-prefix-key-p nil))
@@ -869,9 +873,9 @@ C-x, C-h, C-c と ESC です）。
 
 ### デバッグ出力
 
-Module1, Module2 ともに Win32 API の OutputDebugString を使って、
+standard, advanced ともに Win32 API の OutputDebugString を使って、
 デバッグメッセージの出力をしています。
-Module2 では出力するレベルを変更することができます。
+advanced では出力するレベルを変更することができます。
 
 ほぼ何も出力しないようにしたいなら以下を実行してください。
 
@@ -923,7 +927,7 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
       のソースを使ってビルドする場合に必要です
     * [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
       にあるソース配布ファイル
-      tr-emacs-ime-module-VERSION.tar.gz
+      （ファイル名末尾が `.tar.gz` のファイル）
       を使うのであれば環境に Autotools がインストールされていなくても
       Autotools を使ったビルドができます
 
@@ -931,11 +935,9 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 
 以下のようにすればビルドできます。
 インストール先に応じて `--prefix` オプションの値を変えてください。
-Module2 もビルドしたい場合は `--enable-module2`
-オプションを追加してください。
 [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
 にあるソース配布ファイル
-tr-emacs-ime-module-VERSION.tar.gz
+（ファイル名末尾が `.tar.gz` のファイル）
 を使うのであれば `./autogen.sh` の実行は不要です。
 
 ```
@@ -965,6 +967,10 @@ $ ../configure --host=x86_64-w64-mingw32 --with-emacs-module-hdir=`pwd`
 $ make install
 ```
 
+自分でビルドした場合には w32-ime.el がインストールされませんので、
+[MELPA の w32-ime パッケージ](https://melpa.org/#/w32-ime)
+をインストールしてください。
+
 ### バイナリリリースのビルド方法
 
 バイナリリリースは以下の方法でビルドしたものです。
@@ -972,15 +978,15 @@ $ make install
 #### Cygwin 64 bit / 32 bit
 
 いずれも、Cygwin 64 bit / 32 bit の環境で、ソース配布ファイル
-tr-emacs-ime-module-VERSION.tar.gz
+tr-ime-VERSION.tar.gz
 を使って以下のようにしてビルドしました。
 
 ```
-$ tar xfvz tr-emacs-ime-module-VERSION.tar.gz
-$ cd tr-emacs-ime-module-VERSION
+$ tar xfvz tr-ime-VERSION.tar.gz
+$ cd tr-ime-VERSION
 $ mkdir build
 $ cd build
-$ ../configure --enable-module2 --prefix=/usr
+$ ../configure --prefix=/usr
 $ make
 $ make install DESTDIR=`pwd`/tmp
 ```
@@ -1000,12 +1006,12 @@ Emacs の bin フォルダにある libstdc++-6.dll を最新のものに置き�
 どうにもなりませんでした。）
 
 ```
-$ tar xfvz tr-emacs-ime-module-VERSION.tar.gz
-$ cd tr-emacs-ime-module-VERSION
+$ tar xfvz tr-ime-VERSION.tar.gz
+$ cd tr-ime-VERSION
 $ mkdir build
 $ cd build
 $ cp /usr/include/emacs-module.h .
-$ ../configure --enable-module2 --host=x86_64-w64-mingw32 \
+$ ../configure --host=x86_64-w64-mingw32 \
     --with-emacs-module-hdir=`pwd`
 $ sed -i -e '/^archive_cmds=/s/\\$deplibs/-Wl,-Bstatic,-lstdc++,-lgcc,-lgcc_eh,-Bdynamic \\$deplibs/' \
          -e '/^postdeps=/s/-lstdc++ //' \
@@ -1033,11 +1039,17 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 わかっているだけで以下のような制約があります。
 
-* Module2 で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
+* advanced で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
   エコーエリアの表示が消えてしまう
     * ワークアラウンドでなんとかしています
-* 未確定文字列フォントの設定 (Module2) で generic ファミリは使用不可
+* 未確定文字列フォントの設定 (advanced) で generic ファミリは使用不可
     * 無いと困るという方はいらっしゃいますか？どのような使い方でしょうか？
+* 単語登録の機能が使えません
+    * IME パッチの C 実装関数 `w32-ime-register-word-dialog`
+      を実装していないため、w32-ime.el の `w32-ime-toroku-region`
+      が使えません
+* 変換モード設定関数が使えません
+    * IME パッチの C 実装関数 `w32-set-ime-mode` を実装していません
 
 以下は、IME パッチでも発生する事象で、
 これまでに気が付いたものです。
