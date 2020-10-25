@@ -778,7 +778,7 @@ w32-tr-ime-module-setopenstatus-call-hook-emulator-p
   (if bool
       (progn
         (custom-set-variables
-         '(w32-tr-ime-module-workaround-inconsistent-ime-p nil))
+         '(tr-ime-workaround-inconsistent-p nil))
         (add-hook 'tr-ime-modadv--setopenstatus-hook
                   #'w32-tr-ime-module-setopenstatus-sync))
     (remove-hook 'tr-ime-modadv--setopenstatus-hook

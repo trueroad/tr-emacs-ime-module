@@ -90,71 +90,7 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
 ;; IME 状態の食い違いを検出して修正するワークアラウンド
 ;;
 
-(defcustom w32-tr-ime-module-workaround-inconsistent-ime-polling-time 1.0
-  "IME 状態食い違い検出修正用ポーリング時間（秒）"
-  :type 'float
-  :group 'w32-tr-ime-module-workaround-inconsist-ime)
-
-(defcustom
-  w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p t
-  "IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否か
-
-ポーリング時の食い違い検出の前にフックエミュレーション関数を呼ぶ機能。
-これにより未検出のウィンドウ変更やバッファ変更を検知し、
-IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :group 'w32-tr-ime-module-workaround-inconsist-ime)
-
-(defvar w32-tr-ime-module-workaround-inconsistent-ime-timer nil
-  "IME 状態食い違い検出修正用タイマ")
-
-(defun w32-tr-ime-module-workaround-inconsistent-ime ()
-  "IME 状態食い違い検出修正のためのポーリングで呼ばれる関数
-
-w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
-が non-nil であれば、まずフックエミュレーション関数を呼ぶ。
-これによってウィンドウやバッファの切り替え未検出があったら、
-アブノーマルフックが呼ばれて、IME/IM 状態が整えられる。
-
-その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
-これにより、IME 側トリガの状態変更を IM に反映させる。"
-  (when w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p
-    (tr-ime-hook-check))
-  (let ((ime-status (ime-get-mode)))
-    (cond ((and ime-status
-                (not current-input-method))
-           (activate-input-method "W32-IME"))
-          ((and (not ime-status)
-                current-input-method)
-           (deactivate-input-method)))))
-
-(defun w32-tr-ime-module-workaround-inconsistent-ime-p-set (symb bool)
-  "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か設定する
-
-bool が non-nil ならポーリングさせる。
-bool が nil なら停止させる。"
-  (when w32-tr-ime-module-workaround-inconsistent-ime-timer
-    (cancel-timer w32-tr-ime-module-workaround-inconsistent-ime-timer)
-    (setq w32-tr-ime-module-workaround-inconsistent-ime-timer nil))
-  (when bool
-    (setq w32-tr-ime-module-workaround-inconsistent-ime-timer
-          (run-at-time
-           t w32-tr-ime-module-workaround-inconsistent-ime-polling-time
-           #'w32-tr-ime-module-workaround-inconsistent-ime)))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-workaround-inconsistent-ime-p nil
-  "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-IME 側トリガの状態変更（半角/全角キーやマウスでの切り替え）を
-定期的なタイマによるポーリングで検出して IM 側を同期させるための機構。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-workaround-inconsistent-ime-p-set
-  :group 'w32-tr-ime-module-workaround-inconsist-ime)
+;;(load "tr-ime-workaround-inconsistent")
 
 ;;
 ;; キー設定
