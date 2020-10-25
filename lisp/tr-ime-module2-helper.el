@@ -138,51 +138,6 @@ Module2 を使用する際のコア機能の設定。
 ;; スレッドメッセージのディスパッチ
 ;;
 
-(defun w32-tr-ime-module-dispatch-thread-message-p-set (symb bool)
-  "スレッドメッセージをディスパッチするか否か設定
-
-BOOL が non-nil ならスレッドメッセージをディスパッチする。
-BOOL が nil ならスレッドメッセージをディスパッチしない。
-
-GNU Emacs 27 や 28 の UI スレッドは、
-スレッドメッセージをディスパッチしないため IME の動作に不具合が発生する
-（タスクトレイの IME 状態表示アイコンが変わらない等）。
-そこで、本設定によって Emacs の代わりにメッセージフックが
-スレッドメッセージをディスパッチするようにできる。
-
-ただし、将来の Emacs でスレッドメッセージをディスパッチするように修正されたら
-本設定を nil にすること。
-さもなければひとつのスレッドメッセージを
-二重にディスパッチしてしまうことになり、
-Emacs の動作がおかしくなってしまう。"
-  (if bool
-      (tr-ime-modadv--set-dispatch-thread-message t)
-    (tr-ime-modadv--set-dispatch-thread-message nil))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-dispatch-thread-message-p t
-  "スレッドメッセージをディスパッチするか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-GNU Emacs 27 や 28 の UI スレッドは、
-スレッドメッセージがディスパッチされない。
-これによって IME の動作に不具合が発生する
-（タスクトレイの IME 状態表示アイコンが変わらない等）。
-そこで、本設定によってメッセージフックが
-スレッドメッセージをディスパッチするようにできる。
-
-ただし、将来の Emacs で
-スレッドメッセージをディスパッチするようになったら
-本設定を nil (Disable) にすること。
-さもなければひとつのスレッドメッセージを
-二重にディスパッチしてしまうことになり、
-Emacs の動作がおかしくなってしまう。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-dispatch-thread-message-p-set
-  :group 'w32-tr-ime-module-core-module2)
-
 ;;
 ;; UI スレッドからの通知を Lisp で受け取る
 ;;
