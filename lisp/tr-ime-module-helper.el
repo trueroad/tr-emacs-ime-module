@@ -63,21 +63,10 @@ Module2 の IME 状態変更通知による IM 状態同期が利用できる。
   :group 'w32-tr-ime-module-workaround)
 
 ;;
-;; C 実装による DLL をロードする
-;;
-
-;; Emacs 28 で導入された関数がある場合、
-;; もしくは既に DLL モジュールがある場合はロードしない
-(unless (or (fboundp #'w32-get-ime-open-status)
-            (featurep 'tr-ime-mod)
-            (featurep 'tr-ime-modadv))
-  (load (concat "tr-ime-mod-1-" system-configuration)))
-
-;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(load "tr-ime-openstatus")
+;;(load "tr-ime-openstatus")
 
 (declare-function ime-force-on "tr-ime-openstatus.el" &optional _dummy)
 (declare-function ime-force-off "tr-ime-openstatus.el" &optional _dummy)

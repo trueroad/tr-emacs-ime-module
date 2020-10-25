@@ -60,13 +60,23 @@
 
 ;;; Code:
 
+(defconst tr-ime-mod-abi-version 1
+  "ABI version number of tr-ime-mod DLL.")
+(defconst tr-ime-modadv-abi-version 1
+  "ABI version number of tr-ime-modadv DLL.")
+
 ;;;###autoload
 (defun tr-ime-standard-install ()
   "Install tr-ime standard features (stable but less functionality)."
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
-             (string= module-file-suffix ".dll")
-             (locate-library "tr-ime-module-helper"))
+             (string= module-file-suffix ".dll"))
+    (unless (fboundp 'w32-get-ime-open-status)
+      (require 'tr-ime-mod (concat "tr-ime-mod-"
+                                   (int-to-string tr-ime-mod-abi-version)
+                                   "-"
+                                   system-configuration)))
+    (require 'tr-ime-openstatus)
     (require 'tr-ime-module-helper)
     (require 'w32-ime)))
 
@@ -75,8 +85,12 @@
   "Install tr-ime advanced features (experimental but more functionality)."
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
-             (string= module-file-suffix ".dll")
-             (locate-library "tr-ime-module2-helper"))
+             (string= module-file-suffix ".dll"))
+    (require 'tr-ime-modadv (concat "tr-ime-modadv-"
+                                    (int-to-string tr-ime-modadv-abi-version)
+                                    "-"
+                                    system-configuration))
+    (require 'tr-ime-openstatus)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

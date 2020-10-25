@@ -87,11 +87,8 @@ Module2 を使用する際のコア機能の設定。
   :group 'w32-tr-ime-module)
 
 ;;
-;; C++ 実装による DLL をロードする
+;; C++ 実装による DLL
 ;;
-
-(unless (featurep 'tr-ime-modadv)
-  (load (concat "tr-ime-modadv-1-" system-configuration)))
 
 (declare-function tr-ime-modadv--install-message-hook-hwnd "tr-ime-modadv"
                   arg1)
@@ -130,7 +127,6 @@ Module2 を使用する際のコア機能の設定。
 ;;
 
 ;; Module1 ヘルパのみロードして Module1 DLL はロードしない
-;; （Module1 ヘルパは Module2 DLL があると Module1 DLL をロードしない）
 (load "tr-ime-module-helper")
 
 ;;
@@ -263,7 +259,7 @@ UI スレッドは返ってこない通知を待つため（一時的に）
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
 
-(load "tr-ime-openstatus")
+;;(load "tr-ime-openstatus")
 
 (declare-function ime-force-on "tr-ime-openstatus.el" &optional _dummy)
 (declare-function ime-force-off "tr-ime-openstatus.el" &optional _dummy)
