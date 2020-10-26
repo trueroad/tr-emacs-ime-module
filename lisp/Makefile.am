@@ -12,6 +12,7 @@ pkglisp_LISP = tr-ime.el \
 	tr-ime-recv-notify.el \
 	tr-ime-font.el \
 	tr-ime-isearch.el \
+	tr-ime-workaround-isearch.el \
 	tr-ime-module2-helper.el
 EXTRA_DIST = tr-ime.el \
 	tr-ime-openstatus.el \
@@ -23,4 +24,5 @@ EXTRA_DIST = tr-ime.el \
 	tr-ime-recv-notify.el \
 	tr-ime-font.el \
 	tr-ime-isearch.el \
+	tr-ime-workaround-isearch.el \
 	tr-ime-module2-helper.el

@@ -101,6 +101,7 @@
     (require 'tr-ime-recv-notify)
     (require 'tr-ime-font)
     (require 'tr-ime-isearch)
+    (require 'tr-ime-workaround-isearch)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

@@ -164,54 +164,6 @@ Module2 を使用する際のコア機能の設定。
 ;; isearch-mode 時の Alt + 半角/全角ワークアラウンド
 ;;
 
-(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
-  0.0001
-  "Alt + 半角/全角ワークアラウンドで使うタイマの待ち時間（秒）"
-  :type 'float
-  :group 'w32-tr-ime-module-workaround-isearch-mode)
-
-(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update ()
-  "アイドル状態になったら isearch-mode のエコーエリアを再表示する
-
-Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
-なぜかエコーエリアが消えてしまう。
-キー操作時に再表示させても効果が無い
-（恐らくキー操作後にくるイベントか何かで消されている）ので、
-Emacs がアイドル状態になったら動作するタイマで再表示させる。"
-  (interactive)
-  (run-with-idle-timer
-   w32-tr-ime-module-workaround-isearch-mode-delayed-update-time
-   nil #'isearch-update))
-
-(defun w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
-    (symb bool)
-  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か設定
-
-Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
-なぜかエコーエリアが消えてしまう対策のワークアラウンドを動作させるか否か
-設定する。
-bool が non-nil なら動作させる。それ以外なら停止させる。"
-  (if bool
-      (define-key isearch-mode-map [M-kanji]
-        'w32-tr-ime-module-workaround-isearch-mode-delayed-update)
-    (define-key isearch-mode-map [M-kanji] 'ignore))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-workaround-isearch-mode-delayed-update-p t
-  "isearch-mode 時の Alt + 半角/全角ワークアラウンドを動作させるか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-Module2 で isearch-mode 時に Alt + 半角/全角キー操作をすると、
-なぜかエコーエリアが消えてしまう。
-キー操作時に再表示させても効果が無い
-（恐らくキー操作後にくるイベントか何かで消されている）ので、
-Emacs がアイドル状態になったら動作するタイマで再表示させるワークアラウンド。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-workaround-isearch-mode-delayed-update-p-set
-  :group 'w32-tr-ime-module-workaround-isearch-mode)
-
 ;;
 ;; プレフィックスキー（C-x など）を検出して自動的に IME OFF する
 ;;
