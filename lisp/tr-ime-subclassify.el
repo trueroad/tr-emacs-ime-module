@@ -95,7 +95,7 @@ BOOL が non-nil ならメッセージフックしてサブクラス化する。
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
   :set #'tr-ime-subclassify-set
-  :group 'w32-tr-ime-subclassify)
+  :group 'tr-ime-subclassify)
 
 ;;
 ;; provide
