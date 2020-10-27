@@ -49,7 +49,7 @@
 
 (declare-function tr-ime-modadv--language-change-handler "tr-ime-modadv")
 
-(defun tr-ime-recv-notify-set (symb bool)
+(defun tr-ime-recv-notify--set (symb bool)
   "UI スレッドからの通知を Lisp で受け取るか否か設定する.
 
 SYMB は tr-ime-recv-notify-p を指定する。
@@ -79,7 +79,7 @@ UI スレッドは返ってこない通知を待つため（一時的に）
 特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-recv-notify-set
+  :set #'tr-ime-recv-notify--set
   :group 'tr-ime-recv-notify)
 
 ;;

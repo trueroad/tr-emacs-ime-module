@@ -68,7 +68,7 @@ Emacs がアイドル状態になったら動作するタイマで再表示さ�
   (run-with-idle-timer tr-ime-workaround-isearch-delayed-update-time
                        nil #'isearch-update))
 
-(defun tr-ime-workaround-isearch-delayed-update-set (symb bool)
+(defun tr-ime-workaround-isearch--delayed-update-set (symb bool)
   "Alt + 半角/全角ワークアラウンドを動作させるか否か設定.
 
 advanced で \"isearch-mode\" 時に Alt + 半角/全角キー操作をすると、
@@ -95,7 +95,7 @@ advanced で \"isearch-mode\" 時に Alt + 半角/全角キー操作をすると
 Emacs がアイドル状態になったら動作するタイマで再表示させるワークアラウンド。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-workaround-isearch-delayed-update-set
+  :set #'tr-ime-workaround-isearch--delayed-update-set
   :group 'tr-ime-workaround-isearch)
 
 ;;

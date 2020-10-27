@@ -113,7 +113,7 @@ Emacs の標準的なフックの一つ \"pre-command-hook\" に登録する。
 ;; 設定用
 ;;
 
-(defun tr-ime-workaround-prefix-key-set (symb bool)
+(defun tr-ime-workaround-prefix-key--set (symb bool)
   "プレフィックスキー検出ワークアラウンドを動作させるか否か設定する.
 
 SYMB は tr-ime-workaround-prefix-key-p を指定すること。
@@ -147,7 +147,7 @@ BOOL が non-nil ならワークアラウンド有効で動作する。
 自動的に IME off にして、コマンド開始前に IME 状態を戻す機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-workaround-prefix-key-set
+  :set #'tr-ime-workaround-prefix-key--set
   :group 'tr-ime-workaround-prefix-key)
 
 ;;

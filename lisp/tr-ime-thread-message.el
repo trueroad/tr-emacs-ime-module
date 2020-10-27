@@ -50,7 +50,7 @@
 (declare-function tr-ime-modadv--set-dispatch-thread-message "tr-ime-modadv"
                   arg1)
 
-(defun tr-ime-thread-message-dispatch-set (symb bool)
+(defun tr-ime-thread-message--dispatch-set (symb bool)
   "スレッドメッセージをディスパッチするか否か設定する.
 
 SYMB は tr-ime-thread-message-dispatch-p を設定する。
@@ -91,7 +91,7 @@ GNU Emacs 27 や 28 の UI スレッドは、
 Emacs の動作がおかしくなってしまう。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-thread-message-dispatch-set
+  :set #'tr-ime-thread-message--dispatch-set
   :group 'tr-ime-thread-message)
 
 ;;

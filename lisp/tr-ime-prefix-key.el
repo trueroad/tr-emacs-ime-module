@@ -52,7 +52,7 @@
 
 (defvar tr-ime-prefix-key-p t)
 
-(defun tr-ime-prefix-key-list-set (symb settings)
+(defun tr-ime-prefix-key--list-set (symb settings)
   "プレフィックスキー検出対象リストを設定する.
 
 SYMB は tr-ime-prefix-key-list を指定する。
@@ -78,7 +78,7 @@ SETTINGS はプレフィックスキーとして検出したいコードのリ�
 X キーのバーチャルキーコード #x58 のビット論理和なので #x20058 を指定する。
 Ctrl-Alt-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定する。"
   :type '(repeat integer)
-  :set #'tr-ime-prefix-key-list-set
+  :set #'tr-ime-prefix-key--list-set
   :group 'tr-ime-prefix-key)
 
 ;;
@@ -87,7 +87,7 @@ Ctrl-Alt-x であれば、さらに Alt の修飾キーを含めて #x60058 を�
 
 (declare-function tr-ime-modadv--resume-prefix-key "tr-ime-modadv")
 
-(defun tr-ime-prefix-key-set (symb bool)
+(defun tr-ime-prefix-key--set (symb bool)
   "プレフィックスキーを検出して自動的に IME off するか否か設定する.
 
 SYMB には tr-ime-prefix-key-p を指定する。
@@ -120,7 +120,7 @@ BOOL が nil なら停止する。"
 プレフィックスキー検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-prefix-key-set
+  :set #'tr-ime-prefix-key--set
   :group 'tr-ime-prefix-key)
 
 ;;

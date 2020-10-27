@@ -192,7 +192,7 @@ IME パッチは、フレームパラメータの ime-font を設定すると、
     (when (frame-focus-state f)
       (with-selected-frame f (tr-ime-font-check)))))
 
-(defun tr-ime-font-focus-set (symb bool)
+(defun tr-ime-font--focus-set (symb bool)
   "フォーカス変更時に ime-font 設定を反映するか否か設定する.
 
 SYMB は tr-ime-font-focus-p を指定する。
@@ -217,14 +217,14 @@ BOOL が non-nil ならフォーカス変更時に ime-font 設定を反映す�
 モジュールの未確定文字列フォントに反映される。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-font-focus-set
+  :set #'tr-ime-font--focus-set
   :group 'tr-ime-font)
 
 ;;
 ;; コマンド実行後
 ;;
 
-(defun tr-ime-font-post-command-set (symb bool)
+(defun tr-ime-font--post-command-set (symb bool)
   "コマンド実行後に ime-font 設定を反映するか否か設定する.
 
 SYMB は tr-ime-font-post-command-p を指定する。
@@ -248,7 +248,7 @@ BOOL が non-nil ならコマンド実行後に設定を反映する。
 ほぼ即座に未確定文字列フォントが設定できる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-font-post-command-set
+  :set #'tr-ime-font--post-command-set
   :group 'tr-ime-font)
 
 ;;

@@ -152,7 +152,7 @@
 ;; 未確定文字列表示位置を文字入力位置にするか否か設定
 ;;
 
-(defun tr-ime-isearch-set (symb bool)
+(defun tr-ime-isearch--set (symb bool)
   "未確定文字列表示位置を文字入力位置にするか否か設定する.
 
 SYMB には tr-ime-isearch-p を指定する。
@@ -184,7 +184,7 @@ BOOL が non-nil なら \"isearch-mode\" 中の
 未確定文字列は \"isearch-mode\" に入る前の入力位置に表示される。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-isearch-set
+  :set #'tr-ime-isearch--set
   :group 'tr-ime-isearch)
 
 ;;
@@ -195,7 +195,7 @@ BOOL が non-nil なら \"isearch-mode\" 中の
                   "tr-ime-modadv"
                   arg1 arg2)
 
-(defun tr-ime-isearch-defsubclassproc-set (symb bool)
+(defun tr-ime-isearch--defsubclassproc-set (symb bool)
   "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か設定する.
 
 SYMB には tr-ime-isearch-defsubclassproc-p を指定する。
@@ -221,7 +221,7 @@ DefSubcalssProc を呼ばず Emacs のメッセージ処理をスキップして
 DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるようになる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-isearch-defsubclassproc-set
+  :set #'tr-ime-isearch--defsubclassproc-set
   :group 'tr-ime-isearch-mode)
 
 ;;

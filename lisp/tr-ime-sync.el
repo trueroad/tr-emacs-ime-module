@@ -72,7 +72,7 @@
 ;; 設定用
 ;;
 
-(defun tr-ime-sync-set (symb bool)
+(defun tr-ime-sync--set (symb bool)
   "IME 状態変更通知による IM 状態同期をするか否か設定する.
 
 SYMB には tr-ime-sync-p を指定する。
@@ -101,7 +101,7 @@ IME 状態変更通知がきた時に、IME/IM 状態同期をする機能。
 IME 状態食い違い検出ワークアラウンドが無効になる。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-sync-set
+  :set #'tr-ime-sync--set
   :group 'tr-ime-sync)
 
 ;;

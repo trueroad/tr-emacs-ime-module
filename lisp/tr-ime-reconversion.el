@@ -71,7 +71,7 @@ tr-ime-modadv--documentfeed-hook に登録して使う。"
 (declare-function tr-ime-modadv--set-reconversion "tr-ime-modadv"
                   arg1 arg2)
 
-(defun tr-ime-reconversion-set (symb bool)
+(defun tr-ime-reconversion--set (symb bool)
   "再変換 (RECONVERSION) 動作を行うか否か設定する.
 
 SYMB には tr-ime-reconversion-p を指定する。
@@ -99,7 +99,7 @@ BOOL が non-nil なら再変換動作を行う。
 再変換できるようになる機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-reconversion-set
+  :set #'tr-ime-reconversion--set
   :group 'tr-ime-reconversion)
 
 ;;

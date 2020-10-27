@@ -111,7 +111,7 @@ Lisp でエミュレーションする。")
 ;; 設定用
 ;;
 
-(defun tr-ime-hook-set (symb bool)
+(defun tr-ime-hook--set (symb bool)
   "IME パッチ特有のアブノーマルフックをエミュレーションするか否か設定する.
 
 SYMB は tr-ime-hook-p を指定すること。
@@ -142,7 +142,7 @@ IME/IM が同期しなくなるなどの問題が発生する。
 特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-hook-set
+  :set #'tr-ime-hook--set
   :group 'tr-ime-hook)
 
 ;;

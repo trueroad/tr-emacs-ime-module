@@ -50,7 +50,7 @@
 (declare-function tr-ime-modadv--set-verbose-level "tr-ime-modadv"
                   arg1)
 
-(defun tr-ime-debug-verbose-level-set (symb level)
+(defun tr-ime-debug--verbose-level-set (symb level)
   "デバッグ出力レベルを設定する.
 
 SYMB には tr-ime-debug-verbose-level をしている。
@@ -76,7 +76,7 @@ nil を指定した場合は設定（変更）しない。"
                  (const :tag "debug" 5)
                  (const :tag "trace" 6)
                  (const :tag "no set" nil))
-  :set #'tr-ime-debug-verbose-level-set
+  :set #'tr-ime-debug--verbose-level-set
   :group 'tr-ime-debug)
 
 ;;

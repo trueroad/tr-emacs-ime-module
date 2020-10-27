@@ -56,7 +56,7 @@
 (declare-function tr-ime-modadv--unsubclassify-hwnd "tr-ime-modadv"
                   arg1 &optional arg2)
 
-(defun tr-ime-subclassify-set (symb bool)
+(defun tr-ime-subclassify--set (symb bool)
   "IME 制御のためメッセージフックしてサブクラス化するか否か設定する.
 
 SYMB は tr-ime-subclassify-p を指定する。
@@ -94,7 +94,7 @@ BOOL が non-nil ならメッセージフックしてサブクラス化する。
 特別な目的が無い限りは non-nil (Enable) にしておくこと。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-subclassify-set
+  :set #'tr-ime-subclassify--set
   :group 'tr-ime-subclassify)
 
 ;;

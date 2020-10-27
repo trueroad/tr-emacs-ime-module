@@ -53,7 +53,7 @@
 (autoload 'tr-ime-reconversion--notify-reconvert-string
   "tr-ime-reconversion")
 
-(defun tr-ime-documentfeed-set (symb bool)
+(defun tr-ime-documentfeed--set (symb bool)
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する.
 
 SYMB には tr-ime-documentfeed-p を指定する。
@@ -80,7 +80,7 @@ BOOL が non-nil なら DOCUMENTFEED 動作を行う。
 カーソルのあった場所の確定済文字列によって変換候補が変わる機能。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-documentfeed-set
+  :set #'tr-ime-documentfeed--set
   :group 'tr-ime-documentfeed)
 
 ;;

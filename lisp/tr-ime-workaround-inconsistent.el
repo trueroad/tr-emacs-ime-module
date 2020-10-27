@@ -94,7 +94,7 @@ advanced の IME 状態変更通知による IM 状態同期を使うこと。"
 ;; 設定用
 ;;
 
-(defun tr-ime-workaround-inconsistent-set (symb bool)
+(defun tr-ime-workaround-inconsistent--set (symb bool)
   "IME 状態食い違い検出修正ワークアラウンドを動作させるか否か設定する.
 
 SYMB は tr-ime-workaround-inconsistent-p を指定すること。
@@ -119,7 +119,7 @@ IME 側トリガの状態変更（半角/全角キーやマウスでの切り替
 定期的なタイマによるポーリングで検出して IM 側を同期させるための機構。"
   :type '(choice (const :tag "Enable" t)
                  (const :tag "Disable" nil))
-  :set #'tr-ime-workaround-inconsistent-set
+  :set #'tr-ime-workaround-inconsistent--set
   :group 'tr-ime-workaround-inconsistent)
 
 ;;
