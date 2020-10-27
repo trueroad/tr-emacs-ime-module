@@ -16,6 +16,7 @@ pkglisp_LISP = tr-ime.el \
 	tr-ime-prefix-key.el \
 	tr-ime-sync.el \
 	tr-ime-reconversion.el \
+	tr-ime-documentfeed.el \
 	tr-ime-module2-helper.el
 EXTRA_DIST = tr-ime.el \
 	tr-ime-openstatus.el \
@@ -31,4 +32,5 @@ EXTRA_DIST = tr-ime.el \
 	tr-ime-prefix-key.el \
 	tr-ime-sync.el \
 	tr-ime-reconversion.el \
+	tr-ime-documentfeed.el \
 	tr-ime-module2-helper.el
