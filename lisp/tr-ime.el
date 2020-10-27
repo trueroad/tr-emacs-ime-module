@@ -62,8 +62,20 @@
 
 (defconst tr-ime--mod-abi-version 1
   "ABI version number of tr-ime-mod DLL.")
+(defconst tr-ime--mod-name (concat "tr-ime-mod-"
+                                   (int-to-string tr-ime--mod-abi-version)
+                                   "-"
+                                   system-configuration)
+  "Module name of tr-ime-mod (standard).")
+
 (defconst tr-ime--modadv-abi-version 1
   "ABI version number of tr-ime-modadv DLL.")
+(defconst tr-ime--modadv-name (concat
+                               "tr-ime-modadv-"
+                               (int-to-string tr-ime--modadv-abi-version)
+                               "-"
+                               system-configuration)
+  "Module name of tr-imeadv-mod (advanced).")
 
 ;;;###autoload
 (defun tr-ime-standard-install ()
@@ -72,10 +84,7 @@
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
     (unless (fboundp 'w32-get-ime-open-status)
-      (require 'tr-ime-mod (concat "tr-ime-mod-"
-                                   (int-to-string tr-ime--mod-abi-version)
-                                   "-"
-                                   system-configuration)))
+      (require 'tr-ime-mod tr-ime--mod-name))
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-workaround-prefix-key)
@@ -90,10 +99,7 @@
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
-    (require 'tr-ime-modadv (concat "tr-ime-modadv-"
-                                    (int-to-string tr-ime--modadv-abi-version)
-                                    "-"
-                                    system-configuration))
+    (require 'tr-ime-modadv tr-ime--modadv-name)
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-subclassify)
