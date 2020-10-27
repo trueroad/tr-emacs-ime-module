@@ -77,6 +77,8 @@
                                system-configuration)
   "Module name of tr-imeadv-mod (advanced).")
 
+(autoload 'tr-ime-download-mod-file "tr-ime-download")
+
 ;;;###autoload
 (defun tr-ime-standard-install ()
   "Install tr-ime standard features (stable but less functionality)."
@@ -84,7 +86,9 @@
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
     (unless (fboundp 'w32-get-ime-open-status)
-      (require 'tr-ime-mod tr-ime--mod-name))
+      (require 'tr-ime-mod tr-ime--mod-name t)
+      (unless (featurep 'tr-ime-mod)
+        (tr-ime-download-mod-file tr-ime--mod-name)))
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-workaround-prefix-key)
@@ -99,7 +103,9 @@
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
-    (require 'tr-ime-modadv tr-ime--modadv-name)
+    (require 'tr-ime-modadv tr-ime--modadv-name t)
+    (unless (featurep 'tr-ime-modadv)
+      (tr-ime-download-mod-file tr-ime--modadv-name))
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-subclassify)
