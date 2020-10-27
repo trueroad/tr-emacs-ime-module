@@ -103,6 +103,7 @@
     (require 'tr-ime-isearch)
     (require 'tr-ime-workaround-isearch)
     (require 'tr-ime-prefix-key)
+    (require 'tr-ime-sync)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 

@@ -126,10 +126,6 @@ Module2 を使用する際のコア機能の設定。
 ;; ウィンドウやバッファ状態の変更を通知するフックのエミュレーション
 ;;
 
-;;(load "tr-ime-hook")
-
-(declare-function tr-ime-hook-check "tr-ime-hook.el")
-
 ;;
 ;; メッセージフックとサブクラス化
 ;;
@@ -145,12 +141,6 @@ Module2 を使用する際のコア機能の設定。
 ;;
 ;; IME 状態変更・状態取得関数のエミュレーション
 ;;
-
-;;(load "tr-ime-openstatus")
-
-(declare-function ime-force-on "tr-ime-openstatus.el" &optional _dummy)
-(declare-function ime-force-off "tr-ime-openstatus.el" &optional _dummy)
-(declare-function ime-get-mode "tr-ime-openstatus.el")
 
 ;;
 ;; IME フォント設定（未定義文字列のフォント）
@@ -171,66 +161,6 @@ Module2 を使用する際のコア機能の設定。
 ;;
 ;; IME 状態変更通知による IME/IM 状態同期
 ;;
-
-(defcustom
-  w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
-  "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
-
-IME 状態変更通知があった時に、IME/IM 状態同期の前に
-フックエミュレーション関数を呼ぶことで、
-未検出のウィンドウ変更やバッファ変更を検知し、
-IME パッチ特有のアブノーマルフックが呼び IME/IM 状態が整えられる。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :group 'w32-tr-ime-module-setopenstatus)
-
-(defun w32-tr-ime-module-setopenstatus-sync ()
-  "IME 状態変更通知時に呼ばれる関数
-
-w32-tr-ime-module-setopenstatus-call-hook-emulator-p
-が non-nil であれば、まずフックエミュレーション関数を呼ぶ。
-これによってウィンドウやバッファの切り替え未検出があったら、
-アブノーマルフックが呼ばれて、IME/IM 状態が整えられる。
-
-その上で IME 状態と IM 状態が食い違ったら IM 状態を反転して一致させる。
-これにより、IME 側トリガの状態変更を IM に反映させる。"
-  (when w32-tr-ime-module-setopenstatus-call-hook-emulator-p
-    (tr-ime-hook-check))
-  (let ((ime-status (ime-get-mode)))
-    (cond ((and ime-status
-                (not current-input-method))
-           (activate-input-method "W32-IME"))
-          ((and (not ime-status)
-                current-input-method)
-           (deactivate-input-method)))))
-
-(defun w32-tr-ime-module-setopenstatus-sync-p-set (symb bool)
-  "IME 状態変更通知による IM 状態同期をするか否か設定する"
-  (if bool
-      (progn
-        (custom-set-variables
-         '(tr-ime-workaround-inconsistent-p nil))
-        (add-hook 'tr-ime-modadv--setopenstatus-hook
-                  #'w32-tr-ime-module-setopenstatus-sync))
-    (remove-hook 'tr-ime-modadv--setopenstatus-hook
-                 #'w32-tr-ime-module-setopenstatus-sync))
-  (set-default symb bool))
-
-(defcustom w32-tr-ime-module-setopenstatus-sync-p t
-  "IME 状態変更通知による IM 状態同期をするか否か
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-Emacs 側トリガ（C-\\ やウィンドウ・バッファの切り替えなど）だけでなく、
-IME 側トリガ（半角/全角キーやマウスでの切り替えなど）も含め、
-IME 状態変更通知がきた時に、IME/IM 状態同期をする機能。
-
-本機能を有効にすると Module1 用の
-IME 状態食い違い検出ワークアラウンドが無効になる。"
-  :type '(choice (const :tag "Enable" t)
-                 (const :tag "Disable" nil))
-  :set #'w32-tr-ime-module-setopenstatus-sync-p-set
-  :group 'w32-tr-ime-module-setopenstatus)
 
 ;;
 ;; 再変換 (RECONVERSION)
