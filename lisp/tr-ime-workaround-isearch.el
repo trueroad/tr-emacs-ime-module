@@ -44,7 +44,7 @@
   :group 'tr-ime)
 
 (defgroup tr-ime-workaround-isearch nil
-  "isearch-mode"
+  "isearch-mode (advanced)"
   :group 'tr-ime-workaround)
 
 ;;

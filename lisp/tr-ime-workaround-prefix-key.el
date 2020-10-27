@@ -52,7 +52,7 @@
   :group 'tr-ime)
 
 (defgroup tr-ime-workaround-prefix-key nil
-  "プレフィックスキー検出
+  "プレフィックスキー検出 (standard)
 
 advanced では、このワークアラウンドではなく、
 advanced のプレフィックスキー検出を使うこと。"

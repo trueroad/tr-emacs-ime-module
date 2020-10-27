@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-subclassify nil
-  "メッセージフックとサブクラス化"
+  "メッセージフックとサブクラス化 (advanced)"
   :group 'tr-ime)
 
 ;;

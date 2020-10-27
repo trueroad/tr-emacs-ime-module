@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-prefix-key nil
-  "プレフィックスキー検出"
+  "プレフィックスキー検出 (advanced)"
   :group 'tr-ime)
 
 ;;

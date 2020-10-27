@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-isearch nil
-  "isearch-mode 設定"
+  "isearch-mode 設定 (advanced)"
   :group 'tr-ime)
 
 ;;

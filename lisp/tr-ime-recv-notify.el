@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-recv-notify nil
-  "UI スレッドからの通知"
+  "UI スレッドからの通知 (advanced)"
   :group 'tr-ime)
 
 ;;

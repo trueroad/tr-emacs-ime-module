@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-sync nil
-  "IME 状態変更通知による IME/IM 状態同期"
+  "IME 状態変更通知による IME/IM 状態同期 (advanced)"
   :group 'tr-ime)
 
 ;;

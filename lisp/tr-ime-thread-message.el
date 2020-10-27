@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-thread-message nil
-  "スレッドメッセージ"
+  "スレッドメッセージ (advanced)"
   :group 'tr-ime)
 
 ;;

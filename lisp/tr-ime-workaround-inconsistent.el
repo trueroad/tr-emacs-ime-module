@@ -54,7 +54,7 @@
   :group 'tr-ime)
 
 (defgroup tr-ime-workaround-inconsistent nil
-  "IME 状態食い違い検出
+  "IME 状態食い違い検出 (standard)
 
 advanced では、このワークアラウンドではなく、
 advanced の IME 状態変更通知による IM 状態同期を使うこと。"

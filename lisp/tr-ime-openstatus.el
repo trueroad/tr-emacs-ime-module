@@ -48,7 +48,7 @@
 ;;
 
 (defcustom tr-ime-openstatus-emacs28-open-check-counter 3
-  "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限.
+  "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限 (standard).
 
 GNU Emacs 28 で standard の場合は
 IME 状態変更関数 w32-set-ime-open-status を使うが、

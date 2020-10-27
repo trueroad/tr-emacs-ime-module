@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-font nil
-  "IME フォント（未確定文字列フォント）設定"
+  "IME フォント（未確定文字列フォント）設定 (advanced)"
   :group 'tr-ime)
 
 ;;

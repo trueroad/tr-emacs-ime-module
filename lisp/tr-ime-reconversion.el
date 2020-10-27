@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-reconversion nil
-  "再変換"
+  "再変換 (advanced)"
   :group 'tr-ime)
 
 ;;

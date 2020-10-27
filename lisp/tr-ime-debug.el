@@ -40,7 +40,7 @@
   :group 'emacs)
 
 (defgroup tr-ime-debug nil
-  "デバッグ設定"
+  "デバッグ設定 (advanced)"
   :group 'tr-ime)
 
 ;;
