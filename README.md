@@ -408,7 +408,7 @@ window-selection-change-functions と window-buffer-change-functions
 (custom-set-variables '(tr-ime-hook-p nil))
 ```
 
-#### IME 状態変更関数使用後の状態確認回数上限（GNU Emacs 28 以降のみ）
+#### IME 状態変更関数使用後の状態確認回数上限（GNU Emacs 28 以降）(standard)
 
 standard を使う場合に有効な設定です。
 GNU Emacs 28 では IME パッチやモジュールが無くても、
@@ -775,7 +775,7 @@ Alt + 半角/全角キー操作後に、
 `tr-ime-workaround-isearch-delayed-update-time`
 に設定できます（デフォルト 0.0001）。
 
-#### IME 状態の食い違いを検出して修正するワークアラウンド
+#### IME 状態の食い違いを検出して修正するワークアラウンド (standard)
 
 IME 側トリガの状態変更（半角/全角キーやマウスでの切り替え）
 を検出して IM 側を同期させるための機構です。
@@ -799,7 +799,7 @@ IME 状態食い違い検出修正用ポーリング時間（秒）が
 `tr-ime-workaround-inconsistentent-polling-time`
 に設定できます（デフォルト `1.0`）。
 
-#### プレフィックスキー（C-x など）を検出して IME off にするワークアラウンド
+#### プレフィックスキー（C-x など）を検出して IME off にするワークアラウンド (standard)
 
 コマンドのキーシーケンスになる最初のキーである
 プレフィックスキー（C-x など）を検出すると、
@@ -828,7 +828,7 @@ pre-command-hook で IME を復帰させる、という機構を残してあり�
 に設定できます（デフォルト `'(?\C-x ?\C-h ?\C-c ?\e)`、
 C-x, C-h, C-c と ESC です）。
 
-### デバッグ出力
+### デバッグ出力 (advanced)
 
 standard, advanced ともに Win32 API の OutputDebugString を使って、
 デバッグメッセージの出力をしています。
