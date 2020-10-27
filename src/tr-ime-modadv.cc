@@ -162,6 +162,15 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    0, 0, Ftr_ime_modadv__resume_prefix_key,
                    doc_tr_ime_modadv__resume_prefix_key,
                    nullptr);
+  regist_variable (env, "tr-ime-modadv--setopenstatus-hook",
+                   env->intern (env, "nil"),
+                   doc_tr_ime_modadv__setopenstatus_hook);
+  regist_variable (env, "tr-ime-modadv--reconvertstring-hook",
+                   env->intern (env, "nil"),
+                   doc_tr_ime_modadv__reconvertstring_hook);
+  regist_variable (env, "tr-ime-modadv--documentfeed-hook",
+                   env->intern (env, "nil"),
+                   doc_tr_ime_modadv__documentfeed_hook);
   regist_function (env, "tr-ime-modadv--language-change-handler",
                    0, 0, Ftr_ime_modadv__language_change_handler,
                    doc_tr_ime_modadv__language_change_handler,

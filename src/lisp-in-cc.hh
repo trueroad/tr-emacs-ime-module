@@ -86,6 +86,10 @@ Ftr_ime_modadv__resume_prefix_key (emacs_env*, ptrdiff_t,
                                    emacs_value[], void*);
 extern const char *doc_tr_ime_modadv__resume_prefix_key;
 
+extern const char *doc_tr_ime_modadv__setopenstatus_hook;
+extern const char *doc_tr_ime_modadv__reconvertstring_hook;
+extern const char *doc_tr_ime_modadv__documentfeed_hook;
+
 emacs_value
 Ftr_ime_modadv__language_change_handler (emacs_env*, ptrdiff_t,
                                          emacs_value[], void*);

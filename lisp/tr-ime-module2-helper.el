@@ -172,12 +172,6 @@ Module2 を使用する際のコア機能の設定。
 ;; IME 状態変更通知による IME/IM 状態同期
 ;;
 
-(defvar tr-ime-modadv--setopenstatus-hook nil
-  "IME 状態変更通知があったときに呼ばれるノーマルフック
-
-Module2 の C++ 実装である
-tr-ime-modadv--language-change-handler 関数から呼ばれる。")
-
 (defcustom
   w32-tr-ime-module-setopenstatus-call-hook-emulator-p t
   "IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か
@@ -242,12 +236,6 @@ IME 状態食い違い検出ワークアラウンドが無効になる。"
 ;; 再変換 (RECONVERSION)
 ;;
 
-(defvar tr-ime-modadv--reconvertstring-hook nil
-  "WM_IME_REQUEST IMR_RECONVERTSTRING が来た時に呼ばれるノーマルフック
-
-Module2 の C++ 実装である
-tr-ime-modadv--language-change-handler 関数から呼ばれる。")
-
 (defun w32-tr-ime-module-notify-reconvert-string ()
   "RECONVERTSTRING 構造体用の材料を収集して UI スレッドへ通知する
 
@@ -292,12 +280,6 @@ tr-ime-modadv--documentfeed-hook に登録して使う。"
 ;;
 ;; 前後の確定済文字列を参照した変換 (DOCUMENTFEED)
 ;;
-
-(defvar tr-ime-modadv--documentfeed-hook nil
-  "WM_IME_REQUEST IMR_DOCUMENTFEED が来た時に呼ばれるノーマルフック
-
-Module2 の C++ 実装である
-tr-ime-modadv--language-change-handler 関数から呼ばれる。")
 
 (defun w32-tr-ime-module-documentfeed-p-set (symb bool)
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する"

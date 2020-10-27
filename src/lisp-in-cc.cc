@@ -633,6 +633,15 @@ Ftr_ime_modadv__resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_tr_ime_modadv__setopenstatus_hook =
+  "Hook to be called when IMN_SETOPENSTATUS notification has been received.";
+
+const char *doc_tr_ime_modadv__reconvertstring_hook =
+  "Hook to be called when IMR_RECONVERTSTING notification has been received.";
+
+const char *doc_tr_ime_modadv__documentfeed_hook =
+  "Hook to be called when IMR_DOCUMENTFEED notification has been received.";
+
 const char *doc_tr_ime_modadv__language_change_handler =
   "WM_INPUTLANGCHANGE special-event-map language-change handler.\n\n"
   "Check the queue from the UI thread.  This function does nothing\n"
