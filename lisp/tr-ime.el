@@ -107,7 +107,7 @@
     (require 'tr-ime-reconversion)
     (require 'tr-ime-documentfeed)
     (require 'tr-ime-debug)
-    (require 'tr-ime-module2-helper)
+    (define-key global-map [M-kanji] 'ignore)
     (require 'w32-ime)))
 
 (provide 'tr-ime)
