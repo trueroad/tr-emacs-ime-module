@@ -20,9 +20,9 @@ IME パッチがなくても MS-IME などの IME (input method editor)
 しかし IME パッチ無しだと、Emacs 自前の
 かな漢字変換 (IM: input method) と IME が連動しないため、
 
-* IME を ON/OFF してもモードラインのかな漢字変換状態表示が変わらない
-* IME ON で使っているとき、
-  状況に応じて自動的に IME OFF してくれる機能が無く、
+* IME を on/off してもモードラインのかな漢字変換状態表示が変わらない
+* IME on で使っているとき、
+  状況に応じて自動的に IME off してくれる機能が無く、
   直接入力したいキーが IME に吸われて未確定文字になってしまう
     * ミニバッファでの y/n 入力
     * M-x によるミニバッファでのコマンド名入力
@@ -98,7 +98,7 @@ C++ 実装のモジュールによって、それなりに複雑で大がかり�
 バイナリリリースを使う場合は、
 [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
 にあるバイナリ配布ファイル
-（ファイル名の末尾が `-binary.zip` になっているファイル）
+（ファイル名が `tr-ime-VERSION-binary.zip` になっているファイル）
 をダウンロードして、中に入っているモジュール DLL ファイルと、
 モジュールのヘルパとなる Lisp 実装である拡張子 `.el`
 のファイルを Emacs の load-path が通っているディレクトリに置いてください。
@@ -185,9 +185,9 @@ advanced の機能は以下の通りです。
   前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
     * standard ではどちらもできません
     * もし不安定になるようなら advanced でも設定で無効にすることができます
-* すべての IME ON/OFF 方法に対応（IME 状態変更通知による IME/IM 状態同期）
+* すべての IME on/off 方法に対応（IME 状態変更通知による IME/IM 状態同期）
     * standard では Alt + 半角/全角キー（もしくは C-\\）による
-      IME ON/OFF のみ対応しており、
+      IME on/off のみ対応しており、
       半角/全角キー単独やマウスで切り替えた場合には IM
       状態との食い違いが発生します
         * standard 向けに、
@@ -203,16 +203,16 @@ advanced の機能は以下の通りです。
 * 未確定文字列のフォントが設定できる
     * standard は設定できないため、
       変換中は☃や🍣のような文字がおかしな表示（いわゆるトーフ）になります
-* IME ON/OFF に連動してタスクバーの IME 状態表示アイコンが切り替わる
+* IME on/off に連動してタスクバーの IME 状態表示アイコンが切り替わる
     * standard はもちろん IME パッチでもアイコン表示が変わりません
-* IME ON の状態で C-x, C-c, C-h など、
+* IME on の状態で C-x, C-c, C-h など、
   コマンドのキーシーケンスになる最初の文字（以下、プレフィックスキー）
-  を押すと自動的に IME OFF になる
+  を押すと自動的に IME off になる
     * standard はタイマ動作によるワークアラウンドで
       なんとか同じような動作を実現していますが、
-      タイマ動作なのでタイミングによっては自動 OFF にならない、
+      タイマ動作なのでタイミングによっては自動 off にならない、
       負荷が問題となる、などの可能性があります
-* IME ON/OFF 制御や状態取得に Microsoft
+* IME on/off 制御や状態取得に Microsoft
   の公式なドキュメントに記載されている方法を使用
     * standard は（Emacs 27 の場合）
       公式ドキュメントに記載されていない方法を使用しているので、
@@ -266,15 +266,18 @@ DLL はロードされません。
 以下のようにしてください。（分ける必要が無ければ不要です。）
 
 ```el
-(if (featurep 'tr-ime-module-helper)
-    (if (featurep 'tr-ime-module2-helper)
-        (progn
-          ;; advanced 環境用
-          (global-set-key [M-kanji] 'ignore))
-      ;; standard 環境用
-      (global-set-key [M-kanji] 'toggle-input-method))
-  ;; IME パッチ環境用
-  (global-set-key [M-kanji] 'ignore))
+(cond ((featurep 'tr-ime-modadv)
+       ;; advanced 環境用
+       (global-set-key [M-kanji] 'ignore))
+      ((featurep 'tr-ime-mod)
+       ;; standard 環境用
+       (global-set-key [M-kanji] 'toggle-input-method))
+      ((fboundp 'ime-get-mode)
+       ;; IME パッチ環境用
+       (global-set-key [M-kanji] 'ignore))
+      (t
+       ;; いずれでもない環境
+       (global-set-key [M-kanji] 'ignore)))
 ```
 
 あとはお好みで以下のような設定をします。
@@ -287,7 +290,7 @@ DLL はロードされません。
 (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
 ;; IME 初期化
 (w32-ime-initialize)
-;; IME 制御（yes/no などの入力の時に IME を OFF にする）
+;; IME 制御（yes/no などの入力の時に IME を off にする）
 (wrap-function-to-control-ime 'universal-argument t nil)
 (wrap-function-to-control-ime 'read-string nil nil)
 (wrap-function-to-control-ime 'read-char nil nil)
@@ -322,14 +325,14 @@ C-s (isearch-forward) などの IME パッチ向けの設定についてです�
 ほとんど害も無いので IME パッチ環境と共用の設定ファイルならば、
 書いておいても特に問題ないと思います。
 
-なお、standard で isearch-mode 中に Alt + 半角/全角で IME ON/OFF するには、
+なお、standard で isearch-mode 中に Alt + 半角/全角で IME on/off するには、
 
 ```
 (define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
 ```
 
 でできます。
-これはすでにモジュールのヘルパに書いてありますので、
+これは `tr-ime-standard-install` で実行されますので、
 追加する必要はありません。
 
 #### フォント設定（advanced のみ）
@@ -384,7 +387,7 @@ MinGW と同様に化けなくなるようですが、そうすると Cygwin 由
 モジュールを使用する際のコア機能の設定です。
 通常は設定変更しないでください。
 
-#### コマンド実行後に IME パッチ特有のフックエミュレーションを呼ぶか否か
+#### IME パッチ特有のアブノーマルフックをエミュレーションするか
 
 IME パッチは、ウィンドウやバッファの状態が変更になったら、
 特有のアブノーマルフックを呼ぶようになっており、
@@ -392,44 +395,17 @@ IME パッチは、ウィンドウやバッファの状態が変更になった�
 このフックは C 実装に直接手を入れて実現しているようですが、
 モジュールでは実現困難です。
 
-そこで Emacs の標準的なフックの一つ post-command-hook を用いて、
-コマンド実行後に
-ウィンドウやバッファの変更を検出したらフックを呼ぶ、
+そこで Emacs の標準的なフックである
+window-selection-change-functions と window-buffer-change-functions
+を用いて、ウィンドウやバッファの変更を検出したらフックを呼ぶ、
 というフックのエミュレーション機構を用意しました。
+（Ver 0.3.0 までは post-command-hook と after-focus-change-function
+でエミュレーションしていましたが変更しました。）
 
 以下の設定で無効にできます。デフォルトは有効です。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-hook-emulator-p nil))
-```
-
-#### フォーカス変更時に IME パッチ特有のフックエミュレーションを呼ぶか否か
-
-post-command-hook でコマンド実行後に
-フックエミュレーションを呼んでいるだけだと、
-emacsclient でバッファが変更になった場合など、
-post-command-hook が呼ばれずに検知漏れが発生することがあります。
-例えば、w32-ime-buffer-switch-p が t （バッファ毎に IME/IM 状態が独立）
-で使っていて、IME/IM ON のバッファを表示したフレームがある状態にして、
-emacsclient を使って他のファイルを開くと、
-バッファに紐づいた IM は OFF になりますが、
-フレームに紐づいた IME は ON になってしまうことがありました。
-これは検知漏れの発生により IME/IM 状態が同期していない状態となったもので、
-このまま文字を入力すると IME に未確定文字列として扱われますが、
-IM は OFF 扱いなので操作に混乱をきたします
-（同期が外れた時は、フレームをマウスでクリックするとか、
-IME ON/OFF 操作を数回連続して実行するとかすれば、
-バッファの変更が検知できて同期してくれます）。
-
-そこで Emacs 27.1 以降の標準的なフックの一つ
-after-focus-change-function でもエミュレーションを呼ぶ設定を用意しました。
-これにより、emacsclient でのバッファ変更であっても検知でき、
-IME/IM 状態の同期が保たれるようになります。
-
-以下の設定で無効にできます。デフォルトは有効です。
-
-```el
-(custom-set-variables '(w32-tr-ime-module-hook-emulator-focus-change-p nil))
+(custom-set-variables '(tr-ime-hook-p nil))
 ```
 
 #### IME 状態変更関数使用後の状態確認回数上限（GNU Emacs 28 以降のみ）
@@ -442,7 +418,7 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
 
 そこで、状態変更後に何回か状態確認関数を呼んで、
 変更の完了を確認するようにしており、その回数の上限を
-`w32-tr-ime-module-set-ime-open-check-counter`
+`tr-ime-openstatus-emacs28-open-check-counter`
 に設定できます（デフォルト `3`）。
 
 環境によるかもしれませんが、
@@ -463,7 +439,7 @@ Emacs のメッセージ処理を奪い取ることによって実現してい�
 特別な目的があって無効にしたい場合は以下でできます。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-message-hook-and-subclassify-p nil))
+(custom-set-variables '(tr-ime-subclassify-p nil))
 ```
 
 #### スレッドメッセージをディスパッチするか否か (advanced)
@@ -471,7 +447,7 @@ Emacs のメッセージ処理を奪い取ることによって実現してい�
 GNU Emacs 27 や 28 の UI スレッドでは、
 スレッドメッセージがディスパッチされません。
 これによって IME の動作に不具合が発生します
-（IME ON/OFF してもタスクバーの IME 状態表示アイコンが変わらない等）。
+（IME on/off してもタスクバーの IME 状態表示アイコンが変わらない等）。
 そこで、モジュールのメッセージフックで Emacs の代わりに
 スレッドメッセージをディスパッチするようにしています。
 
@@ -483,7 +459,7 @@ Emacs の動作がおかしくなると思います。
 停止したい場合は以下でできます。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-dispatch-thread-message-p nil))
+(custom-set-variables '(tr-ime-thread-message-dispatch-p nil))
 ```
 
 #### UI スレッドからの通知を Lisp で受け取る (advanced)
@@ -496,24 +472,24 @@ UI スレッドから Lisp スレッドへの本モジュール内部専用の�
 その旨のメッセージを格納してから WM_INPUTLANGCHANGE を post/send します。
 これにより Lisp 側で language-change イベントが発生します。
 このイベントを受けて advanced の C++ 実装のモジュールにある
-`w32-tr-ime-language-change-handler` 関数を呼びます。
+`tr-ime-modadv--language-change-handler` 関数を呼びます。
 この関数は内部専用キューからメッセージを取り出し、
 その種類に応じてノーマルフックを呼び出すなどの動作を行います。
 
 この中で、language-change イベントの発生を受けて、
-`w32-tr-ime-language-change-handler` 関数を呼ぶところについて、
+`tr-ime-modadv--language-change-handler` 関数を呼ぶところについて、
 以下のような設定を行っています。
 
 ```el
 (define-key special-event-map [language-change]
   (lambda ()
     (interactive)
-    (w32-tr-ime-language-change-handler))))
+    (tr-ime-modadv--language-change-handler)))
 ```
 
 本モジュールとは別の language-change イベントを使うツール類と
 共存させたい場合は、上記設定をうまく調整してください。
-本モジュールの `w32-tr-ime-language-change-handler` 関数は、
+本モジュールの `tr-ime-modadv--language-change-handler` 関数は、
 内部専用キューが空であれば何もしませんので、
 イベントが来たらとにかく呼ばれるようになっていればよいです。
 他のツール類が発生させた language-change イベントの際に
@@ -540,7 +516,7 @@ Asynchronous Requests from Emacs Dynamic Modules
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-recv-from-ui-thread-p nil))
+(custom-set-variables '(tr-ime-recv-notify-p nil))
 ```
 
 ### 再変換 (RECONVERSION) (advanced)
@@ -564,7 +540,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-reconversion-p nil))
+(custom-set-variables '(tr-ime-reconversion-p nil))
 ```
 
 ### 前後の確定済文字列を参照した変換 (DOCUMENTFEED) (advanced)
@@ -586,7 +562,7 @@ Lisp 側でカーソル周辺の文字列やカーソル位置を収集して UI
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-documentfeed-p nil))
+(custom-set-variables '(tr-ime-documentfeed-p nil))
 ```
 
 ### IME フォント (advanced)
@@ -619,7 +595,7 @@ GNU Emacs 27 や 28 では、全フレームが同じ UI スレッドで動作�
 この関数呼び出しによって即座に反映できます。
 
 ```el
-(w32-tr-ime-reflect-frame-parameter-ime-font)
+(tr-ime-font-reflect-frame-parameter)
 ```
 
 #### フォーカス変更時に ime-font 設定エミュレーションを呼ぶか否か (advanced)
@@ -628,7 +604,7 @@ GNU Emacs 27 や 28 では、全フレームが同じ UI スレッドで動作�
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-ime-font-focus-p nil))
+(custom-set-variables '(tr-ime-font-focus-p nil))
 ```
 
 #### コマンド実行後に ime-font 設定エミュレーションを呼ぶか否か (advanced)
@@ -637,7 +613,7 @@ post-command-hook によるコマンド実行後の反映を有効にしたい�
 以下でできます（デフォルトは無効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-ime-font-post-command-p t))
+(custom-set-variables '(tr-ime-font-post-command-p t))
 ```
 ### isearch-mode (advanced)
 
@@ -659,7 +635,7 @@ isearch-mode 中の位置設定を無効にするには、以下のようにす�
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-isearch-p nil))
+(custom-set-variables '(tr-ime-isearch-p nil))
 ```
 
 #### WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か (advanced)
@@ -681,21 +657,21 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
 （デフォルトは呼ばない）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-isearch-defsubclassproc-p t)
+(custom-set-variables '(tr-ime-isearch-defsubclassproc-p t))
 ```
 
 ### プレフィックスキー検出 (advanced)
 
 コマンドのキーシーケンスになる最初のキーである
 プレフィックスキー（C-x など）を検出すると、
-自動的に IME OFF にして、コマンド終了後に IME 状態を戻します。
-これにより IME ON のまま C-x 1 のような操作をしたときに、
+自動的に IME off にして、コマンド終了後に IME 状態を戻します。
+これにより IME on のまま C-x 1 のような操作をしたときに、
 1 が IME に吸われて未確定文字扱いされないようにしています。
 
 本来はプレフィックスキーが来たら呼ばれるフックなどがあればよいのですが、
 残念ながら Emacs には存在しないようなので、
 単純に以下で指定したプレフィックスキー検出リストに登録された
-キーが押下されたら（WM_KEYDOWN メッセージが来たら）IME OFFにして、
+キーが押下されたら（WM_KEYDOWN メッセージが来たら）IME off にして、
 pre-command-hook で IME 状態を戻す処理をしています。
 
 standard 向けにタイマを使って同様の機能を実現したワークアラウンドがありますが、
@@ -710,7 +686,7 @@ advanced の本機能はタイマを使わないためタイミング的にも�
 （standard 向けワークアラウンドの設定方法とはコード体系が異なります）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-prefix-key-list
+(custom-set-variables '(tr-ime-prefix-key-list
                         '(#x20058 #x20048 #x20043 #x1b)))
 ```
 
@@ -725,13 +701,13 @@ X キーのバーチャルキーコード #x58 のビット論理和なので #x
 C-M-x であれば、さらに Alt の修飾キーを含めて #x60058 を指定します。
 上位の例では、C-x, C-h, C-c, ESC を指定したものとなっています。
 
-#### プレフィックスキーを検出して自動的に IME OFF するか否か (advanced)
+#### プレフィックスキーを検出して自動的に IME off するか否か (advanced)
 
 プレフィックスキー検出を無効にするには、以下のようにすればできます
 （デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-prefix-key-p nil))
+(custom-set-variables '(tr-ime-prefix-key-p nil))
 ```
 
 ### IME 状態変更通知による IME/IM 状態同期 (advanced)
@@ -751,25 +727,10 @@ advanced の本機能はタイマを使わないためタイミング的にも�
 UI スレッドに WM_IME_NOTIFY IMN_SETOPENSTATUS がきたら、
 UI スレッドからの通知を Lisp で受け取る機構を利用して
 setopenstatus を内部専用キューに格納して通知し、
-`w32-tr-ime-language-change-handler` 関数が、
+`tr-ime-modadv--language-change-handler` 関数が、
 内部専用キューから setopenstatus を受け取ると、
-ノーマルフック `w32-tr-ime-module-setopenstatus-hook` を呼び出し、
+ノーマルフック `tr-ime-sync--setopenstatus` を呼び出し、
 そこで一連の IME/IM 同期の動作が行われるようになっています。
-
-#### IME 状態変更通知時にフックエミュレーション関数を呼ぶか否か (advanced)
-
-IME 状態変更通知があった時に、
-IME/IM 状態同期の前にフックエミュレーション関数を呼ぶことで、
-未検出のウィンドウ変更やバッファ変更を検知し、
-IME パッチ特有のアブノーマルフックが呼ばれて IME/IM 状態が整えられます。
-
-この動作を無効にするには、以下のようにすればできます
-（デフォルトは有効）。
-
-```el
-(custom-set-variables
- '(w32-tr-ime-module-setopenstatus-call-hook-emulator-p nil))
-```
 
 #### IME 状態変更通知による IM 状態同期をするか否か (advanced)
 
@@ -777,7 +738,7 @@ IME 状態変更通知による IM 状態同期を無効にするには、
 以下のようにすればできます（デフォルトは有効）。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-setopenstatus-sync-p nil))
+(custom-set-variables '(tr-ime-sync-p nil))
 ```
 
 ### ワークアラウンド設定
@@ -799,19 +760,19 @@ Emacs がアイドル状態になったら動作するタイマで再表示さ�
 
 standard を使う場合は問題ありません。
 advanced でも
-C-\\ や半角/全角単独など、他の方法で IME ON/OFF する場合は問題ありません。
+C-\\ や半角/全角単独など、他の方法で IME on/off する場合は問題ありません。
 Alt + 半角/全角キー操作はしないとか、
 エコーエリアが消えても問題ないという場合は
 以下の設定で無効にできます。
 
 ```el
 (custom-set-variables
- '(w32-tr-ime-module-workaround-isearch-mode-delayed-update-p nil))
+ '(tr-ime-workaround-isearch-delayed-update-p nil))
 ```
 
 Alt + 半角/全角キー操作後に、
 アイドル状態になってから再表示するまでの待ち時間（秒）が
-`w32-tr-ime-module-workaround-isearch-mode-delayed-update-time`
+`tr-ime-workaround-isearch-delayed-update-time`
 に設定できます（デフォルト 0.0001）。
 
 #### IME 状態の食い違いを検出して修正するワークアラウンド
@@ -826,48 +787,44 @@ standard を使いたい場合に
 IME と IM の状態が食い違ったら IM 状態を反転して一致させる、
 という機構を用意しました。
 
-定期的なタイマで動作するため負荷が気になるため、
-standard でもデフォルトは無効にしています。
-
-以下の設定で有効にできます。
+定期的なタイマで動作するため、
+負荷が気になるようでしたら以下の設定で無効にできます。
+デフォルトは standard の時のみ有効です。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-workaround-inconsistent-ime-p t))
+(custom-set-variables '(tr-ime-workaround-inconsistent-p nil))
 ```
 
 IME 状態食い違い検出修正用ポーリング時間（秒）が
-`w32-tr-ime-module-workaround-inconsistent-ime-polling-time`
+`tr-ime-workaround-inconsistentent-polling-time`
 に設定できます（デフォルト `1.0`）。
-IME 状態食い違い検出修正前にフックエミュレーション関数を呼ぶか否かが
-`w32-tr-ime-module-workaround-inconsistent-ime-call-hook-emulator-p`
-に設定できます（デフォルト `t`、呼ぶ）。
 
-#### プレフィックスキー（C-x など）を検出して IME OFF にするワークアラウンド
+#### プレフィックスキー（C-x など）を検出して IME off にするワークアラウンド
 
 コマンドのキーシーケンスになる最初のキーである
 プレフィックスキー（C-x など）を検出すると、
-自動的に IME OFF にする機能です。
-これにより IME ON のまま C-x 1 のような操作をしたときに、
+自動的に IME off にする機能です。
+これにより IME on のまま C-x 1 のような操作をしたときに、
 1 が IME に吸われて未確定文字扱いされなくなります。
 
 advanced ではもっと筋が良い対応ができているため不要ですが、
 standard を使いたい場合に
 ワークアラウンドとして、
 Emacs がアイドル状態になったら動くタイマでポーリングし、
-プレフィックスキーが押されていたら IME OFF にし、
+プレフィックスキーが押されていたら IME off にし、
 pre-command-hook で IME を復帰させる、という機構を残してあります。
 
 以下の設定で無効にできます。デフォルトは standard の時のみ有効です。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-workaround-prefix-key-p nil))
+(custom-set-variables '(tr-ime-workaround-prefix-key-p nil))
 ```
 
 プレフィックスキー検出用ポーリング時間（秒）が
-`w32-tr-ime-module-workaround-prefix-key-polling-time`
+`tr-ime-workaround-prefix-key-polling-time`
 に設定できます（デフォルト `0.1`）。
 プレフィックスキー検出検出対象リストが
-`w32-tr-ime-module-workaround-prefix-key-list`
+`tr-ime-workaround-prefix-key-list`
 に設定できます（デフォルト `'(?\C-x ?\C-h ?\C-c ?\e)`、
 C-x, C-h, C-c と ESC です）。
 
@@ -880,19 +837,19 @@ advanced では出力するレベルを変更することができます。
 ほぼ何も出力しないようにしたいなら以下を実行してください。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-verbose-level 0))
+(custom-set-variables '(tr-ime-debug-verbose-level 0))
 ```
 
 API の失敗などを出力するなら以下を実行してください。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-verbose-level 3))
+(custom-set-variables '(tr-ime-debug-verbose-level 3))
 ```
 
 さらに詳細なデバッグ情報も出力するなら以下を実行してください。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-verbose-level 5))
+(custom-set-variables '(tr-ime-debug-verbose-level 5))
 ```
 
 以上の設定では編集中や入力中の文字列はデバッグ出力に含まれません。
@@ -901,7 +858,7 @@ API の失敗などを出力するなら以下を実行してください。
 以下を実行してください。
 
 ```el
-(custom-set-variables '(w32-tr-ime-module-verbose-level 6))
+(custom-set-variables '(tr-ime-debug-verbose-level 6))
 ```
 
 バイナリリリースのデフォルトは 5 にしてあります。
@@ -927,7 +884,7 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
       のソースを使ってビルドする場合に必要です
     * [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
       にあるソース配布ファイル
-      （ファイル名末尾が `.tar.gz` のファイル）
+      （ファイル名が `tr-ime-VERSION.tar.gz` のファイル）
       を使うのであれば環境に Autotools がインストールされていなくても
       Autotools を使ったビルドができます
 
@@ -937,7 +894,7 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 インストール先に応じて `--prefix` オプションの値を変えてください。
 [リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
 にあるソース配布ファイル
-（ファイル名末尾が `.tar.gz` のファイル）
+（ファイル名が `tr-ime-VERSION.tar.gz` のファイル）
 を使うのであれば `./autogen.sh` の実行は不要です。
 
 ```
@@ -1039,7 +996,7 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 わかっているだけで以下のような制約があります。
 
-* advanced で isearch-mode 時に Alt + 半角/全角で IME ON/OFF すると
+* advanced で isearch-mode 時に Alt + 半角/全角で IME on/off すると
   エコーエリアの表示が消えてしまう
     * ワークアラウンドでなんとかしています
 * 未確定文字列フォントの設定 (advanced) で generic ファミリは使用不可
@@ -1069,8 +1026,8 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
         * C-\\ も Emacs のユーザ操作ではありますが、
           Windows 的にはアプリ内部の切り替えと区別が付かないと思います
 * バッファごとに IME/IM 状態を切り替える設定（w32-ime-buffer-switch-p が t）
-  で使っている時に、IME ON のバッファがあるフレームと
-  IME OFF のバッファがあるフレームを交互にクリックすると、
+  で使っている時に、IME of のバッファがあるフレームと
+  IME off のバッファがあるフレームを交互にクリックすると、
   フレームが切り替わった時に出る「IME 入力モード切替の通知」が
   実際の IME 状態とは逆になる
     * Windows 10 1909 で確認
@@ -1092,20 +1049,20 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 Copyright (C) 2020 Masamichi Hosoda
 
-Simple IME module for GNU Emacs (tr-emacs-ime-module)
+Emulator of GNU Emacs IME patch for Windows (tr-ime)
 is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-Simple IME module for GNU Emacs (tr-emacs-ime-module)
+Emulator of GNU Emacs IME patch for Windows (tr-ime)
 is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with tr-emacs-ime-module.
+along with tr-ime.
 If not, see <https://www.gnu.org/licenses/>.
 
 [COPYING](./COPYING)
