@@ -39,9 +39,15 @@
   "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
   :group 'emacs)
 
+(defgroup tr-ime-core nil
+  "コア機能設定
+
+コア機能の設定です。通常は設定変更しないでください。"
+  :group 'tr-ime)
+
 (defgroup tr-ime-subclassify nil
   "メッセージフックとサブクラス化 (advanced)"
-  :group 'tr-ime)
+  :group 'tr-ime-core)
 
 ;;
 ;; メッセージフックとサブクラス化
