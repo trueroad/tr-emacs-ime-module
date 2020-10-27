@@ -29,6 +29,7 @@
 #endif
 
 #include <array>
+#include <string>
 
 #include <windows.h>
 
@@ -61,6 +62,27 @@ namespace
     std::array<emacs_value, 2> args {symbol, func};
 
     env->funcall (env, defalias, args.size (), args.data ());
+  }
+
+  void
+  regist_variable (emacs_env *env,
+                   const char *name,
+                   emacs_value value,
+                   const std::string &documentation)
+  {
+    std::array<emacs_value, 4> args_form
+      {
+        env->intern (env, "defvar"),
+        env->intern (env, name),
+        value,
+        env->make_string (env, documentation.data (), documentation.size ())
+      };
+    emacs_value form = env->funcall (env, env->intern (env, "list"),
+                                     args_form.size (), args_form.data ());
+
+    std::array<emacs_value, 2> args_eval {form, env->intern (env, "t")};
+    env->funcall (env, env->intern (env, "eval"),
+                  args_eval.size (), args_eval.data ());
   }
 
   void
