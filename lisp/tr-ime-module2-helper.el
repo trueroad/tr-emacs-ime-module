@@ -174,30 +174,6 @@ Module2 を使用する際のコア機能の設定。
 ;; デバッグ出力レベル
 ;;
 
-(defun w32-tr-ime-module-verbose-level-set (symb level)
-  "Module2 のデバッグ出力レベルを設定する"
-  (when level
-    (tr-ime-modadv--set-verbose-level level))
-  (set-default symb level))
-
-(defcustom w32-tr-ime-module-verbose-level nil
-  "Module2 のデバッグ出力レベル
-
-この設定を変更する場合には custom-set-variables を使うこと。
-
-Win32 API の OutputDebugString を使った、
-デバッグメッセージの出力レベル。"
-  :type '(choice (const :tag "none" 0)
-                 (const :tag "fatal" 1)
-                 (const :tag "error" 2)
-                 (const :tag "warn" 3)
-                 (const :tag "info" 4)
-                 (const :tag "debug" 5)
-                 (const :tag "trace" 6)
-                 (const :tag "no set" nil))
-  :set #'w32-tr-ime-module-verbose-level-set
-  :group 'w32-tr-ime-module-debug)
-
 ;;
 ;; キー設定
 ;;

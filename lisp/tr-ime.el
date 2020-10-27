@@ -106,6 +106,7 @@
     (require 'tr-ime-sync)
     (require 'tr-ime-reconversion)
     (require 'tr-ime-documentfeed)
+    (require 'tr-ime-debug)
     (require 'tr-ime-module2-helper)
     (require 'w32-ime)))
 
