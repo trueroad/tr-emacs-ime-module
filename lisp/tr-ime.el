@@ -60,9 +60,9 @@
 
 ;;; Code:
 
-(defconst tr-ime-mod-abi-version 1
+(defconst tr-ime--mod-abi-version 1
   "ABI version number of tr-ime-mod DLL.")
-(defconst tr-ime-modadv-abi-version 1
+(defconst tr-ime--modadv-abi-version 1
   "ABI version number of tr-ime-modadv DLL.")
 
 ;;;###autoload
@@ -73,7 +73,7 @@
              (string= module-file-suffix ".dll"))
     (unless (fboundp 'w32-get-ime-open-status)
       (require 'tr-ime-mod (concat "tr-ime-mod-"
-                                   (int-to-string tr-ime-mod-abi-version)
+                                   (int-to-string tr-ime--mod-abi-version)
                                    "-"
                                    system-configuration)))
     (require 'tr-ime-openstatus)
@@ -91,7 +91,7 @@
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
     (require 'tr-ime-modadv (concat "tr-ime-modadv-"
-                                    (int-to-string tr-ime-modadv-abi-version)
+                                    (int-to-string tr-ime--modadv-abi-version)
                                     "-"
                                     system-configuration))
     (require 'tr-ime-openstatus)
