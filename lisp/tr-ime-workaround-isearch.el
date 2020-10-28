@@ -35,10 +35,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-workaround nil
   "ワークアラウンド設定"
   :group 'tr-ime)

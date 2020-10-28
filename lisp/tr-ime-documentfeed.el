@@ -35,10 +35,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-documentfeed nil
   "前後の確定済文字列を参照した変換 (advanced)"
   :group 'tr-ime)

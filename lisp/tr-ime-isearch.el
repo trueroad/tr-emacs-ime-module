@@ -35,10 +35,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-isearch nil
   "isearch-mode 設定 (advanced)"
   :group 'tr-ime)
