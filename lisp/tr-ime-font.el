@@ -56,7 +56,7 @@ SYMB に weight を指定する。返り値は lfWeight。"
   (let* ((result
 	  (seq-drop-while
 	   (lambda (x)
-	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) [] ))
+	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
 	   font-weight-table))
          (weight
 	  (if (eq result []) 100 (aref (aref result 0) 0))))
@@ -77,7 +77,7 @@ SYMB に slant を指定する。返り値は lfItalic。"
   (let* ((result
 	  (seq-drop-while
 	   (lambda (x)
-	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) [] ))
+	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
 	   font-slant-table))
          (slant
 	  (if (eq result []) 100 (aref (aref result 0) 0))))
