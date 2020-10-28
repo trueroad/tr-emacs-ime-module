@@ -87,7 +87,7 @@ advanced のプレフィックスキー検出を使うこと。"
 未検出かつ最後に押されたキーが検出対象リストのいずれかだったら、
 IME 状態を保存してから IME off にし、フラグを検出済にする。"
   (unless tr-ime-workaround-prefix-key--detected-p
-    (let ((key (car (append (this-single-command-keys) nil))))
+    (let ((key (aref (this-single-command-keys) 0)))
       (when (member key tr-ime-workaround-prefix-key-list)
         (setq tr-ime-workaround-prefix-key--before-ime-mode-p
               (tr-ime-openstatus-get-mode))
