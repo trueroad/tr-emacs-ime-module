@@ -62,20 +62,20 @@
 \"isearch-mode-hook\" に登録することにより、\"isearch-mode\" 中に
 どのエコーエリアが使われているか検出できるようにする。"
   (setq tr-ime-isearch--last-echo-area-0-point
-        (with-current-buffer (get-buffer " *Echo Area 0*")
+        (with-current-buffer " *Echo Area 0*"
           (point)))
   (setq tr-ime-isearch--last-echo-area-1-point
-        (with-current-buffer (get-buffer " *Echo Area 1*")
+        (with-current-buffer " *Echo Area 1*"
           (point))))
 
 (defun tr-ime-isearch--detect-echo-area-buffer ()
   "使用中のエコーエリアバッファを検出して返す.
 
 \"isearch-mode\" 中に使用しているエコーエリアバッファを返す。"
-  (let* ((point0 (with-current-buffer
-                     (get-buffer " *Echo Area 0*") (point)))
-         (point1 (with-current-buffer
-                     (get-buffer " *Echo Area 1*") (point)))
+  (let* ((point0 (with-current-buffer " *Echo Area 0*"
+                   (point)))
+         (point1 (with-current-buffer " *Echo Area 1*"
+                   (point)))
          (buff (cond ((/= point0
                           tr-ime-isearch--last-echo-area-0-point)
                       (get-buffer " *Echo Area 0*"))
