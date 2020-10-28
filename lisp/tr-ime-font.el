@@ -230,8 +230,9 @@ BOOL が non-nil ならフォーカス変更時に ime-font 設定を反映す�
 SYMB は tr-ime-font-post-command-p を指定する。
 BOOL が non-nil ならコマンド実行後に設定を反映する。
 そうでなければコマンド実行後に設定を反映しない。"
-  (if bool (add-hook 'post-command-hook
-                     #'tr-ime-font-reflect-frame-parameter)
+  (if bool
+      (add-hook 'post-command-hook
+                #'tr-ime-font-reflect-frame-parameter)
     (remove-hook 'post-command-hook
                  #'tr-ime-font-reflect-frame-parameter))
   (set-default symb bool))
