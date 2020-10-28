@@ -103,8 +103,8 @@
 ;;
 
 (declare-function tr-ime-modadv--set-composition-window "tr-ime-modadv"
-                  arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
-                  arg11 arg12 arg13 arg14 arg15)
+                  (arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
+                        arg11 arg12 arg13 arg14 arg15))
 
 (defun tr-ime-isearch--update ()
   "未確定文字列の表示位置を更新・設定する.
@@ -193,7 +193,7 @@ BOOL が non-nil なら \"isearch-mode\" 中の
 
 (declare-function tr-ime-modadv--set-startcomposition-defsubclassproc
                   "tr-ime-modadv"
-                  arg1 arg2)
+                  (arg1 arg2))
 
 (defun tr-ime-isearch--defsubclassproc-set (symb bool)
   "WM_IME_STARTCOMPOSITION で常に DefSubclassProc を呼ぶか否か設定する.

@@ -48,7 +48,7 @@
 ;;
 
 (declare-function tr-ime-modadv--set-prefix-keys "tr-ime-modadv"
-                  arg1 arg2)
+                  (arg1 arg2))
 
 (defvar tr-ime-prefix-key-p t)
 

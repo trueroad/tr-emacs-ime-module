@@ -48,7 +48,7 @@
 ;;
 
 (declare-function tr-ime-modadv--set-documentfeed "tr-ime-modadv"
-                  arg1 arg2)
+                  (arg1 arg2))
 
 (autoload 'tr-ime-reconversion--notify-reconvert-string
   "tr-ime-reconversion")
