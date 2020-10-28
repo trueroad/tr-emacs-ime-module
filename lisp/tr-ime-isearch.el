@@ -159,19 +159,14 @@ SYMB には tr-ime-isearch-p を指定する。
 BOOL が non-nil なら \"isearch-mode\" 中の
 未確定文字列表示位置を文字入力位置に設定する。
 そうでなければ設定しない。"
-  (if bool (progn
-             (add-hook 'isearch-mode-hook
-                       #'tr-ime-isearch--start)
-             (add-hook 'isearch-update-post-hook
-                       #'tr-ime-isearch--update)
-             (add-hook 'isearch-mode-end-hook
-                       #'tr-ime-isearch--end))
-    (remove-hook 'isearch-mode-hook
-                 #'tr-ime-isearch--start)
-    (remove-hook 'isearch-update-post-hook
-                 #'tr-ime-isearch--update)
-    (remove-hook 'isearch-mode-end-hook
-                 #'tr-ime-isearch--end))
+  (if bool
+      (progn
+        (add-hook 'isearch-mode-hook #'tr-ime-isearch--start)
+        (add-hook 'isearch-update-post-hook #'tr-ime-isearch--update)
+        (add-hook 'isearch-mode-end-hook #'tr-ime-isearch--end))
+    (remove-hook 'isearch-mode-hook #'tr-ime-isearch--start)
+    (remove-hook 'isearch-update-post-hook #'tr-ime-isearch--update)
+    (remove-hook 'isearch-mode-end-hook #'tr-ime-isearch--end))
   (set-default symb bool))
 
 (defcustom tr-ime-isearch-p t
