@@ -85,7 +85,7 @@
                      (tr-ime-isearch--last-echo-area-buffer
                       tr-ime-isearch--last-echo-area-buffer)
                      (t
-                        (get-buffer " *Echo Area 0*")))))
+                      (get-buffer " *Echo Area 0*")))))
     ;; (tr-ime-modadv--debug-output
     ;;  (format-message "last point0 %s, point1 %s, buff %s"
     ;;                  tr-ime-isearch--last-echo-area-0-point

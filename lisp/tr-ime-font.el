@@ -54,33 +54,33 @@
 
 SYMB に weight を指定する。返り値は lfWeight。"
   (let* ((result
-	  (seq-drop-while
-	   (lambda (x)
-	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
-	   font-weight-table))
+          (seq-drop-while
+           (lambda (x)
+             (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
+           font-weight-table))
          (weight
-	  (if (eq result []) 100 (aref (aref result 0) 0))))
+          (if (eq result []) 100 (aref (aref result 0) 0))))
     (cond ((>= weight 210) 900) ; FW_HEAVY
-	  ((>= weight 205) 800) ; FW_EXTRABOLD
-	  ((>= weight 200) 700) ; FW_BOLD
-	  ((>= weight 180) 600) ; FW_SEMIBOLD
-	  ((>= weight 100) 400) ; FW_NORMAL
-	  ((>= weight 50) 300)  ; FW_LIGHT
-	  ((>= weight 40) 200)  ; FW_EXTRALIGHT
-	  ((>= weight 20) 100)  ; FW_THIN
-	  (t 0))))
+          ((>= weight 205) 800) ; FW_EXTRABOLD
+          ((>= weight 200) 700) ; FW_BOLD
+          ((>= weight 180) 600) ; FW_SEMIBOLD
+          ((>= weight 100) 400) ; FW_NORMAL
+          ((>= weight 50) 300)  ; FW_LIGHT
+          ((>= weight 40) 200)  ; FW_EXTRALIGHT
+          ((>= weight 20) 100)  ; FW_THIN
+          (t 0))))
 
 (defun tr-ime-font--encode-slant (symb)
   "フェイス属性の slant から LOGFONT 構造体の lfItalic へ変換する.
 
 SYMB に slant を指定する。返り値は lfItalic。"
   (let* ((result
-	  (seq-drop-while
-	   (lambda (x)
-	     (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
-	   font-slant-table))
+          (seq-drop-while
+           (lambda (x)
+             (eq (seq-drop-while (lambda (y) (not (eq y symb))) x) []))
+           font-slant-table))
          (slant
-	  (if (eq result []) 100 (aref (aref result 0) 0))))
+          (if (eq result []) 100 (aref (aref result 0) 0))))
     (> slant 150)))
 
 ;;
