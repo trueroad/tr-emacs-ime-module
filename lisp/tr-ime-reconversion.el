@@ -48,7 +48,7 @@
 ;;
 
 (declare-function tr-ime-modadv--notify-reconvert-string "tr-ime-modadv"
-                  arg1 arg2 arg3)
+                  (arg1 arg2 arg3))
 
 (defun tr-ime-reconversion--notify-reconvert-string ()
   "RECONVERTSTRING 構造体用の材料を収集して UI スレッドへ通知する.
@@ -69,7 +69,7 @@ tr-ime-modadv--documentfeed-hook に登録して使う。"
 ;;
 
 (declare-function tr-ime-modadv--set-reconversion "tr-ime-modadv"
-                  arg1 arg2)
+                  (arg1 arg2))
 
 (defun tr-ime-reconversion--set (symb bool)
   "再変換 (RECONVERSION) 動作を行うか否か設定する.

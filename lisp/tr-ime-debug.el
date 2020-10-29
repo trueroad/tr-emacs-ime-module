@@ -48,7 +48,7 @@
 ;;
 
 (declare-function tr-ime-modadv--set-verbose-level "tr-ime-modadv"
-                  arg1)
+                  (arg1))
 
 (defun tr-ime-debug--verbose-level-set (symb level)
   "デバッグ出力レベルを設定する.

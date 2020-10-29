@@ -54,7 +54,7 @@
 ;;
 
 (declare-function tr-ime-modadv--set-dispatch-thread-message "tr-ime-modadv"
-                  arg1)
+                  (arg1))
 
 (defun tr-ime-thread-message--dispatch-set (symb bool)
   "スレッドメッセージをディスパッチするか否か設定する.

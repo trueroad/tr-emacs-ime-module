@@ -67,7 +67,7 @@ IME 状態変更関数 w32-set-ime-open-status を使うが、
   :type 'integer
   :group 'tr-ime-openstatus)
 
-(declare-function w32-set-ime-open-status "w32fns.c" status) ; Emacs 28
+(declare-function w32-set-ime-open-status "w32fns.c" (status)) ; Emacs 28
 (declare-function w32-get-ime-open-status "w32fns.c") ; Emacs 28
 
 (defun tr-ime-openstatus--force-on-emacs28 (&optional _dummy)
@@ -101,9 +101,9 @@ IME が off になる。"
 ;;
 
 (declare-function tr-ime-mod--setopenstatus "tr-ime-mod"
-                  arg1 arg2)
+                  (arg1 arg2))
 (declare-function tr-ime-mod--getopenstatus "tr-ime-mod"
-                  arg1)
+                  (arg1))
 
 (defun tr-ime-openstatus--get-mode-emacs27 ()
   "GNU Emacs 27 standard 向け ime-get-mode 実装.
@@ -134,9 +134,9 @@ IME が off になる。"
 ;;
 
 (declare-function tr-ime-modadv--setopenstatus "tr-ime-modadv"
-                  arg1 arg2)
+                  (arg1 arg2))
 (declare-function tr-ime-modadv--getopenstatus "tr-ime-modadv"
-                  arg1)
+                  (arg1))
 
 (defun tr-ime-openstatus--get-mode-advanced ()
   "Advanced 向け ime-get-mode 実装.
