@@ -72,9 +72,8 @@ IME パッチの ime-force-on をエミュレーションする。
 IME が on になる。"
   (w32-set-ime-open-status t)
   (let ((counter 0))
-    (while
-        (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
-             (not (w32-get-ime-open-status)))
+    (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
+                (not (w32-get-ime-open-status)))
       (setq counter (1+ counter)))))
 
 (defun tr-ime-openstatus--force-off-emacs28 (&optional _dummy)
@@ -85,9 +84,8 @@ IME パッチの ime-force-off をエミュレーションする。
 IME が off になる。"
   (w32-set-ime-open-status nil)
   (let ((counter 0))
-    (while
-        (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
-             (w32-get-ime-open-status))
+    (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
+                (w32-get-ime-open-status))
       (setq counter (1+ counter)))))
 
 ;;

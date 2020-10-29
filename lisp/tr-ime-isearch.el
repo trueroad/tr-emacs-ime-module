@@ -56,20 +56,20 @@
 \"isearch-mode-hook\" に登録することにより、\"isearch-mode\" 中に
 どのエコーエリアが使われているか検出できるようにする。"
   (setq tr-ime-isearch--last-echo-area-0-point
-        (with-current-buffer (get-buffer " *Echo Area 0*")
+        (with-current-buffer " *Echo Area 0*"
           (point)))
   (setq tr-ime-isearch--last-echo-area-1-point
-        (with-current-buffer (get-buffer " *Echo Area 1*")
+        (with-current-buffer " *Echo Area 1*"
           (point))))
 
 (defun tr-ime-isearch--detect-echo-area-buffer ()
   "使用中のエコーエリアバッファを検出して返す.
 
 \"isearch-mode\" 中に使用しているエコーエリアバッファを返す。"
-  (let* ((point0 (with-current-buffer
-                     (get-buffer " *Echo Area 0*") (point)))
-         (point1 (with-current-buffer
-                     (get-buffer " *Echo Area 1*") (point)))
+  (let* ((point0 (with-current-buffer " *Echo Area 0*"
+                   (point)))
+         (point1 (with-current-buffer " *Echo Area 1*"
+                   (point)))
          (buff (cond ((/= point0
                           tr-ime-isearch--last-echo-area-0-point)
                       (get-buffer " *Echo Area 0*"))
@@ -79,7 +79,7 @@
                      (tr-ime-isearch--last-echo-area-buffer
                       tr-ime-isearch--last-echo-area-buffer)
                      (t
-                        (get-buffer " *Echo Area 0*")))))
+                      (get-buffer " *Echo Area 0*")))))
     ;; (tr-ime-modadv--debug-output
     ;;  (format-message "last point0 %s, point1 %s, buff %s"
     ;;                  tr-ime-isearch--last-echo-area-0-point
@@ -153,19 +153,14 @@ SYMB には tr-ime-isearch-p を指定する。
 BOOL が non-nil なら \"isearch-mode\" 中の
 未確定文字列表示位置を文字入力位置に設定する。
 そうでなければ設定しない。"
-  (if bool (progn
-             (add-hook 'isearch-mode-hook
-                       #'tr-ime-isearch--start)
-             (add-hook 'isearch-update-post-hook
-                       #'tr-ime-isearch--update)
-             (add-hook 'isearch-mode-end-hook
-                       #'tr-ime-isearch--end))
-    (remove-hook 'isearch-mode-hook
-                 #'tr-ime-isearch--start)
-    (remove-hook 'isearch-update-post-hook
-                 #'tr-ime-isearch--update)
-    (remove-hook 'isearch-mode-end-hook
-                 #'tr-ime-isearch--end))
+  (if bool
+      (progn
+        (add-hook 'isearch-mode-hook #'tr-ime-isearch--start)
+        (add-hook 'isearch-update-post-hook #'tr-ime-isearch--update)
+        (add-hook 'isearch-mode-end-hook #'tr-ime-isearch--end))
+    (remove-hook 'isearch-mode-hook #'tr-ime-isearch--start)
+    (remove-hook 'isearch-update-post-hook #'tr-ime-isearch--update)
+    (remove-hook 'isearch-mode-end-hook #'tr-ime-isearch--end))
   (set-default symb bool))
 
 (defcustom tr-ime-isearch-p t

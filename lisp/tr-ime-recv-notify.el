@@ -56,11 +56,10 @@ SYMB は tr-ime-recv-notify-p を指定する。
 BOOL が non-nil なら UI スレッドからの通知を Lisp で受け取る。
 そうでなければ受け取らない。"
   (if bool
-      (progn
-        (define-key special-event-map [language-change]
-          (lambda ()
-            (interactive)
-            (tr-ime-modadv--language-change-handler))))
+      (define-key special-event-map [language-change]
+        (lambda ()
+          (interactive)
+          (tr-ime-modadv--language-change-handler)))
     (define-key special-event-map [language-change] 'ignore))
   (set-default symb bool))
 
