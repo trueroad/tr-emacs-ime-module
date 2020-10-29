@@ -33,10 +33,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-font nil
   "IME フォント（未確定文字列フォント）設定 (advanced)"
   :group 'tr-ime)

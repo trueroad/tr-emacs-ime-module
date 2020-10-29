@@ -33,10 +33,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-reconversion nil
   "再変換 (advanced)"
   :group 'tr-ime)

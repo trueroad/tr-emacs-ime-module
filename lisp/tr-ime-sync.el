@@ -33,10 +33,6 @@
 ;; ユーザ設定用
 ;;
 
-(defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
-  :group 'emacs)
-
 (defgroup tr-ime-sync nil
   "IME 状態変更通知による IME/IM 状態同期 (advanced)"
   :group 'tr-ime)
