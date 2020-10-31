@@ -44,6 +44,9 @@ std::atomic<bool> get_msg_proc::ab_dispatch_thread_messages_ {false};
 LRESULT
 get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
 {
+  // WM_TR_IME_SUBCLASSIFY does not work with SendMessage ()
+  // because only the "post" ed message is passed to GetMsgProc ().
+
   DEBUG_MESSAGE ("enter\n");
 
   auto msg = reinterpret_cast<MSG*> (lparam);
@@ -79,6 +82,9 @@ get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
 LRESULT
 get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
 {
+  // WM_TR_IME_UNSUBCLASSIFY does not work with SendMessage ()
+  // because only the "post" ed message is passed to GetMsgProc ().
+
   DEBUG_MESSAGE ("enter\n");
 
   auto msg = reinterpret_cast<MSG*> (lparam);
@@ -112,6 +118,7 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
   if (bunsubclassify_all)
     {
       for (auto h: hwnds_)
+        // SendMessage does not work
         PostMessageW (h, u_WM_TR_IME_UNSUBCLASSIFY_,
                       static_cast<WPARAM> (false), 0);
     }
@@ -184,6 +191,7 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
       !find_exclude_hwnd (msg->hwnd) && !find_hwnd (msg->hwnd) &&
       is_target_class (msg->hwnd))
     {
+      // SendMessage does not work
       PostMessageW (msg->hwnd, u_WM_TR_IME_SUBCLASSIFY_,
                     static_cast<WPARAM> (true), 0);
     }

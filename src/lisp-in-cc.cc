@@ -213,6 +213,7 @@ Ftr_ime_modadv__subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
 
   bool b_all = !env->is_not_nil (env, args[1]);
 
+  // SendMessage does not work
   PostMessageW (hwnd, u_WM_TR_IME_SUBCLASSIFY_,
                 static_cast<WPARAM> (b_all), 0);
 
@@ -255,6 +256,7 @@ Ftr_ime_modadv__unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
 
   bool b_all = !env->is_not_nil (env, args[1]);
 
+  // SendMessage does not work
   PostMessageW (hwnd, u_WM_TR_IME_UNSUBCLASSIFY_,
                 static_cast<WPARAM> (b_all), 0);
 
