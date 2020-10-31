@@ -47,6 +47,11 @@ Ftr_ime_modadv__unsubclassify_hwnd (emacs_env*, ptrdiff_t,
 extern const char *doc_tr_ime_modadv__unsubclassify_hwnd;
 
 emacs_value
+Ftr_ime_modadv__exists_subclassified (emacs_env*, ptrdiff_t,
+                                      emacs_value[], void*);
+extern const char *doc_tr_ime_modadv__exists_subclassified;
+
+emacs_value
 Ftr_ime_modadv__set_dispatch_thread_message (emacs_env*, ptrdiff_t,
                                              emacs_value[], void*);
 extern const char *doc_tr_ime_modadv__set_dispatch_thread_message;

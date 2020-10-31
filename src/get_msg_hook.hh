@@ -56,6 +56,9 @@ public:
   void unsubclassify (DWORD thread_id);
   void unsubclassify_all (void);
 
+  bool exists_subclassified (DWORD thread_id);
+  bool exists_subclassified_all (void);
+
 private:
   const HOOKPROC get_msg_proc_;
   const HMODULE hmodule_;

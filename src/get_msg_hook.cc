@@ -24,8 +24,11 @@
 
 #include "get_msg_hook.hh"
 
+#include <chrono>
+#include <future>
 #include <mutex>
 #include <unordered_set>
+#include <vector>
 
 #include <windows.h>
 
@@ -127,4 +130,46 @@ get_msg_hook::unsubclassify_all (void)
 
   for (const auto &t: threads_)
     unsubclassify (t.first);
+}
+
+bool
+get_msg_hook::exists_subclassified (DWORD thread_id)
+{
+  std::promise<bool> p;
+
+  PostThreadMessageW (thread_id, u_WM_TR_IME_EXISTS_SUBCLASSIFIED_,
+                      reinterpret_cast<WPARAM> (&p), 0);
+
+  auto future = p.get_future ();
+  auto results = future.wait_for (std::chrono::seconds (1));
+  if (results == std::future_status::ready)
+    {
+      DEBUG_MESSAGE ("ready\n");
+      return future.get ();
+    }
+
+  DEBUG_MESSAGE ("timeout\n");
+
+  return false;
+}
+
+bool
+get_msg_hook::exists_subclassified_all (void)
+{
+  std::vector<DWORD> v;
+
+  {
+    std::lock_guard<std::mutex> lock (mtx_);
+
+    for (const auto &t: threads_)
+      v.push_back (t.first);
+  }
+
+  for (auto id: v)
+    {
+      if (exists_subclassified (id))
+        return true;
+    }
+
+  return false;
 }

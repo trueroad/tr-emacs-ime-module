@@ -130,6 +130,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    0, 2, Ftr_ime_modadv__unsubclassify_hwnd,
                    doc_tr_ime_modadv__unsubclassify_hwnd,
                    nullptr);
+  regist_function (env, "tr-ime-modadv--exists-subclassified",
+                   0, 0, Ftr_ime_modadv__exists_subclassified,
+                   doc_tr_ime_modadv__exists_subclassified,
+                   nullptr);
   regist_function (env, "tr-ime-modadv--set-dispatch-thread-message",
                    1, 1, Ftr_ime_modadv__set_dispatch_thread_message,
                    doc_tr_ime_modadv__set_dispatch_thread_message,

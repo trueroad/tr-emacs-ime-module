@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <future>
 #include <unordered_set>
 
 #include <windows.h>
@@ -126,6 +127,23 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
   return CallNextHookEx (nullptr, code, wparam, lparam);
 }
 
+LRESULT
+get_msg_proc::wm_tr_ime_exists_subclassified
+(int code, WPARAM wparam, LPARAM lparam)
+{
+  // WM_TR_IME_EXISTS_SUBCLASSIFIED does not work with SendMessage ()
+  // because only the "post" ed message is passed to GetMsgProc ().
+
+  DEBUG_MESSAGE ("enter\n");
+
+  auto msg = reinterpret_cast<MSG*> (lparam);
+  auto p = reinterpret_cast<std::promise<bool>*> (msg->wParam);
+
+  p->set_value (!hwnds_.empty ());
+
+  return CallNextHookEx (nullptr, code, wparam, lparam);
+}
+
 bool
 get_msg_proc::is_target_class (HWND hwnd)
 {
@@ -177,6 +195,8 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
     return wm_tr_ime_subclassify (code, wparam, lparam);
   else if (msg->message == u_WM_TR_IME_UNSUBCLASSIFY_)
     return wm_tr_ime_unsubclassify (code, wparam, lparam);
+  else if (msg->message == u_WM_TR_IME_EXISTS_SUBCLASSIFIED_)
+    return wm_tr_ime_exists_subclassified (code, wparam, lparam);
 
   if (!msg->hwnd)
     {

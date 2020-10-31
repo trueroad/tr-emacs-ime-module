@@ -267,6 +267,28 @@ Ftr_ime_modadv__unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
   return env->intern (env, "t");
 }
 
+const char *doc_tr_ime_modadv__exists_subclassified =
+  "Return whether or not exists subclassified frames.\n\n"
+  "Returns non-nil if there is a subclassified frame.\n"
+  "Otherwise, returns nil.";
+
+emacs_value
+Ftr_ime_modadv__exists_subclassified (emacs_env* env, ptrdiff_t nargs,
+                                      emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 0)
+    {
+      WARNING_MESSAGE ("nargs != 0\n");
+      return env->intern (env, "nil");
+    }
+
+  if (gmh_.exists_subclassified_all ())
+    return env->intern (env, "t");
+  return env->intern (env, "nil");
+}
+
 const char *doc_tr_ime_modadv__set_dispatch_thread_message =
   "Set whether or not to dispatch thread messages.\n\n"
   "If ARG1 is non-nil, a message hook dispatches the thread messages.\n"

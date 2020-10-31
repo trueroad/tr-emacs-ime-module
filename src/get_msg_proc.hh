@@ -83,6 +83,7 @@ private:
 
   static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_unsubclassify (int, WPARAM, LPARAM);
+  static LRESULT wm_tr_ime_exists_subclassified (int, WPARAM, LPARAM);
   static bool is_target_class (HWND);
 
   static constexpr WCHAR target_class_name_[] {L"Emacs"};

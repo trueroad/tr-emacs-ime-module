@@ -29,6 +29,7 @@
 
 extern const UINT u_WM_TR_IME_SUBCLASSIFY_;
 extern const UINT u_WM_TR_IME_UNSUBCLASSIFY_;
+extern const UINT u_WM_TR_IME_EXISTS_SUBCLASSIFIED_;
 extern const UINT u_WM_TR_IME_SET_OPEN_STATUS_;
 extern const UINT u_WM_TR_IME_GET_OPEN_STATUS_;
 extern const UINT u_WM_TR_IME_SET_FONT_;
