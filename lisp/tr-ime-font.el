@@ -82,7 +82,8 @@ SYMB に slant を指定する。返り値は lfItalic。"
 ;;
 
 (declare-function tr-ime-modadv--set-font "tr-ime-modadv"
-                  (arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8))
+                  (arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8
+                        arg9 arg10 arg11 arg12 arg13 arg14 arg15))
 (declare-function tr-ime-modadv--get-dpi "tr-ime-modadv")
 
 (defun tr-ime-font-reflect-frame-parameter (&optional frame)

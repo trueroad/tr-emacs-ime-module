@@ -97,8 +97,7 @@
 ;;
 
 (declare-function tr-ime-modadv--set-composition-window "tr-ime-modadv"
-                  (arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8 arg9 arg10
-                        arg11 arg12 arg13 arg14 arg15))
+                  (arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8))
 
 (defun tr-ime-isearch--update ()
   "未確定文字列の表示位置を更新・設定する.
