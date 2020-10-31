@@ -199,6 +199,10 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    1, 1, Ftr_ime_modadv__set_verbose_level,
                    doc_tr_ime_modadv__set_verbose_level,
                    nullptr);
+  regist_function (env, "tr-ime-modadv-unload-function",
+                   0, 0, Ftr_ime_modadv_unload_function,
+                   doc_tr_ime_modadv_unload_function,
+                   nullptr);
 
 #ifndef NDEBUG
 

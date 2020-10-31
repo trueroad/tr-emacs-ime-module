@@ -26,6 +26,7 @@
 
 #include <array>
 #include <string>
+#include <thread>
 
 #include <windows.h>
 
@@ -942,6 +943,31 @@ Ftr_ime_modadv__set_verbose_level (emacs_env* env, ptrdiff_t nargs,
     }
 
   verbose_level = env->extract_integer (env, args[0]);
+
+  return env->intern (env, "t");
+}
+
+const char *doc_tr_ime_modadv_unload_function =
+  "Prepare to unload.\n\n"
+  "Unsubclassify all frames and uninstall message hook for all threads.";
+
+emacs_value
+Ftr_ime_modadv_unload_function (emacs_env* env, ptrdiff_t nargs,
+                                emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 0)
+    {
+      WARNING_MESSAGE ("nargs != 0\n");
+      return env->intern (env, "nil");
+    }
+
+  gmh_.unsubclassify_all ();
+  for (int i = 0; gmh_.exists_subclassified_all () && i < 10; ++i)
+    std::this_thread::yield ();
+
+  gmh_.uninstall_all ();
 
   return env->intern (env, "t");
 }

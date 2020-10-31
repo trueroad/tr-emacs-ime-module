@@ -125,6 +125,11 @@ Ftr_ime_modadv__set_verbose_level (emacs_env*, ptrdiff_t,
                                    emacs_value[], void*);
 extern const char *doc_tr_ime_modadv__set_verbose_level;
 
+emacs_value
+Ftr_ime_modadv_unload_function (emacs_env*, ptrdiff_t,
+                                emacs_value[], void*);
+extern const char *doc_tr_ime_modadv_unload_function;
+
 #ifndef NDEBUG
 
 emacs_value
