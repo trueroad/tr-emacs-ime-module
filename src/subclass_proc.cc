@@ -373,13 +373,15 @@ subclass_proc::wm_tr_ime_notify_backward_complete (HWND hwnd, UINT umsg,
 }
 
 bool
-subclass_proc::get_reconvert_string (HWND hwnd)
+subclass_proc::get_reconvert_string (HWND hwnd, bool bdocumentfeed)
 {
   reconvert_string::clear ();
 
   ui_to_lisp_queue::enqueue_one
     (std::make_unique<queue_message>
-     (queue_message::message::reconvertstring, hwnd));
+     (bdocumentfeed ?
+      queue_message::message::documentfeed :
+      queue_message::message::reconvertstring, hwnd));
   SendMessageW (hwnd, WM_INPUTLANGCHANGE, 0, 0);
 
   if (!wait_message (hwnd, &reconvert_string::isset))
@@ -492,7 +494,7 @@ subclass_proc::imr_reconvertstring (HWND hwnd, UINT umsg,
 
   if (!lparam)
     {
-      if (!get_reconvert_string (hwnd))
+      if (!get_reconvert_string (hwnd, false))
         return 0;
 
       DEBUG_MESSAGE_STATIC
@@ -559,7 +561,7 @@ subclass_proc::imr_documentfeed (HWND hwnd, UINT umsg,
 
   if (!lparam)
     {
-      if (!get_reconvert_string (hwnd))
+      if (!get_reconvert_string (hwnd, true))
         return 0;
 
       if (!add_composition_string (hwnd))
