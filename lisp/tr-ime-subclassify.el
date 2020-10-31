@@ -55,6 +55,7 @@
                   (arg1 &optional arg2))
 (declare-function tr-ime-modadv--unsubclassify-hwnd "tr-ime-modadv"
                   (&optional arg1 arg2))
+(declare-function tr-ime-modadv--exists-subclassified "tr-ime-modadv")
 
 (defun tr-ime-subclassify--set (symb bool)
   "IME 制御のためメッセージフックしてサブクラス化するか否か設定する.
@@ -76,8 +77,13 @@ BOOL が non-nil ならメッセージフックしてサブクラス化する。
     (tr-ime-modadv--unsubclassify-hwnd
      (string-to-number (frame-parameter nil 'window-id)) nil)
     ;; サブクラス解除は非同期に実施されるが、
-    ;; 解除前にメッセージフック停止すると解除できなくなるので少し待機する。
-    (sleep-for 1)
+    ;; 解除前にメッセージフック停止すると解除できなくなるので
+    ;; 存在確認し待機する。
+    (let ((counter 0))
+      (while (and (< counter 10)
+                  (tr-ime-modadv--exists-subclassified))
+        (thread-yield)
+        (setq counter (1+ counter))))
     (tr-ime-modadv--uninstall-message-hook-hwnd
      (string-to-number (frame-parameter nil 'window-id))))
   (set-default symb bool))
