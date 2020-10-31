@@ -651,6 +651,8 @@ emacs_value
 Ftr_ime_modadv__resume_prefix_key (emacs_env* env, ptrdiff_t nargs,
                                    emacs_value args[], void*)
 {
+  // DEBUG_MESSAGE ("enter\n");
+
   if (nargs != 0)
     {
       WARNING_MESSAGE ("nargs != 0\n");
@@ -936,6 +938,8 @@ emacs_value
 Ftr_ime_modadv__set_verbose_level (emacs_env* env, ptrdiff_t nargs,
                                    emacs_value args[], void*)
 {
+  DEBUG_MESSAGE ("enter\n");
+
   if (nargs != 1)
     {
       WARNING_MESSAGE ("nargs != 1\n");
@@ -981,6 +985,8 @@ emacs_value
 Ftr_ime_modadv__debug_output (emacs_env* env, ptrdiff_t nargs,
                               emacs_value args[], void*)
 {
+  // DEBUG_MESSAGE ("enter\n");
+
   if (nargs != 1)
     {
       WARNING_MESSAGE ("nargs != 1\n");
@@ -1005,6 +1011,8 @@ emacs_value
 Ftr_ime_modadv__debug_rectangle (emacs_env* env, ptrdiff_t nargs,
                                  emacs_value args[], void*)
 {
+  // DEBUG_MESSAGE ("enter\n");
+
   if (nargs != 5)
     {
       WARNING_MESSAGE ("nargs != 5\n");
