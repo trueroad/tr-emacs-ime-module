@@ -49,7 +49,11 @@ get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
   auto msg = reinterpret_cast<MSG*> (lparam);
   bsubclassify_all_ = static_cast<bool> (msg->wParam);
 
-  if (!find_hwnd (msg->hwnd))
+  if (!msg->hwnd)
+    {
+      DEBUG_MESSAGE_STATIC ("  thread message\n");
+    }
+  else if (!find_hwnd (msg->hwnd))
     {
       if (SetWindowSubclass (msg->hwnd, &subclass_proc::proc,
                              subclass_proc::get_subclass_id (), 0))
@@ -81,7 +85,11 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
   auto bunsubclassify_all = static_cast<bool> (msg->wParam);
   bsubclassify_all_ = false;
 
-  if (find_hwnd (msg->hwnd))
+  if (!msg->hwnd)
+    {
+      DEBUG_MESSAGE_STATIC ("  thread message\n");
+    }
+  else if (find_hwnd (msg->hwnd))
     {
       if (RemoveWindowSubclass (msg->hwnd, &subclass_proc::proc,
                                 subclass_proc::get_subclass_id ()))
@@ -158,6 +166,11 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
       return CallNextHookEx (nullptr, code, wparam, lparam);
     }
 
+  if (msg->message == u_WM_TR_IME_SUBCLASSIFY_)
+    return wm_tr_ime_subclassify (code, wparam, lparam);
+  else if (msg->message == u_WM_TR_IME_UNSUBCLASSIFY_)
+    return wm_tr_ime_unsubclassify (code, wparam, lparam);
+
   if (!msg->hwnd)
     {
       auto r = CallNextHookEx (nullptr, code, wparam, lparam);
@@ -166,11 +179,6 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
 
       return r;
     }
-
-  if (msg->message == u_WM_TR_IME_SUBCLASSIFY_)
-    return wm_tr_ime_subclassify (code, wparam, lparam);
-  else if (msg->message == u_WM_TR_IME_UNSUBCLASSIFY_)
-    return wm_tr_ime_unsubclassify (code, wparam, lparam);
 
   if (bsubclassify_all_ &&
       !find_exclude_hwnd (msg->hwnd) && !find_hwnd (msg->hwnd) &&
