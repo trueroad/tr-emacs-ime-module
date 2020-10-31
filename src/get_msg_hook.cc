@@ -30,6 +30,7 @@
 #include <windows.h>
 
 #include "debug-message.hh"
+#include "message.hh"
 
 bool
 get_msg_hook::install (DWORD thread_id)
@@ -94,4 +95,20 @@ get_msg_hook::uninstall_all (void)
       }
       uninstall (thread_id);
     }
+}
+
+void
+get_msg_hook::subclassify (HWND hwnd, bool b_all)
+{
+  // SendMessage does not work
+  PostMessageW (hwnd, u_WM_TR_IME_SUBCLASSIFY_,
+                static_cast<WPARAM> (b_all), 0);
+}
+
+void
+get_msg_hook::unsubclassify (HWND hwnd, bool b_all)
+{
+  // SendMessage does not work
+  PostMessageW (hwnd, u_WM_TR_IME_UNSUBCLASSIFY_,
+                static_cast<WPARAM> (b_all), 0);
 }

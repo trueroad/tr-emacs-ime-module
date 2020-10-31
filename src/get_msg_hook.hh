@@ -51,6 +51,9 @@ public:
   void uninstall (DWORD thread_id);
   void uninstall_all (void);
 
+  void subclassify (HWND hwnd, bool b_all);
+  void unsubclassify (HWND hwnd, bool b_all);
+
 private:
   const HOOKPROC get_msg_proc_;
   const HMODULE hmodule_;
