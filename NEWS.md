@@ -1,3 +1,9 @@
+* Release 0.4.0 (2020-10-31):
+    * Changed package name, file names, function names, varible names,
+      setting methods, etc.
+    * パッケージ名、ファイル名、関数名、変数名、
+      設定方法などを整理して変更しました
+
 * Release 0.3.0 (2020-09-25):
     * Improve Module2
     * 再変換 (RECONVERSION) および
