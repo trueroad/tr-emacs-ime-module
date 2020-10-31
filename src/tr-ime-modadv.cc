@@ -127,7 +127,7 @@ emacs_module_init (struct emacs_runtime *ert) EMACS_NOEXCEPT
                    doc_tr_ime_modadv__subclassify_hwnd,
                    nullptr);
   regist_function (env, "tr-ime-modadv--unsubclassify-hwnd",
-                   1, 2, Ftr_ime_modadv__unsubclassify_hwnd,
+                   0, 2, Ftr_ime_modadv__unsubclassify_hwnd,
                    doc_tr_ime_modadv__unsubclassify_hwnd,
                    nullptr);
   regist_function (env, "tr-ime-modadv--set-dispatch-thread-message",

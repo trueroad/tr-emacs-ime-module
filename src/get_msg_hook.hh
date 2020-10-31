@@ -53,6 +53,8 @@ public:
 
   void subclassify (HWND hwnd, bool b_all);
   void unsubclassify (HWND hwnd, bool b_all);
+  void unsubclassify (DWORD thread_id);
+  void unsubclassify_all (void);
 
 private:
   const HOOKPROC get_msg_proc_;

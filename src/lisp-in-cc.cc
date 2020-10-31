@@ -220,9 +220,11 @@ Ftr_ime_modadv__subclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
 
 const char *doc_tr_ime_modadv__unsubclassify_hwnd =
   "Unsubclassify a frame to release controlling IME.\n\n"
-  "ARG1 is interpreted as HWND of the frame.  If ARG2 is nil or omitted,\n"
-  "this function unsubclasses all frames in the thread to which the\n"
-  "HWND belongs.  Otherwise, it unsubclasses only the specified HWND.\n"
+  "ARG1 is interpreted as HWND of the frame.  If ARG1 is nil or omitted,\n"
+  "this function unsbuclasses all frames in the all threads.  If ARG2 is\n"
+  "nil or omitted, this function unsubclasses all frames in the thread to\n"
+  "which the HWND belongs.  Otherwise, it unsubclasses only the specified\n"
+  "HWND.\n"
   "Note: To unsubclassify, a message hook by\n"
   "tr-ime-modadv--install-message-hook-hwnd is required to be installed in\n"
   "the thread to which the HWND belongs.\n"
@@ -245,16 +247,22 @@ Ftr_ime_modadv__unsubclassify_hwnd (emacs_env* env, ptrdiff_t nargs,
       return env->intern (env, "nil");
     }
 
-  auto hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
-  if (!IsWindow (hwnd))
+  HWND hwnd = nullptr;
+  if (env->is_not_nil (env, args[0]))
     {
-      WARNING_MESSAGE ("ARG1 is not HWND\n");
-      return env->intern (env, "nil");
+      hwnd = reinterpret_cast<HWND> (env->extract_integer (env, args[0]));
+      if (!IsWindow (hwnd))
+        {
+          WARNING_MESSAGE ("ARG1 is not HWND\n");
+          return env->intern (env, "nil");
+        }
+
+      bool b_all = !env->is_not_nil (env, args[1]);
+
+      gmh_.unsubclassify (hwnd, b_all);
     }
-
-  bool b_all = !env->is_not_nil (env, args[1]);
-
-  gmh_.unsubclassify (hwnd, b_all);
+  else
+    gmh_.unsubclassify_all ();
 
   return env->intern (env, "t");
 }

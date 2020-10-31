@@ -54,7 +54,7 @@
 (declare-function tr-ime-modadv--subclassify-hwnd "tr-ime-modadv"
                   (arg1 &optional arg2))
 (declare-function tr-ime-modadv--unsubclassify-hwnd "tr-ime-modadv"
-                  (arg1 &optional arg2))
+                  (&optional arg1 arg2))
 
 (defun tr-ime-subclassify--set (symb bool)
   "IME 制御のためメッセージフックしてサブクラス化するか否か設定する.

@@ -112,3 +112,19 @@ get_msg_hook::unsubclassify (HWND hwnd, bool b_all)
   PostMessageW (hwnd, u_WM_TR_IME_UNSUBCLASSIFY_,
                 static_cast<WPARAM> (b_all), 0);
 }
+
+void
+get_msg_hook::unsubclassify (DWORD thread_id)
+{
+  PostThreadMessageW (thread_id, u_WM_TR_IME_UNSUBCLASSIFY_,
+                      static_cast<WPARAM> (true), 0);
+}
+
+void
+get_msg_hook::unsubclassify_all (void)
+{
+  std::lock_guard<std::mutex> lock (mtx_);
+
+  for (const auto &t: threads_)
+    unsubclassify (t.first);
+}
