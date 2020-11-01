@@ -102,6 +102,7 @@ FILENAME のモジュール DLL をダウンロードしてロードする。"
       (progn
         (set-file-modes (concat tr-ime-download--dir filename) #o755)
         (load filename))
+    (delete-file (concat tr-ime-download--dir filename))
     (error "Download failed: %s" filename)))
 
 (defun tr-ime-download-mod-file (name)
