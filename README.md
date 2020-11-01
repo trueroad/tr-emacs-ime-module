@@ -1,3 +1,5 @@
+[日本語 / [English](./README.en.md) ]
+
 # Emulator of GNU Emacs IME patch for Windows (tr-ime)
 
 ※注意：バージョン 0.3.0 (2020-09-25) から 0.4.0 (2020-10-31) へかけて、
