@@ -284,18 +284,20 @@ DLL はロードされません。
 以下のようにしてください。（分ける必要が無ければ不要です。）
 
 ```el
-(cond ((featurep 'tr-ime-modadv)
-       ;; advanced 環境用
-       (global-set-key [M-kanji] 'ignore))
-      ((featurep 'tr-ime-mod)
+(cond ((and (boundp 'tr-ime-enabled-features)
+        (eq tr-ime-enabled-features 'standard))
        ;; standard 環境用
-       (global-set-key [M-kanji] 'toggle-input-method))
-      ((fboundp 'ime-get-mode)
+       (message "tr-ime standard"))
+      ((and (boundp 'tr-ime-enabled-features)
+        (eq tr-ime-enabled-features 'advanced))
+       ;; advanced 環境用
+       (message "tr-ime advanced"))
+      ((subrp (symbol-function 'ime-get-mode))
        ;; IME パッチ環境用
-       (global-set-key [M-kanji] 'ignore))
+       (message "IME patched"))
       (t
-       ;; いずれでもない環境
-       (global-set-key [M-kanji] 'ignore)))
+       ;; いずれでもない環境用
+       (message "others")))
 ```
 
 あとはお好みで以下のような設定をします。
