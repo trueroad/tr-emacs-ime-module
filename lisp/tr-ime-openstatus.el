@@ -161,9 +161,11 @@ IME が off になる。
 ;; define aliases
 ;;
 
+(defvar tr-ime-enabled-features)
+
 (defalias 'tr-ime-openstatus-get-mode
   (cond
-   ((featurep 'tr-ime-modadv)
+   ((eq tr-ime-enabled-features 'advanced)
     #'tr-ime-openstatus--get-mode-advanced)
    ((fboundp #'w32-get-ime-open-status)
     #'w32-get-ime-open-status)
@@ -176,7 +178,7 @@ IME が OFF なら nil を、ON ならそれ以外を返す。")
 
 (defalias 'tr-ime-openstatus-force-on
   (cond
-   ((featurep 'tr-ime-modadv)
+   ((eq tr-ime-enabled-features 'advanced)
     #'tr-ime-openstatus--force-on-advanced)
    ((fboundp #'w32-set-ime-open-status)
     #'tr-ime-openstatus--force-on-emacs28)
@@ -188,7 +190,7 @@ IME パッチの ime-force-on 互換。")
 
 (defalias 'tr-ime-openstatus-force-off
   (cond
-   ((featurep 'tr-ime-modadv)
+   ((eq tr-ime-enabled-features 'advanced)
     #'tr-ime-openstatus--force-off-advanced)
    ((fboundp #'w32-set-ime-open-status)
     #'tr-ime-openstatus--force-off-emacs28)
