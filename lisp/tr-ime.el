@@ -81,6 +81,13 @@
                                system-configuration)
   "Module name of tr-imeadv-mod (advanced).")
 
+(defvar tr-ime-enabled-features nil
+  "Enabled features in tr-ime (standard/advanced).
+
+If the standard features are enabled, it is set to 'standard.
+If the advanced features are enabled, it is set to 'advanced.
+If any features are not enabled, it is set to nil.")
+
 (autoload 'tr-ime-download-mod-file "tr-ime-download")
 
 ;;;###autoload
@@ -92,6 +99,7 @@
     (unless (fboundp 'w32-get-ime-open-status)
       (unless (require 'tr-ime-mod tr-ime--mod-name 'noerror)
         (tr-ime-download-mod-file tr-ime--mod-name)))
+    (setq tr-ime-enabled-features 'standard)
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-workaround-prefix-key)
@@ -108,6 +116,7 @@
              (string= module-file-suffix ".dll"))
     (unless (require 'tr-ime-modadv tr-ime--modadv-name 'noerror)
       (tr-ime-download-mod-file tr-ime--modadv-name))
+    (setq tr-ime-enabled-features 'advanced)
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-subclassify)
