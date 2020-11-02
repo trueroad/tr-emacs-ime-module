@@ -64,22 +64,6 @@ IME パッチ特有のフックで、 IME パッチでは C 実装されてい�
 Lisp でエミュレーションする。")
 
 ;;
-;; 選択ウィンドウの変更を検出する
-;;
-
-(defvar tr-ime-hook--last-selected-window nil
-  "選択ウィンドウの変更検出用変数.")
-
-(defun tr-ime-hook-check-selected-window (_frame)
-  "選択ウィンドウが変更されていたらフックを呼ぶ."
-  (let ((window (selected-window)))
-    (unless (eq window tr-ime-hook--last-selected-window)
-      (run-hook-with-args 'tr-ime-hook-select-window-functions
-                          tr-ime-hook--last-selected-window
-                          window)
-      (setq tr-ime-hook--last-selected-window window))))
-
-;;
 ;; 選択ウィンドウに紐づいたバッファの変更を検出する
 ;;
 
@@ -95,6 +79,24 @@ Lisp でエミュレーションする。")
                           tr-ime-hook--last-selected-window-buffer
                           window
                           buffer)
+      (setq tr-ime-hook--last-selected-window-buffer buffer))))
+
+;;
+;; 選択ウィンドウの変更を検出する
+;;
+
+(defvar tr-ime-hook--last-selected-window nil
+  "選択ウィンドウの変更検出用変数.")
+
+(defun tr-ime-hook-check-selected-window (_frame)
+  "選択ウィンドウが変更されていたらフックを呼ぶ."
+  (let* ((window (selected-window))
+         (buffer (window-buffer window)))
+    (unless (eq window tr-ime-hook--last-selected-window)
+      (run-hook-with-args 'tr-ime-hook-select-window-functions
+                          tr-ime-hook--last-selected-window
+                          window)
+      (setq tr-ime-hook--last-selected-window window)
       (setq tr-ime-hook--last-selected-window-buffer buffer))))
 
 ;;
