@@ -88,8 +88,6 @@ If the standard features are enabled, it is set to 'standard.
 If the advanced features are enabled, it is set to 'advanced.
 If any features are not enabled, it is set to nil.")
 
-(autoload 'tr-ime-download-mod-file "tr-ime-download")
-
 ;;;###autoload
 (defun tr-ime-standard-install ()
   "Install tr-ime standard features (stable but less functionality)."
@@ -98,6 +96,7 @@ If any features are not enabled, it is set to nil.")
              (string= module-file-suffix ".dll"))
     (unless (fboundp 'w32-get-ime-open-status)
       (unless (require 'tr-ime-mod tr-ime--mod-name 'noerror)
+        (require 'tr-ime-download)
         (tr-ime-download-mod-file tr-ime--mod-name)))
     (setq tr-ime-enabled-features 'standard)
     (require 'tr-ime-openstatus)
@@ -115,6 +114,7 @@ If any features are not enabled, it is set to nil.")
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
     (unless (require 'tr-ime-modadv tr-ime--modadv-name 'noerror)
+      (require 'tr-ime-download)
       (tr-ime-download-mod-file tr-ime--modadv-name))
     (setq tr-ime-enabled-features 'advanced)
     (require 'tr-ime-openstatus)

@@ -30,12 +30,10 @@
 ;;; Code:
 
 ;;
-;; autoloads
+;; require
 ;;
 
-(autoload 'tr-ime-openstatus-get-mode "tr-ime-openstatus")
-(autoload 'tr-ime-openstatus-force-on "tr-ime-openstatus")
-(autoload 'tr-ime-openstatus-force-off "tr-ime-openstatus")
+(require 'tr-ime-openstatus)
 
 ;;
 ;; ユーザ設定用

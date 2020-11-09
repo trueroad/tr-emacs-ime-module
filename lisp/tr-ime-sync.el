@@ -41,8 +41,8 @@
 ;; 状態同期
 ;;
 
-(autoload 'tr-ime-hook-check "tr-ime-hook")
-(autoload 'tr-ime-openstatus-get-mode "tr-ime-openstatus")
+(require 'tr-ime-hook)
+(require 'tr-ime-openstatus)
 
 (defun tr-ime-sync--setopenstatus ()
   "IME 状態変更通知時に呼ばれる関数.

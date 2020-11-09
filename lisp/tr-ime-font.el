@@ -41,7 +41,7 @@
 ;; 属性変換
 ;;
 
-(autoload 'seq-drop-while "seq")
+(require 'seq)
 
 (defun tr-ime-font--encode-weight (symb)
   "フェイス属性の weight から LOGFONT 構造体の lfWeight へ変換する.
