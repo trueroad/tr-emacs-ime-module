@@ -30,6 +30,12 @@
 ;;; Code:
 
 ;;
+;; require
+;;
+
+(require 'tr-ime-reconversion)
+
+;;
 ;; ユーザ設定用
 ;;
 
@@ -43,8 +49,6 @@
 
 (declare-function tr-ime-modadv--set-documentfeed "tr-ime-modadv"
                   (arg1 arg2))
-
-(require 'tr-ime-reconversion)
 
 (defun tr-ime-documentfeed--set (symb bool)
   "前後の確定済文字列を参照した変換 (DOCUMENTFEED) 動作を行うか否か設定する.

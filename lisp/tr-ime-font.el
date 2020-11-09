@@ -30,6 +30,12 @@
 ;;; Code:
 
 ;;
+;; require
+;;
+
+(require 'seq)
+
+;;
 ;; ユーザ設定用
 ;;
 
@@ -40,8 +46,6 @@
 ;;
 ;; 属性変換
 ;;
-
-(require 'seq)
 
 (defun tr-ime-font--encode-weight (symb)
   "フェイス属性の weight から LOGFONT 構造体の lfWeight へ変換する.

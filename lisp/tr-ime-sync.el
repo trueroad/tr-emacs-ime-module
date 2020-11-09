@@ -30,6 +30,13 @@
 ;;; Code:
 
 ;;
+;; requires
+;;
+
+(require 'tr-ime-hook)
+(require 'tr-ime-openstatus)
+
+;;
 ;; ユーザ設定用
 ;;
 
@@ -40,9 +47,6 @@
 ;;
 ;; 状態同期
 ;;
-
-(require 'tr-ime-hook)
-(require 'tr-ime-openstatus)
 
 (defun tr-ime-sync--setopenstatus ()
   "IME 状態変更通知時に呼ばれる関数.
