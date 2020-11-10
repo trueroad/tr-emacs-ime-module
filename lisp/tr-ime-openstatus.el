@@ -161,7 +161,12 @@ IME が off になる。
 ;; define aliases
 ;;
 
-(defvar tr-ime-enabled-features)
+(defvar tr-ime-enabled-features nil
+  "Enabled features in tr-ime (standard/advanced).
+
+If the standard features are enabled, it is set to 'standard.
+If the advanced features are enabled, it is set to 'advanced.
+If any features are not enabled, it is set to nil.")
 
 (defalias 'tr-ime-openstatus-get-mode
   (cond
