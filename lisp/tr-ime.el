@@ -88,6 +88,9 @@ If the standard features are enabled, it is set to 'standard.
 If the advanced features are enabled, it is set to 'advanced.
 If any features are not enabled, it is set to nil.")
 
+(declare-function tr-ime-download-mod-file "tr-ime-download"
+                  (name))
+
 ;;;###autoload
 (defun tr-ime-standard-install ()
   "Install tr-ime standard features (stable but less functionality)."
