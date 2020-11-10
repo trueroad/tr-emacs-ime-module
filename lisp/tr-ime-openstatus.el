@@ -161,16 +161,10 @@ IME が off になる。
 ;; define aliases
 ;;
 
-(defvar tr-ime-enabled-features nil
-  "Enabled features in tr-ime (standard/advanced).
-
-If the standard features are enabled, it is set to 'standard.
-If the advanced features are enabled, it is set to 'advanced.
-If any features are not enabled, it is set to nil.")
-
 (defalias 'tr-ime-openstatus-get-mode
   (cond
-   ((eq tr-ime-enabled-features 'advanced)
+   ((and (boundp 'tr-ime-enabled-features)
+         (eq tr-ime-enabled-features 'advanced))
     #'tr-ime-openstatus--get-mode-advanced)
    ((fboundp #'w32-get-ime-open-status)
     #'w32-get-ime-open-status)
@@ -183,7 +177,8 @@ IME が OFF なら nil を、ON ならそれ以外を返す。")
 
 (defalias 'tr-ime-openstatus-force-on
   (cond
-   ((eq tr-ime-enabled-features 'advanced)
+   ((and (boundp 'tr-ime-enabled-features)
+         (eq tr-ime-enabled-features 'advanced))
     #'tr-ime-openstatus--force-on-advanced)
    ((fboundp #'w32-set-ime-open-status)
     #'tr-ime-openstatus--force-on-emacs28)
@@ -195,7 +190,8 @@ IME パッチの ime-force-on 互換。")
 
 (defalias 'tr-ime-openstatus-force-off
   (cond
-   ((eq tr-ime-enabled-features 'advanced)
+   ((and (boundp 'tr-ime-enabled-features)
+         (eq tr-ime-enabled-features 'advanced))
     #'tr-ime-openstatus--force-off-advanced)
    ((fboundp #'w32-set-ime-open-status)
     #'tr-ime-openstatus--force-off-emacs28)
