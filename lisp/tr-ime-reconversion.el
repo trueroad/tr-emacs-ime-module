@@ -71,17 +71,19 @@ tr-ime-modadv--documentfeed-hook に登録して使う。"
 SYMB には tr-ime-reconversion-p を指定する。
 BOOL が non-nil なら再変換動作を行う。
 そうでなければ行わない。"
-  (if bool
-      (progn
-        (add-hook 'tr-ime-modadv--reconvertstring-hook
-                  #'tr-ime-reconversion--notify-reconvert-string)
-        (tr-ime-modadv--set-reconversion
-         (string-to-number (frame-parameter nil 'window-id)) t))
-    (tr-ime-modadv--set-reconversion
-     (string-to-number (frame-parameter nil 'window-id)) nil)
-    (remove-hook 'tr-ime-modadv--reconvertstring-hook
-                 #'tr-ime-reconversion--notify-reconvert-string))
-  (set-default symb bool))
+  (when (and (boundp 'tr-ime-enabled-features)
+             (eq tr-ime-enabled-features 'advanced))
+    (if bool
+        (progn
+          (add-hook 'tr-ime-modadv--reconvertstring-hook
+                    #'tr-ime-reconversion--notify-reconvert-string)
+          (tr-ime-modadv--set-reconversion
+           (string-to-number (frame-parameter nil 'window-id)) t))
+      (tr-ime-modadv--set-reconversion
+       (string-to-number (frame-parameter nil 'window-id)) nil)
+      (remove-hook 'tr-ime-modadv--reconvertstring-hook
+                   #'tr-ime-reconversion--notify-reconvert-string))
+    (set-default symb bool)))
 
 (defcustom tr-ime-reconversion-p t
   "再変換 (RECONVERSION) 動作を行うか否か.
