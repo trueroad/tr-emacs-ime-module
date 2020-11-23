@@ -122,6 +122,11 @@ BOOL が nil なら停止する。"
   :set #'tr-ime-prefix-key--set
   :group 'tr-ime-prefix-key)
 
+(defun tr-ime-prefix-key-unload-function ()
+  "アンロードするためプレフィックスキー検出を無効にする."
+  (let (_dummy)
+    (tr-ime-prefix-key--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
