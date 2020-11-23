@@ -252,6 +252,16 @@ BOOL が non-nil ならコマンド実行後に設定を反映する。
   :group 'tr-ime-font)
 
 ;;
+;; アンロード
+;;
+
+(defun tr-ime-font-unload-function ()
+  "アンロードするため IME フォント（未確定文字列フォント）設定を無効にする."
+  (let (_dummy)
+    (tr-ime-font--focus-set '_dummy nil)
+    (tr-ime-font--post-command-set '_dummy nil)))
+
+;;
 ;; provide
 ;;
 
