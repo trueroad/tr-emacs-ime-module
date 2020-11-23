@@ -92,6 +92,11 @@ Emacs がアイドル状態になったら動作するタイマで再表示さ�
   :set #'tr-ime-workaround-isearch--delayed-update-set
   :group 'tr-ime-workaround-isearch)
 
+(defun tr-ime-workaround-isearch-unload-function ()
+  "アンロードするため \"isearch-mode\" ワークアラウンドを無効にする."
+  (let (_dummy)
+    (tr-ime-workaround-isearch--delayed-update-set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
