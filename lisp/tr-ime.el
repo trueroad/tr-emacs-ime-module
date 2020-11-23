@@ -180,6 +180,10 @@ If any features are not enabled, it is set to nil.")
     (unload-feature 'tr-ime-mod t))
   (setq tr-ime-enabled-features nil))
 
+(defun tr-ime-unload-feature ()
+  "Prepare unloading tr-ime features."
+  (tr-ime-uninstall))
+
 (provide 'tr-ime)
 
 ;; Local Variables:
