@@ -81,6 +81,11 @@ UI スレッドは返ってこない通知を待つため（一時的に）
   :set #'tr-ime-recv-notify--set
   :group 'tr-ime-recv-notify)
 
+(defun tr-ime-recv-notify-unload-function ()
+  "アンロードするため UI スレッドからの通知を無効にする."
+  (let (_dummy)
+    (tr-ime-recv-notify--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
