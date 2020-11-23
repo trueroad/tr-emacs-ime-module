@@ -231,9 +231,9 @@ BOOL が non-nil ならコマンド実行後に設定を反映する。
 そうでなければコマンド実行後に設定を反映しない。"
   (if bool
       (add-hook 'post-command-hook
-                #'tr-ime-font-reflect-frame-parameter)
+                #'tr-ime-font-check)
     (remove-hook 'post-command-hook
-                 #'tr-ime-font-reflect-frame-parameter))
+                 #'tr-ime-font-check))
   (set-default symb bool))
 
 (defcustom tr-ime-font-post-command-p nil
