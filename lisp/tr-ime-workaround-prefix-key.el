@@ -113,7 +113,8 @@ SYMB は tr-ime-workaround-prefix-key-p を指定すること。
 BOOL が non-nil ならワークアラウンド有効で動作する。
 そうでなければワークアラウンド無効で動作しない。"
   (if bool
-      (progn
+      (when (and (boundp 'tr-ime-enabled-features)
+                 (eq tr-ime-enabled-features 'standard))
         (setq tr-ime-workaround-prefix-key--detected-p nil)
         (add-hook 'pre-command-hook
                   #'tr-ime-workaround-prefix-key--restore-ime-mode)
