@@ -94,6 +94,11 @@ Emacs の動作がおかしくなってしまう。"
   :set #'tr-ime-thread-message--dispatch-set
   :group 'tr-ime-thread-message)
 
+(defun tr-ime-thread-message-unload-function ()
+  "アンロードするためスレッドメッセージのディスパッチを無効にする."
+  (let (_dummy)
+    (tr-ime-thread-message--dispatch-set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
