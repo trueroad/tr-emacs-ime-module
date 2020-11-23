@@ -144,6 +144,11 @@ BOOL が non-nil ならワークアラウンド有効で動作する。
   :set #'tr-ime-workaround-prefix-key--set
   :group 'tr-ime-workaround-prefix-key)
 
+(defun tr-ime-workaround-prefix-key-unload-function ()
+  "アンロードするためプレフィックスキー検出ワークアラウンドを無効にする."
+  (let (_dummy)
+    (tr-ime-workaround-prefix-key--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
