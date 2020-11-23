@@ -98,6 +98,11 @@ BOOL が non-nil なら再変換動作を行う。
   :set #'tr-ime-reconversion--set
   :group 'tr-ime-reconversion)
 
+(defun tr-ime-reconversion-unload-function ()
+  "アンロードするため再変換 (RECONVERSION) を無効にする."
+  (let (_dummy)
+    (tr-ime-reconversion--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
