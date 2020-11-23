@@ -93,8 +93,8 @@ BOOL が nil なら停止する。"
         ;; ここで custom-set-variables を使うと init.el に
         ;; 設定が書き込まれてしまうので直接 setter を使って無効に設定する
         (when (fboundp 'tr-ime-workaround-prefix-key--set)
-          (tr-ime-workaround-prefix-key--set
-           'tr-ime-workaround-prefix-key-p nil))
+          (let (_dummy)
+            (tr-ime-workaround-prefix-key--set '_dummy nil)))
         (tr-ime-modadv--set-prefix-keys
          (string-to-number (frame-parameter nil 'window-id))
          tr-ime-prefix-key-list)

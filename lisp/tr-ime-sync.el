@@ -81,8 +81,8 @@ BOOL が non-nil なら IME 状態変更通知による IM 状態同期をする
         ;; ここで custom-set-variables を使うと init.el に
         ;; 設定が書き込まれてしまうので直接 setter を使って無効に設定する
         (when (fboundp 'tr-ime-workaround-inconsistent--set)
-          (tr-ime-workaround-inconsistent--set
-           'tr-ime-workaround-inconsistent-p nil))
+          (let (_dummy)
+            (tr-ime-workaround-inconsistent--set '_dummy nil)))
         (add-hook 'tr-ime-modadv--setopenstatus-hook
                   #'tr-ime-sync--setopenstatus))
     (remove-hook 'tr-ime-modadv--setopenstatus-hook
