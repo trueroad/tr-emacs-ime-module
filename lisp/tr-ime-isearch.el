@@ -213,6 +213,16 @@ DefSubcalssProc により Emacs のメッセージ処理が必ず呼ばれるよ
   :group 'tr-ime-isearch-mode)
 
 ;;
+;; アンロード
+;;
+
+(defun tr-ime-isearch-unload-function ()
+  "アンロードするため \"isearch-mode\" 設定を無効にする."
+  (let (_dummy)
+    (tr-ime-isearch--set '_dummy nil)
+    (tr-ime-isearch--defsubclassproc-set '_dummy nil)))
+
+;;
 ;; provide
 ;;
 
