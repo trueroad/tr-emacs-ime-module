@@ -82,6 +82,11 @@ BOOL が non-nil なら DOCUMENTFEED 動作を行う。
   :set #'tr-ime-documentfeed--set
   :group 'tr-ime-documentfeed)
 
+(defun tr-ime-documentfeed-unload-function ()
+  "アンロードするため DOCUMENTFEED を無効にする."
+  (let (_dummy)
+    (tr-ime-documentfeed--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
