@@ -89,7 +89,8 @@ BOOL が non-nil ならプレフィックスキーを検出して IME off する
 あわせて standard で同様な機能を持つワークアラウンドを無効にする。
 BOOL が nil なら停止する。"
   (if bool
-      (progn
+      (when (and (boundp 'tr-ime-enabled-features)
+                 (eq tr-ime-enabled-features 'advanced))
         ;; ここで custom-set-variables を使うと init.el に
         ;; 設定が書き込まれてしまうので直接 setter を使って無効に設定する
         (when (fboundp 'tr-ime-workaround-prefix-key--set)
@@ -99,8 +100,9 @@ BOOL が nil なら停止する。"
          (string-to-number (frame-parameter nil 'window-id))
          tr-ime-prefix-key-list)
         (add-hook 'pre-command-hook #'tr-ime-modadv--resume-prefix-key))
-    (tr-ime-modadv--set-prefix-keys
-     (string-to-number (frame-parameter nil 'window-id)) nil)
+    (when (fboundp 'tr-ime-modadv--set-prefix-keys)
+      (tr-ime-modadv--set-prefix-keys
+       (string-to-number (frame-parameter nil 'window-id)) nil))
     (remove-hook 'pre-command-hook #'tr-ime-modadv--resume-prefix-key))
   (set-default symb bool))
 
