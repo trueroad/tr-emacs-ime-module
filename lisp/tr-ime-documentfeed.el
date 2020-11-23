@@ -57,13 +57,15 @@ SYMB には tr-ime-documentfeed-p を指定する。
 BOOL が non-nil なら DOCUMENTFEED 動作を行う。
 それ以外なら行わない。"
   (if bool
-      (progn
+      (when (and (boundp 'tr-ime-enabled-features)
+                 (eq tr-ime-enabled-features 'advanced))
         (add-hook 'tr-ime-modadv--documentfeed-hook
                   #'tr-ime-reconversion--notify-reconvert-string)
         (tr-ime-modadv--set-documentfeed
          (string-to-number (frame-parameter nil 'window-id)) t))
-    (tr-ime-modadv--set-documentfeed
-     (string-to-number (frame-parameter nil 'window-id)) nil)
+    (when (fboundp 'tr-ime-modadv--set-documentfeed)
+      (tr-ime-modadv--set-documentfeed
+       (string-to-number (frame-parameter nil 'window-id)) nil))
     (remove-hook 'tr-ime-modadv--documentfeed-hook
                  #'tr-ime-reconversion--notify-reconvert-string))
   (set-default symb bool))
