@@ -30,7 +30,7 @@
 ;;; Code:
 
 ;;
-;; モジュール DLL のダウンロード
+;; 定数設定
 ;;
 
 (defconst tr-ime-download--url-prefix
@@ -61,6 +61,30 @@
 
 (defconst tr-ime-download--dir (file-name-directory load-file-name)
   "モジュール DLL のダウンロード先ディレクトリ.")
+
+;;
+;; ユーザ設定用
+;;
+
+(defgroup tr-ime-download nil
+  "モジュール DLL 自動ダウンロード"
+  :group 'tr-ime)
+
+(defcustom tr-ime-download-settings 'query
+  "モジュール DLL 自動ダウンロード設定.
+
+モジュール DLL が \"load-path\" 上で見つからなかったときの動作を指定する。
+'query なら自動ダウンロードするか否かユーザに尋ねる。
+'yes ならばユーザに尋ねずに自動ダウンロードして使う。
+'no ならばユーザに尋ねずに DLL が無い旨のエラーにする。"
+  :type '(choice (const :tag "Query" 'query)
+                 (const :tag "Yes" 'yes)
+                 (const :tag "No" 'no))
+  :group 'tr-ime-download)
+
+;;
+;; モジュール DLL のダウンロード
+;;
 
 (defun tr-ime-download--download-and-unzip (url filename)
   "モジュール DLL をダウンロードして解凍する.
@@ -109,7 +133,16 @@ FILENAME のモジュール DLL をダウンロードしてロードする。"
   "モジュール DLL をダウンロードするか否か確認してダウンロードする.
 
 NAME にモジュール DLL のファイル名拡張子なしを指定する。"
-  (if (y-or-n-p (format "Download %s.dll? " name))
+  (if (cond
+       ((eq tr-ime-download-settings 'query)
+        (y-or-n-p (format "Download %s.dll? " name)))
+       ((eq tr-ime-download-settings 'yes)
+        t)
+       ((eq tr-ime-download-settings 'no)
+        nil)
+       (t
+        (error "Variable tr-ime-download-settings value %S is unknown"
+               tr-ime-download-settings)))
       (tr-ime-download--request-file (concat name ".dll"))
     (error "%s.dll is not found.
 
