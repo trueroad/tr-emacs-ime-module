@@ -105,6 +105,11 @@ IME 状態食い違い検出ワークアラウンドが無効になる。"
   :set #'tr-ime-sync--set
   :group 'tr-ime-sync)
 
+(defun tr-ime-sync-unload-function ()
+  "アンロードするため IME 状態変更通知による IM 状態同期を無効にする."
+  (let (_dummy)
+    (tr-ime-sync--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
