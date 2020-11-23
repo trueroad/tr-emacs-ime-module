@@ -147,6 +147,11 @@ IME/IM が同期しなくなるなどの問題が発生する。
   :set #'tr-ime-hook--set
   :group 'tr-ime-hook)
 
+(defun tr-ime-hook-unload-function ()
+  "アンロードするため IME パッチ特有のアブノーマルフックを無効にする."
+  (let (_dummy)
+    (tr-ime-hook--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
