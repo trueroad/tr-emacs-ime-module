@@ -103,6 +103,11 @@ BOOL が non-nil ならメッセージフックしてサブクラス化する。
   :set #'tr-ime-subclassify--set
   :group 'tr-ime-subclassify)
 
+(defun tr-ime-subclassify-unload-function ()
+  "アンロードするためメッセージフックとサブクラス化を無効にする."
+  (let (_dummy)
+    (tr-ime-subclassify--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
