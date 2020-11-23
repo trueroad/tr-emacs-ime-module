@@ -115,6 +115,11 @@ IME 側トリガの状態変更（半角/全角キーやマウスでの切り替
   :set #'tr-ime-workaround-inconsistent--set
   :group 'tr-ime-workaround-inconsistent)
 
+(defun tr-ime-workaround-inconsistent-unload-function ()
+  "アンロードするため IME 状態食い違い検出修正ワークアラウンドを無効にする."
+  (let (_dummy)
+    (tr-ime-workaround-inconsistent--set '_dummy nil)))
+
 ;;
 ;; provide
 ;;
