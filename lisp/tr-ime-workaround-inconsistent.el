@@ -94,7 +94,9 @@ BOOL が non-nil ならワークアラウンド有効で動作する。
   (when tr-ime-workaround-inconsistent--timer
     (cancel-timer tr-ime-workaround-inconsistent--timer)
     (setq tr-ime-workaround-inconsistent--timer nil))
-  (when bool
+  (when (and bool
+             (boundp 'tr-ime-enabled-features)
+             (eq tr-ime-enabled-features 'standard))
     (setq tr-ime-workaround-inconsistent--timer
           (run-at-time
            t tr-ime-workaround-inconsistentent-polling-time
