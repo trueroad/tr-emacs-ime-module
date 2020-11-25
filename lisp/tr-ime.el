@@ -93,16 +93,25 @@ If any features are not enabled, it is set to nil.")
 
 ;;;###autoload
 (defun tr-ime-standard-install ()
-  "Install tr-ime standard features (stable but less functionality)."
+  "Install tr-ime standard (stable but less functionality) DLL."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
+             (string= module-file-suffix ".dll")
+             (not (fboundp 'w32-get-ime-open-status))
+             (not (locate-library tr-ime--mod-name)))
+    (require 'tr-ime-download)
+    (tr-ime-download-mod-file tr-ime--mod-name))
+  (tr-ime-standard-initialize))
+
+;;;###autoload
+(defun tr-ime-standard-initialize ()
+  "Initialize tr-ime standard (stable but less functionality) features."
+  (when (and (eq window-system 'w32)
+             (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
-    (unless (fboundp 'w32-get-ime-open-status)
-      (unless (require 'tr-ime-mod tr-ime--mod-name 'noerror)
-        (require 'tr-ime-download)
-        (tr-ime-download-mod-file tr-ime--mod-name)))
     (setq tr-ime-enabled-features 'standard)
+    (require 'tr-ime-mod tr-ime--mod-name)
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-workaround-prefix-key)
