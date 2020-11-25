@@ -122,15 +122,24 @@ If any features are not enabled, it is set to nil.")
 
 ;;;###autoload
 (defun tr-ime-advanced-install ()
-  "Install tr-ime advanced features (experimental but more functionality)."
+  "Install tr-ime advanced (experimental but more functionality) DLL."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
+             (string= module-file-suffix ".dll")
+             (not (locate-library tr-ime--modadv-name)))
+    (require 'tr-ime-download)
+    (tr-ime-download-mod-file tr-ime--modadv-name))
+  (tr-ime-advanced-initialize))
+
+;;;###autoload
+(defun tr-ime-advanced-initialize ()
+  "Initialize tr-ime advanced (experimental but more functionality) features."
+  (when (and (eq window-system 'w32)
+             (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
-    (unless (require 'tr-ime-modadv tr-ime--modadv-name 'noerror)
-      (require 'tr-ime-download)
-      (tr-ime-download-mod-file tr-ime--modadv-name))
     (setq tr-ime-enabled-features 'advanced)
+    (require 'tr-ime-modadv tr-ime--modadv-name)
     (require 'tr-ime-openstatus)
     (require 'tr-ime-hook)
     (require 'tr-ime-subclassify)
