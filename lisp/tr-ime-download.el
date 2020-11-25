@@ -105,11 +105,13 @@ FILENAME のモジュール DLL をダウンロードしてロードする。"
     (delete-file (concat tr-ime-download--dir filename))
     (error "Download failed: %s" filename)))
 
-(defun tr-ime-download-mod-file (name)
+(defun tr-ime-download-mod-file (name &optional no-confirm)
   "モジュール DLL をダウンロードするか否か確認してダウンロードする.
 
-NAME にモジュール DLL のファイル名拡張子なしを指定する。"
-  (if (y-or-n-p (format "Download %s.dll? " name))
+NAME にモジュール DLL のファイル名拡張子なしを指定する。
+NO-CONFIRM が non-nil なら確認せずにダウンロードする。"
+  (if (or no-confirm
+          (y-or-n-p (format "Download %s.dll? " name)))
       (tr-ime-download--request-file (concat name ".dll"))
     (error "%s.dll is not found.
 

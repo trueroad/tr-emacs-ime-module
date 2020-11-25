@@ -89,11 +89,14 @@ If the advanced features are enabled, it is set to 'advanced.
 If any features are not enabled, it is set to nil.")
 
 (declare-function tr-ime-download-mod-file "tr-ime-download"
-                  (name))
+                  (name &optional no-confirm))
 
 ;;;###autoload
-(defun tr-ime-standard-install ()
-  "Install tr-ime standard (stable but less functionality) DLL."
+(defun tr-ime-standard-install (&optional no-confirm)
+  "Install tr-ime standard (stable but less functionality) DLL.
+
+If NO-CONFIRM is non-nil, download the necessary module DLL without
+confirming the user."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
@@ -101,7 +104,7 @@ If any features are not enabled, it is set to nil.")
              (not (fboundp 'w32-get-ime-open-status))
              (not (locate-library tr-ime--mod-name)))
     (require 'tr-ime-download)
-    (tr-ime-download-mod-file tr-ime--mod-name))
+    (tr-ime-download-mod-file tr-ime--mod-name no-confirm))
   (tr-ime-standard-initialize))
 
 ;;;###autoload
@@ -121,15 +124,18 @@ If any features are not enabled, it is set to nil.")
     (require 'w32-ime)))
 
 ;;;###autoload
-(defun tr-ime-advanced-install ()
-  "Install tr-ime advanced (experimental but more functionality) DLL."
+(defun tr-ime-advanced-install (&optional no-confirm)
+  "Install tr-ime advanced (experimental but more functionality) DLL.
+
+If NO-CONFIRM is non-nil, download the necessary module DLL without
+confirming the user."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll")
              (not (locate-library tr-ime--modadv-name)))
     (require 'tr-ime-download)
-    (tr-ime-download-mod-file tr-ime--modadv-name))
+    (tr-ime-download-mod-file tr-ime--modadv-name no-confirm))
   (tr-ime-advanced-initialize))
 
 ;;;###autoload
