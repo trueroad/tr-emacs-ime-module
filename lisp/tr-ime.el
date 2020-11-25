@@ -94,6 +94,7 @@ If any features are not enabled, it is set to nil.")
 ;;;###autoload
 (defun tr-ime-standard-install ()
   "Install tr-ime standard features (stable but less functionality)."
+  (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
@@ -113,6 +114,7 @@ If any features are not enabled, it is set to nil.")
 ;;;###autoload
 (defun tr-ime-advanced-install ()
   "Install tr-ime advanced features (experimental but more functionality)."
+  (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
              (not (fboundp 'ime-get-mode))
              (string= module-file-suffix ".dll"))
