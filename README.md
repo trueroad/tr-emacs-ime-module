@@ -1,8 +1,10 @@
+[![MELPA](https://melpa.org/packages/tr-ime-badge.svg)](https://melpa.org/#/tr-ime)
+
 [日本語 / [English](./README.en.md) ]
 
 # Emulator of GNU Emacs IME patch for Windows (tr-ime)
 
-※注意：バージョン 0.3.0 (2020-09-25) から 0.4.0 (2020-10-31) へかけて、
+※注意：バージョン 0.3.0 (2020-09-25) から 0.4.1 (2020-11-28) へかけて、
 パッケージ名、ファイル名、関数名、変数名、設定方法などを整理して変更しました。
 
 Windows 用 (MinGW/Cygwin) GNU Emacs でダイナミックモジュールの機構を利用し、
@@ -75,127 +77,42 @@ standard 版は IME パッチの全機能を再現することはできません
         * MinGW は常用していないので
           気が付いていない不具合があるかもしれません
 
-## インストール
+## インストール・設定
 
-モジュール DLL のファイル名は、
-環境によって名前が異なって `tr-ime-mod-ABIバージョン-環境名.dll`
-および `tr-ime-modadv-ABIバージョン-環境名.dll` のようになります。
-具体的な環境名は以下の通りです。
-これにより、例えば Cygwin 64 bit の場合の
-モジュール DLL ファイル名は `tr-ime-mod-1-x86_64-pc-cygwin.dll`
-および `tr-ime-modadv-1-x86_64-pc-cygwin.dll`
-のようになります。
+[MELPA](https://melpa.org/)
+に収録されたため、Emacs からインターネットにアクセスできるなら
+MELPA を使う方法が簡単です。
 
-* Cygwin
-    * 64 bit: `x86_64-pc-cygwin`
-    * 32 bit: `i686-pc-cygwin`
-* MinGW
-    * 64 bit: `x86_64-w64-mingw32`
-    * 32 bit: `i686-w64-mingw32`
+### MELPA 設定
 
-バイナリリリースを使う場合は、
-[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
-にあるバイナリ配布ファイル
-（ファイル名が `tr-ime-VERSION-binary.zip` になっているファイル）
-をダウンロードして、中に入っているモジュール DLL ファイルと、
-モジュールのヘルパとなる Lisp 実装である拡張子 `.el`
-のファイルを Emacs の load-path が通っているディレクトリに置いてください。
-なお、バージョンによってファイル名や設定方法などが異なるので、
-バイナリリリースを使う場合には、
-zip に同梱されているドキュメントの方をご覧ください。
+[MELPA](https://melpa.org/)
+の設定をしていないなら、まずは MELPA の設定をしてください。
+とりあえず私は以下を `~/.emacs/init.el` に書いています。
 
-ご自分でビルドしてみたい場合は、下の方の「ビルド」をご覧ください。
-
-### DLL 自動ダウンロード
-
-拡張子 `.el` のファイルだけがあって、
-必要な DLL が load-path に見つからない場合、
-DLL を自動でダウンロードする機能があります。
-
-必要な DLL が見つからない場合は、
-ダウンロードするか否か尋ねるプロンプトが出ます。
-そこで y を入力するとファイルをダウンロードして、
-`tr-ime-download.el` が配置されているディレクトリに展開、
-ハッシュを確認した上でロードします。
-ダウンロードサイトにアクセスできることと、
-ディレクトリの書き込み権限があることが必要です。
-
-一度ダウンロードしたら、
-そのディレクトリには load-path が通っているはずなので、
-2 回目以降は DLL が見つるようになり、
-再度自動ダウンロードすることはないはずです。
-
-### autorebase （Cygwin のみ）
-
-Cygwin の場合はバイナリをインストールしても
-自動ダウンロードでも自分でビルドしても
-rebase が必要です。
-手動で rebase した場合は autorebase の対象にならないため、
-Cygwin インストーラの autorebase が走ると衝突してしまう可能性があります。
-そこで、手動で rebase するのではなく autorebase の設定をします。
-（Cygwin パッケージとしてインストールした場合は、
-いちいち設定しなくても autorebase の対象になりますが、
-残念ながらパッケージになっていません。
-Cygwin 公式パッケージにするには、
-[
-パッケージメンテナ 5 人の賛成が必要
-](https://cygwin.com/packaging-contributors-guide.html)
-です。確保できそうならぜひ教えてください。）
-
-#### ホームディレクトリ以外にインストールした場合
-
-インストール先が `/usr/share/emacs/site-lisp/tr-ime`
-として説明します。適宜お使いの環境に読み替えてください。
-
-`/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
-モジュール DLL を置いてある **ディレクトリ**
-をフルパスで書いた 1 行を追加します。
-
-```
-$ cd /var/lib/rebase/dynpath.d
-$ touch tr-ime
-$ echo '/usr/share/emacs/site-lisp/tr-ime' >> tr-ime
+```el
+(customize-set-variable 'package-archives
+                        `(,@package-archives
+                          ("melpa" . "https://melpa.org/packages/")))
 ```
 
-autorebase を手動で実行します。
+### インストール
 
-```
-$ /etc/postinstall/0p_000_autorebase.dash
-```
+MELPA が使えるようになっていれば、
+`M-x package-install` して `tr-ime` を入力すればインストールできます。
+あるいは、以下のようにしてもインストールできます。
 
-#### ホームディレクトリの下にインストールした場合
-
-以下、Cygwin 64 bit （環境名 `x86_64-pc-cygwin`）で、
-`tr-ime-mod` の ABI バージョンが `1`、
-`tr-ime-modadv` の ABI バージョンが `1`、
-ユーザ名 `foobar` で、インストール先が `/home/foobar/.emacs.d/site-lisp`
-として説明します。適宜お使いの環境に読み替えてください。
-
-`/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の **ファイル名** をフルパスで書いた行を追加します。
-
-```
-$ cd /var/lib/rebase/user.d
-$ touch foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-mod-1-x86_64-pc-cygwin.dll' \
-    >> foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-modadv-1-x86_64-pc-cygwin.dll' \
-    >> foobar
+```el
+(package-install 'tr-ime)
 ```
 
-autorebase を手動で実行します。
+### tr-ime 設定
 
-```
-$ /etc/postinstall/0p_000_autorebase.dash
-```
-
-## 設定
-
-最低限の単純で基本的な機能のみを実装した standard と、
+tr-ime には、最低限の単純で基本的な機能のみを実装した standard と、
 メッセージフックやサブクラス化といった多少複雑な機構で、
 より高度な機能を実装した実験的な advanced の 2 つがあります。
 安定性を取りたい場合は standard を、
 実験的でもいいから高度な機能が欲しい場合は advanced を選んでください。
+両方を同時に使うことはできません。
 
 advanced の機能は以下の通りです。
 
@@ -203,17 +120,14 @@ advanced の機能は以下の通りです。
   前後の確定済文字列を参照した変換 (DOCUMENTFEED)に対応
     * standard ではどちらもできません
     * もし不安定になるようなら advanced でも設定で無効にすることができます
-* すべての IME on/off 方法に対応（IME 状態変更通知による IME/IM 状態同期）
+* すべての IME on/off 方法にタイムラグなく対応
+  （IME 状態変更通知による IME/IM 状態同期）
     * standard では Alt + 半角/全角キー（もしくは C-\\）による
-      IME on/off のみ対応しており、
-      半角/全角キー単独やマウスで切り替えた場合には IM
-      状態との食い違いが発生します
-        * standard 向けに、
-          食い違いを何とかするワークアラウンドを用意してありますが、
-          タイマ動作なのでタイミングや負荷が問題になる可能性があるため、
-          デフォルト無効です
-        * advanced を使いたくないが、食い違いを何とかしたい場合には、
-          ワークアラウンドの設定を参照してください
+      IME on/off なら問題ありませんが、
+      半角/全角キー単独やマウスで切り替えた場合には、
+      タイマによるワークアラウンドで IM 状態との食い違いを解消しており、
+      状態同期にタイムラグが発生するほか、
+      ワークアラウンドによる負荷がかかります
 * C-s など isearch-mode の検索中に未確定文字列をミニバッファの
   文字入力位置に表示できる
     * standard は、
@@ -221,8 +135,6 @@ advanced の機能は以下の通りです。
 * 未確定文字列のフォントが設定できる
     * standard は設定できないため、
       変換中は☃や🍣のような文字がおかしな表示（いわゆるトーフ）になります
-* IME on/off に連動してタスクバーの IME 状態表示アイコンが切り替わる
-    * standard はもちろん IME パッチでもアイコン表示が変わりません
 * IME on の状態で C-x, C-c, C-h など、
   コマンドのキーシーケンスになる最初の文字（以下、プレフィックスキー）
   を押すと自動的に IME off になる
@@ -237,70 +149,77 @@ advanced の機能は以下の通りです。
       最悪の場合は Windows のアップデートなどにより、
       いきなり動かなくなる可能性もあります
     * Emacs 28 なら standard でも問題ありません
+* IME on/off に連動してタスクバーの IME 状態表示アイコンが切り替わる
+    * standard はもちろん IME パッチでも
+      Windows 10 1909 などの MS-IME で使っているとアイコン表示が変わりません
+    * Windows 10 20H2 などの MS-IME だと standard でも問題ないようです
 
-なお、Emacs 28 で standard を使う場合、
-standard 用モジュール DLL に実装した機能が既に
-Emacs 本体に取り込まれているため、
-Lisp だけ入れれば動くようにしてあります。
-advanced を使う場合は DLL も入れてください。
+どちらの設定であっても、必要なモジュール DLL が見つからない場合は
+ダウンロードするか否か尋ねてきますので、よければ y を選んでください。
+（自動ダウンロードが嫌であれば n を選び、
+必要なモジュール DLL のファイル名を確認して、
+そのファイルを load-path 上に置いてから再度実施してください。）
+Cygwin の場合は、後述の「autorebase 設定（Cygwin のみ）」もしてください。
 
-### ロード
-
-以下のようにするとロードできます。
-~/.emacs.d/init.el などに追加しておくとよいと思います。
-ウィンドウシステムが w32 であることや、
-IME パッチが存在しないことを確認しますので、
-他の環境と共通の設定に書いていただいても大丈夫です。
+また、ここでは MEPLA でインストールした時の、
+必要最低限の設定のみを示しています。
+より使いやすくするためには後述の「w32-ime.el 設定」や
+「tr-ime 詳細設定」をご覧ください。
+MELPA 以外でインストールした場合は
+後述の「MELPA を使わない」をご覧ください。
 
 #### standard
 
 ```el
-(require 'tr-ime nil t)
-(when (fboundp 'tr-ime-standard-install)
-  (tr-ime-standard-install))
+(tr-ime-standard-install)
+(setq default-input-method "W32-IME")
+(w32-ime-initialize)
 ```
 
-Emacs 28 以降で上記のようにロードした場合、
-standard のモジュール DLL に実装した機能は Emacs 本体が持っているため、
-DLL はロードされません。
-
-#### advanced （実験的）
+#### advanced
 
 ```el
-(require 'tr-ime nil t)
-(when (fboundp 'tr-ime-advanced-install)
-  (tr-ime-advanced-install))
+(tr-ime-advanced-install)
+(setq default-input-method "W32-IME")
+(w32-ime-initialize)
 ```
 
-### IME パッチ設定
+### 簡単な使い方
 
-#### 基本設定
+ここまでに示した必要最低限の設定をしたら、
+モードラインの左端に `[O]` または `[|]` が表示されるようになります。
+`[O]` は IME が off であることを示し、
+`[|]` は IME が on であることを示します。
 
-一部を除き IME パッチと同じような設定ができます。
-ただし standard で使用する場合は
+IME の on/off トグルは、Emacs 流の C-\\ でもできますし、
+Windows 流の「半角/全角」キーでも、
+古い Windows 流の「Alt + 半角/全角」キーでもできます。
+
+IME on の時は、MS-IME など Windows の IME を使った日本語入力が可能です。
+
+## w32-ime.el 設定
+
+tr-ime は従来の IME パッチで UI や設定をつかさどっていた、
+[w32-ime.el](https://github.com/trueroad/w32-ime.el)
+を、ほとんどそのまま使用しています。
+ですので、従来の IME パッチの設定の多くを使うことができます。
+
+ただし、standard で使用する場合は
 `(global-set-key [M-kanji] 'ignore)` をしないでください
 （advanced なら問題ありません）。
-モジュール環境か IME パッチ環境かで設定を分けるならば、
-以下のようにしてください。（分ける必要が無ければ不要です。）
+
+### 基本設定
+
+w32-ime.el の必要最小限の設定は、
 
 ```el
-(cond ((and (boundp 'tr-ime-enabled-features)
-        (eq tr-ime-enabled-features 'standard))
-       ;; standard 環境用
-       (message "tr-ime standard"))
-      ((and (boundp 'tr-ime-enabled-features)
-        (eq tr-ime-enabled-features 'advanced))
-       ;; advanced 環境用
-       (message "tr-ime advanced"))
-      ((subrp (symbol-function 'ime-get-mode))
-       ;; IME パッチ環境用
-       (message "IME patched"))
-      (t
-       ;; いずれでもない環境用
-       (message "others")))
+(setq default-input-method "W32-IME")
+(w32-ime-initialize)
 ```
 
-あとはお好みで以下のような設定をします。
+ですが、これを以下のような、
+よく見かける IME パッチの設定に置き換えると、
+より使いやすくなります。
 
 ```el
 ;; IM のデフォルトを IME に設定
@@ -320,7 +239,13 @@ DLL はロードされません。
 (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
 ```
 
-#### isearch-mode 設定
+必要最小限の設定では、モードラインが
+IME off のときは `[O]`、IME on のときは `[|]` となりますが、
+上記設定をすると、それぞれ `[--]` `[あ]` になります。
+また、ミニバッファでの yes/no 入力待ちなどのときには、
+自動的に IME off にして、抜けたら IME 状態を復帰するようになります。
+
+### isearch-mode 設定
 
 C-s (isearch-forward) などの IME パッチ向けの設定についてです。
 よくある設定の、
@@ -345,24 +270,15 @@ C-s (isearch-forward) などの IME パッチ向けの設定についてです�
 ほとんど害も無いので IME パッチ環境と共用の設定ファイルならば、
 書いておいても特に問題ないと思います。
 
-なお、standard で isearch-mode 中に Alt + 半角/全角で IME on/off するには、
-
-```
-(define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
-```
-
-でできます。
-これは `tr-ime-standard-install` で実行されますので、
-追加する必要はありません。
-
-#### フォント設定（advanced のみ）
+### フォント設定（advanced のみ）
 
 IME の未確定文字列のフォント設定は、
 IME パッチと同様にフレームパラメータ `ime-font` を設定しておけば、
 フォーカス切り替え時（デフォルト設定の場合）に反映されます
 （IME パッチの場合はフレームパラメータに設定すると、
 即座に反映されます）。
-generic ファミリ（`serif`, `sans-serif`, `monospace` など）は指定できません。
+generic ファミリ（`serif`, `sans-serif`, `monospace` など）
+は指定できません。
 
 IME パッチ向け設定例でよくある `default-frame-alist`
 へ設定しても構いませんが。
@@ -396,7 +312,201 @@ Cygwin でもこれを `cp932` に設定してからフォント設定すれば
 MinGW と同様に化けなくなるようですが、そうすると Cygwin 由来の文字列は UTF-8
 のハズなので、こんどはそっちが化けてしまうのではないかと思っています。
 
-## 詳細設定
+### 全バッファ IME 状態同期
+
+デフォルトでは、バッファ毎に IME 状態の on/off を保持していて、
+バッファを切り替えると、それに応じて IME 状態も切り替わります。
+
+これを、全バッファで一つの IME 状態としたい場合には、
+以下のようにすればできます。
+
+```el
+(setq w32-ime-buffer-switch-p nil)
+```
+
+ただし、本設定はあまりメンテされてこなかったようなので、
+おかしなことになるかもしれません。
+
+### 環境判定
+
+モジュール環境か IME パッチ環境かで設定を分けたいなら、
+`(tr-ime-standard-install)` または `(tr-ime-advanced-install)`
+の後に以下のようにしてください。
+
+```el
+(cond ((and (boundp 'tr-ime-enabled-features)
+        (eq tr-ime-enabled-features 'standard))
+       ;; standard 環境用
+       (message "tr-ime standard"))
+      ((and (boundp 'tr-ime-enabled-features)
+        (eq tr-ime-enabled-features 'advanced))
+       ;; advanced 環境用
+       (message "tr-ime advanced"))
+      ((subrp (symbol-function 'ime-get-mode))
+       ;; IME パッチ環境用
+       (message "IME patched"))
+      (t
+       ;; いずれでもない環境用
+       (message "others")))
+```
+
+モジュール環境と IME パッチ環境のみで w32-ime.el の設定をしたいなら、
+`(tr-ime-standard-install)` または `(tr-ime-advanced-install)`
+の後に以下のようにしてください。
+
+```el
+(when (featurep 'w32-ime)
+  ;; w32-ime.el の設定
+  (message "w32-ime settings"))
+```
+
+`(tr-ime-standard-install)` や`(tr-ime-advanced-install)`
+自身はウィンドウシステムが w32 であることや、
+IME パッチが存在しないことを確認してから動作しますので、
+他の環境と共通の設定に書いていただいても大丈夫です。
+
+## autorebase 設定（Cygwin のみ）
+
+tr-ime はモジュール DLL を使うため、
+Cygwin の場合は rebase が必要となります。
+MELPA でインストールしても、バイナリをインストールしても、
+自動ダウンロードでも、自分でビルドしても、
+rebase が必要です。
+手動で rebase した場合は autorebase の対象にならないため、
+Cygwin インストーラの autorebase が走ると衝突してしまう可能性があります。
+そこで、手動で rebase するのではなく autorebase の設定をします。
+（Cygwin パッケージとしてインストールした場合は、
+いちいち設定しなくても autorebase の対象になりますが、
+残念ながら Cygwin パッケージにはなっていません。
+Cygwin 公式パッケージにするには、
+[
+パッケージメンテナ 5 人の賛成が必要
+](https://cygwin.com/packaging-contributors-guide.html)
+です。確保できそうならぜひ教えてください。）
+
+### MELPA でインストールして自動ダウンロードした場合
+
+MELPA で tr-ime をインストールして、
+モジュール DLL を自動ダウンロードした場合、
+モジュール DLL のファイルは `~/.emacs.d/elpa/tr-ime-YYYYMMDD.XXXX`
+というような名前のディレクトリに格納されます。
+このディレクトリは、tr-ime をアップデートすると変わってしまい、
+そのたびに autorebase の設定をやり直す必要がでてきてしまいます。
+そこで、モジュール DLL のファイル（拡張子が `.dll` のファイル）を、
+固定の名前で load-path にも含まれているディレクトリへ
+移動させることをお勧めします。
+移動させたら、
+その移動先のモジュール DLL ファイルに対して autorebase 設定をしてください。
+
+### モジュール DLL がホームディレクトリ以外にある場合
+
+モジュール DLL を置いてあるディレクトリを
+`/usr/share/emacs/site-lisp/tr-ime`
+として説明します。適宜お使いの環境に読み替えてください。
+
+`/var/lib/rebase/dynpath.d` に適当な名前のファイルを作って、
+モジュール DLL を置いてある **ディレクトリ**
+をフルパスで書いた 1 行を追加します。
+
+```
+$ cd /var/lib/rebase/dynpath.d
+$ touch tr-ime
+$ echo '/usr/share/emacs/site-lisp/tr-ime' >> tr-ime
+```
+
+autorebase を手動で実行します。
+
+```
+$ /etc/postinstall/0p_000_autorebase.dash
+```
+
+### モジュール DLL がホームディレクトリの下にある場合
+
+以下、Cygwin 64 bit （環境名 `x86_64-pc-cygwin`）で、
+`tr-ime-mod` の ABI バージョンが `1`、
+`tr-ime-modadv` の ABI バージョンが `1`、
+ユーザ名 `foobar` で、インストール先が `/home/foobar/.emacs.d/site-lisp`
+として説明します。適宜お使いの環境に読み替えてください。
+
+`/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
+モジュール DLL の **ファイル名** をフルパスで書いた行を追加します。
+
+```
+$ cd /var/lib/rebase/user.d
+$ touch foobar
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-mod-1-x86_64-pc-cygwin.dll' \
+    >> foobar
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-modadv-1-x86_64-pc-cygwin.dll' \
+    >> foobar
+```
+
+autorebase を手動で実行します。
+
+```
+$ /etc/postinstall/0p_000_autorebase.dash
+```
+
+## モジュール DLL について
+
+### ファイル名
+
+モジュール DLL のファイル名は、環境によって名前が異なり、
+standard 用が `tr-ime-mod-ABIバージョン-環境名.dll` で、
+advanced 用が `tr-ime-modadv-ABIバージョン-環境名.dll` のようになります。
+具体的な環境名は以下の通りです。
+これにより、例えば Cygwin 64 bit の場合の
+モジュール DLL ファイル名は `tr-ime-mod-1-x86_64-pc-cygwin.dll`
+および `tr-ime-modadv-1-x86_64-pc-cygwin.dll`
+のようになります。
+
+* Cygwin
+    * 64 bit: `x86_64-pc-cygwin`
+    * 32 bit: `i686-pc-cygwin`
+* MinGW
+    * 64 bit: `x86_64-w64-mingw32`
+    * 32 bit: `i686-w64-mingw32`
+
+なお、Emacs 28 で standard を使う場合、
+standard 用モジュール DLL に実装した機能が既に
+Emacs 本体に取り込まれているため、モジュール DLL は不要です。
+Emacs 28 でも advanced を使う場合はモジュール DLL が必要となります。
+
+### 自動ダウンロード
+
+MELPA にはモジュール DLL のファイルが格納されていないため、
+必要な DLL が load-path に見つからない場合、
+DLL を自動でダウンロードする機能を用意しました。
+これは `(tr-ime-standard-install)` および `(tr-ime-advanced-install)`
+で動作します。
+
+必要な DLL が見つからない場合は、
+ダウンロードするか否か尋ねます。
+そこで y を入力するとファイルをダウンロードして、
+`tr-ime-download.el` が配置されているディレクトリに展開、
+ハッシュを確認した上でロードします。
+ダウンロードサイトにアクセスできることと、
+ディレクトリの書き込み権限があることが必要です。
+
+一度ダウンロードしたら、
+そのディレクトリには load-path が通っているはずなので、
+2 回目以降は DLL が見つかるようになり、
+再度自動ダウンロードすることはないはずです。
+
+ユーザに尋ねず、モジュール DLL が無ければ常に自動ダウンロードしたい場合には、
+オプション引数に non-nil を指定してください。
+`(tr-ime-standard-install 'no-confirm)` または
+`(tr-ime-advanced-install 'no-confirm)` のようにすればよいです。
+
+自動ダウンロードが嫌であれば、あらかじめ load-path 上に
+必要なモジュール DLL を置いておくことで、
+自動ダウンロードは動作しなくなります。
+また、モジュール DLL が無くてもユーザに尋ねずにエラーにしたいのであれば、
+`(tr-ime-standard-install)` や `(tr-ime-advanced-install)`
+の代わりに
+`(tr-ime-standard-initialize)` や `(tr-ime-advanced-initialize)`
+を使えばよいです。
+
+## tr-ime 詳細設定
 
 モジュール環境には IME パッチの動作をエミュレーションするものがあり、
 その動作設定ができます。
@@ -439,11 +549,12 @@ GNU Emacs 28 では IME パッチやモジュールが無くても、
 そこで、状態変更後に何回か状態確認関数を呼んで、
 変更の完了を確認するようにしており、その回数の上限を
 `tr-ime-openstatus-emacs28-open-check-counter`
-に設定できます（デフォルト `3`）。
+に設定できます（デフォルト `10`）。
 
-環境によるかもしれませんが、
-私の環境では 2 回目で変更完了した値が得られるようでしたので、
-安全を見て 1 回増やして 3 回をデフォルトににしています。
+この設定の上限回数が足りない場合は、
+C-\\ で IME on/off トグルしたときに、
+モードラインの表示が切り替わらない現象が起きたり起きなくなったりします。
+そういうときは、もっと大きい数を指定するとよいでしょう。
 
 advanced では IME 状態の変更を監視する必要があって、
 自前の状態変更関数を使用するため、本設定は使われません。
@@ -467,7 +578,8 @@ Emacs のメッセージ処理を奪い取ることによって実現してい�
 GNU Emacs 27 や 28 の UI スレッドでは、
 スレッドメッセージがディスパッチされません。
 これによって IME の動作に不具合が発生します
-（IME on/off してもタスクバーの IME 状態表示アイコンが変わらない等）。
+（Windows 10 1909 の MS-IME で
+IME on/off してもタスクバーの IME 状態表示アイコンが変わらない等）。
 そこで、モジュールのメッセージフックで Emacs の代わりに
 スレッドメッセージをディスパッチするようにしています。
 
@@ -526,6 +638,7 @@ PostMessage する方法を思いついたのですが、修飾キーがある�
 一方、w32-imeadv は別プロセスを経由して通知するという
 かなり大がかりで複雑な機構を採用しています。
 結局色々調べて、
+[
 ダイナミックモジュールの情報が集まったページ
 ](https://github.com/jkitchin/emacs-modules) からリンクが貼られていた[
 Asynchronous Requests from Emacs Dynamic Modules
@@ -883,6 +996,26 @@ API の失敗などを出力するなら以下を実行してください。
 
 バイナリリリースのデフォルトは 5 にしてあります。
 
+## MELPA を使わない
+
+MELPA を使わずにバイナリリリースを使う場合は、
+[リリース](https://github.com/trueroad/tr-emacs-ime-module/releases)
+にあるバイナリ配布ファイル
+（ファイル名が `tr-ime-VERSION-binary.zip` になっているファイル）
+をダウンロードして、中に入っているモジュール DLL ファイルと、
+モジュールのヘルパとなる Lisp 実装である拡張子 `.el`
+のファイルを Emacs の load-path が通っているディレクトリに置いてください。
+なお、バージョンによってファイル名や設定方法などが異なるので、
+バイナリリリースを使う場合には、
+zip に同梱されているドキュメントの方をご覧ください。
+
+ご自分でビルドしてみたい場合は、後述の「ビルド」をご覧ください。
+
+また、設定は MELPA を使った場合とほぼ同じですが、
+MELPA で自動的に設定される autoload がないので、
+`(tr-ime-standard-install)` や `(tr-ime-advanced-install)`
+などの前に `(require 'tr-ime)` をしてください。
+
 ## ビルド
 
 ビルドするには動作環境に加えて以下が必要になります。
@@ -946,7 +1079,7 @@ $ make install
 
 自分でビルドした場合には w32-ime.el がインストールされませんので、
 [MELPA の w32-ime パッケージ](https://melpa.org/#/w32-ime)
-をインストールしてください。
+をインストールするか、w32-ime.el を load-path 上に置いてください。
 
 ### バイナリリリースのビルド方法
 
@@ -1034,6 +1167,8 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 * 「IME 入力モード切替の通知（画面中央に大きく「あ」とか「A」とか出るもの）」
   が C-\\ で切り替えると出ない
     * Windows 10 1909 で確認
+        * Windows 10 2004 や 20H2 だと、
+          そもそもこのような通知が出なくなったので、関係ありません
     * Alt + 半角/全角や半角/全角だと出ます
     * マウス操作などでウィンドウ（Emacs でいうフレーム）を切り替えたとき、
       最後に「IME 入力モード切替の通知」された状態と、
@@ -1051,6 +1186,8 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
   フレームが切り替わった時に出る「IME 入力モード切替の通知」が
   実際の IME 状態とは逆になる
     * Windows 10 1909 で確認
+        * Windows 10 2004 や 20H2 だと、
+          そもそもこのような通知が出なくなったので、関係ありません
     * 「IME 入力モード切替の通知」がおかしいだけで、
       モードラインには正しく出ます
     * 恐らく、フレームを切り替えた瞬間、同じプロセスなので切り替え前の

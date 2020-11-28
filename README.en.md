@@ -1,3 +1,5 @@
+[![MELPA](https://melpa.org/packages/tr-ime-badge.svg)](https://melpa.org/#/tr-ime)
+
 [ [Japanese](./README.md) / English ]
 
 # Emulator of GNU Emacs IME patch for Windows (tr-ime)
@@ -31,6 +33,8 @@ It loads the tr-ime-mod DLL module if you use Emacs 27.
 
 ```el
 (tr-ime-standard-install)
+(setq default-input-method "W32-IME")
+(w32-ime-initialize)
 ```
 
 To use advanced features (experimental but more functionality) of the
@@ -39,6 +43,8 @@ It loads the tr-ime-modadv DLL module.
 
 ```el
 (tr-ime-advanced-install)
+(setq default-input-method "W32-IME")
+(w32-ime-initialize)
 ```
 
 ## News

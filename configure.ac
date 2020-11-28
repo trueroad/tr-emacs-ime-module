@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Emulator of GNU Emacs IME patch for Windows], [0.4.0],, [tr-ime],
+AC_INIT([Emulator of GNU Emacs IME patch for Windows], [0.4.1],, [tr-ime],
   [https://github.com/trueroad/tr-emacs-ime-module])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
@@ -11,8 +11,8 @@ AC_CONFIG_SRCDIR([src/tr-ime-mod.c])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
-PACKAGE_FILEVERSION='0,4,0,0'
-PACKAGE_PRODUCTVERSION='0,4,0,0'
+PACKAGE_FILEVERSION='0,4,1,0'
+PACKAGE_PRODUCTVERSION='0,4,1,0'
 PACKAGE_COPYRIGHT='Copyright (C) 2020 Masamichi Hosoda.'
 PACKAGE_LICENSE='License: GPL3+'
 
