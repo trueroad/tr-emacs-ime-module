@@ -74,6 +74,7 @@ IME が on になる。"
   (let ((counter 0))
     (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
                 (not (w32-get-ime-open-status)))
+      (thread-yield)
       (setq counter (1+ counter)))))
 
 (defun tr-ime-openstatus--force-off-emacs28 (&optional _dummy)
@@ -86,6 +87,7 @@ IME が off になる。"
   (let ((counter 0))
     (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
                 (w32-get-ime-open-status))
+      (thread-yield)
       (setq counter (1+ counter)))))
 
 ;;
