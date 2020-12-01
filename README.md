@@ -245,6 +245,32 @@ IME off のときは `[O]`、IME on のときは `[|]` となりますが、
 また、ミニバッファでの yes/no 入力待ちなどのときには、
 自動的に IME off にして、抜けたら IME 状態を復帰するようになります。
 
+なお、tr-ime が使っている
+[w32-ime.el](https://github.com/trueroad/w32-ime.el)
+の
+[MELPA 掲載版](https://melpa.org/#/w32-ime)
+では、`wrap-function-to-control-ime` 関数について
+[コーディング規約に従うため名前変更](https://github.com/trueroad/w32-ime.el/commit/4265355ad0ac07c8723a0db8276b5c9340c6f2b0)
+して、`w32-ime-wrap-function-to-control-ime` 関数として、さらに
+[実装方法や引数も変更](https://github.com/trueroad/w32-ime.el/pull/2)
+しています。
+後方互換性確保のため、従来版の名前・引数でも動作するように配慮しているので、
+IME パッチ環境など従来版の w32-ime.el が存在する環境と同じ設定を使うには、
+上記のような従来版と同じ使い方で良いと思います。
+従来版とは関係ない独立した設定なのであれば、
+下記のように新しい名前・引数で設定してもよいと思います。
+
+```el
+;; IME 制御（yes/no などの入力の時に IME を off にする）MELPA 掲載版用
+(w32-ime-wrap-function-to-control-ime 'universal-argument)
+(w32-ime-wrap-function-to-control-ime 'read-string)
+(w32-ime-wrap-function-to-control-ime 'read-char)
+(w32-ime-wrap-function-to-control-ime 'read-from-minibuffer)
+(w32-ime-wrap-function-to-control-ime 'y-or-n-p)
+(w32-ime-wrap-function-to-control-ime 'yes-or-no-p)
+(w32-ime-wrap-function-to-control-ime 'map-y-or-n-p)
+```
+
 ### isearch-mode 設定
 
 C-s (isearch-forward) などの IME パッチ向けの設定についてです。
