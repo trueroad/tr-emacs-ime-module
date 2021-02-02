@@ -70,11 +70,13 @@
                    (point)))
          (point1 (with-current-buffer " *Echo Area 1*"
                    (point)))
-         (buff (cond ((/= point0
-                          tr-ime-isearch--last-echo-area-0-point)
+         (buff (cond ((and tr-ime-isearch--last-echo-area-0-point
+                           (/= point0
+                               tr-ime-isearch--last-echo-area-0-point))
                       (get-buffer " *Echo Area 0*"))
-                     ((/= point1
-                          tr-ime-isearch--last-echo-area-1-point)
+                     ((and tr-ime-isearch--last-echo-area-1-point
+                           (/= point1
+                               tr-ime-isearch--last-echo-area-1-point))
                       (get-buffer " *Echo Area 1*"))
                      (tr-ime-isearch--last-echo-area-buffer
                       tr-ime-isearch--last-echo-area-buffer)
