@@ -237,6 +237,7 @@ w32-ime.el の必要最小限の設定は、
 (wrap-function-to-control-ime 'y-or-n-p nil nil)
 (wrap-function-to-control-ime 'yes-or-no-p nil nil)
 (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+(wrap-function-to-control-ime 'register-read-with-preview nil nil)
 ```
 
 必要最小限の設定では、モードラインが
@@ -269,6 +270,7 @@ IME パッチ環境など従来版の w32-ime.el が存在する環境と同じ�
 (w32-ime-wrap-function-to-control-ime 'y-or-n-p)
 (w32-ime-wrap-function-to-control-ime 'yes-or-no-p)
 (w32-ime-wrap-function-to-control-ime 'map-y-or-n-p)
+(w32-ime-wrap-function-to-control-ime 'register-read-with-preview)
 ```
 
 ### isearch-mode 設定
