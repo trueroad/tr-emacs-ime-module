@@ -53,7 +53,7 @@ It loads the tr-ime-modadv DLL module.
 
 ## License
 
-Copyright (C) 2020 Masamichi Hosoda
+Copyright (C) 2020, 2021 Masamichi Hosoda
 
 Emulator of GNU Emacs IME patch for Windows (tr-ime)
 is free software: you can redistribute it and/or modify

@@ -70,10 +70,12 @@ standard 版は IME パッチの全機能を再現することはできません
         * GNU Emacs 27.1 からデフォルトで有効です
     * Cygwin 64 bit
       [emacs-w32](https://cygwin.com/packages/summary/emacs-w32.html)
-      27.1-2 で動作確認しています
+      27.2-1 で動作確認しています
+        * Cygwin 32 bit でも動作しましたが、常用していないので
+          気が付いていない不具合があるかもしれません
     * MinGW では
-      GNU 公式バイナリの 27.1 (64 bit) や、GNU が配布する pretest の
-      28.0.50-snapshot-2020-07-05-x86_64 バイナリで動作しました
+      GNU 公式バイナリの 27.2 (64 bit/32 bit) や、GNU が配布する pretest の
+      28.0.50-snapshot-2021-01-15 (64 bit) バイナリで動作しました
         * MinGW は常用していないので
           気が付いていない不具合があるかもしれません
 
@@ -1232,7 +1234,7 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 ## ライセンス
 
-Copyright (C) 2020 Masamichi Hosoda
+Copyright (C) 2020, 2021 Masamichi Hosoda
 
 Emulator of GNU Emacs IME patch for Windows (tr-ime)
 is free software: you can redistribute it and/or modify
