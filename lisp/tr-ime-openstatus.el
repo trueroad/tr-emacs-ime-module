@@ -64,31 +64,47 @@ IME 状態変更関数 w32-set-ime-open-status を使うが、
 (declare-function w32-set-ime-open-status "w32fns.c" (status)) ; Emacs 28
 (declare-function w32-get-ime-open-status "w32fns.c") ; Emacs 28
 
+(defun tr-ime-openstatus--get-mode-emacs28 ()
+  "GNU Emacs 28 standard 向け ime-get-mode 実装.
+
+GNU Emacs 28 の w32-get-ime-open-status で
+IME パッチの ime-force-on をエミュレーションする。
+選択されたフレームが w32 のときは、
+IME が OFF なら nil を、ON ならそれ以外を返す。
+非 w32 のときは常に nil を返す。"
+  (if (eq (framep (selected-frame)) 'w32)
+      (w32-get-ime-open-status)
+    nil))
+
 (defun tr-ime-openstatus--force-on-emacs28 (&optional _dummy)
   "GNU Emacs 28 standard 向け ime-force-on 実装.
 
 GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-on をエミュレーションする。
-IME が on になる。"
-  (w32-set-ime-open-status t)
-  (let ((counter 0))
-    (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
-                (not (w32-get-ime-open-status)))
-      (thread-yield)
-      (setq counter (1+ counter)))))
+選択されたフレームが w32 のときは IME が on になる。
+非 w32 のときは何もしない。"
+  (when (eq (framep (selected-frame)) 'w32)
+    (w32-set-ime-open-status t)
+    (let ((counter 0))
+      (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
+                  (not (w32-get-ime-open-status)))
+        (thread-yield)
+        (setq counter (1+ counter))))))
 
 (defun tr-ime-openstatus--force-off-emacs28 (&optional _dummy)
   "GNU Emacs 28 standard 向け ime-force-off 実装.
 
 GNU Emacs 28 の w32-set-ime-open-status で
 IME パッチの ime-force-off をエミュレーションする。
-IME が off になる。"
-  (w32-set-ime-open-status nil)
-  (let ((counter 0))
-    (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
-                (w32-get-ime-open-status))
-      (thread-yield)
-      (setq counter (1+ counter)))))
+選択されたフレームが w32 のときは IME が off になる。
+非 w32 のときは何もしない。"
+  (when (eq (framep (selected-frame)) 'w32)
+    (w32-set-ime-open-status nil)
+    (let ((counter 0))
+      (while (and (< counter tr-ime-openstatus-emacs28-open-check-counter)
+                  (w32-get-ime-open-status))
+        (thread-yield)
+        (setq counter (1+ counter))))))
 
 ;;
 ;; Emacs 27 standard
@@ -103,25 +119,33 @@ IME が off になる。"
   "GNU Emacs 27 standard 向け ime-get-mode 実装.
 
 C 実装モジュールで IME パッチの ime-get-mode をエミュレーションする。
-IME が OFF なら nil を、ON ならそれ以外を返す。"
-  (tr-ime-mod--getopenstatus
-   (string-to-number (frame-parameter nil 'window-id))))
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が OFF なら nil を、ON ならそれ以外を返す。
+無いときは常に nil を返す。"
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (if win-id
+        (tr-ime-mod--getopenstatus (string-to-number win-id))
+      nil)))
 
 (defun tr-ime-openstatus--force-on-emacs27 (&optional _dummy)
   "GNU Emacs 27 standard 向け ime-force-on 実装.
 
 C 実装モジュールで IME パッチの ime-force-on をエミュレーションする。
-IME が on になる。"
-  (tr-ime-mod--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) t))
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が on になる。無いときは何もしない。"
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (when win-id
+      (tr-ime-mod--setopenstatus (string-to-number win-id) t))))
 
 (defun tr-ime-openstatus--force-off-emacs27 (&optional _dummy)
   "GNU Emacs 27 standard 向け ime-force-off 実装.
 
 C 実装モジュールで IME パッチの ime-force-off をエミュレーションする。
-IME が off になる。"
-  (tr-ime-mod--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) nil))
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が off になる。無いときは何もしない。"
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (when win-id
+      (tr-ime-mod--setopenstatus (string-to-number win-id) nil))))
 
 ;;
 ;; advanced
@@ -136,28 +160,36 @@ IME が off になる。"
   "Advanced 向け ime-get-mode 実装.
 
 C++ 実装モジュールで IME パッチの ime-get-mode をエミュレーションする。
-IME が off なら nil を、on ならそれ以外を返す。
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が OFF なら nil を、ON ならそれ以外を返す。
+無いときは常に nil を返す。
 メッセージフックおよびサブクラス化が有効である必要がある。"
-  (tr-ime-modadv--getopenstatus
-   (string-to-number (frame-parameter nil 'window-id))))
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (if win-id
+        (tr-ime-modadv--getopenstatus (string-to-number win-id))
+      nil)))
 
 (defun tr-ime-openstatus--force-on-advanced (&optional _dummy)
   "Advanced 向け ime-force-on 実装.
 
 C++ 実装モジュールで IME パッチの ime-force-on をエミュレーションする。
-IME が on になる。
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が on になる。無いときは何もしない。
 メッセージフックおよびサブクラス化が有効である必要がある。"
-  (tr-ime-modadv--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) t))
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (when win-id
+      (tr-ime-modadv--setopenstatus (string-to-number win-id) t))))
 
 (defun tr-ime-openstatus--force-off-advanced (&optional _dummy)
   "Advanced 向け ime-force-off 実装.
 
 C++ 実装モジュールで IME パッチの ime-force-off をエミュレーションする。
-IME が off になる。
+選択されたフレームに window-id パラメータがある（w32 フレーム）ときは、
+IME が off になる。無いときは何もしない。
 メッセージフックおよびサブクラス化が有効である必要がある。"
-  (tr-ime-modadv--setopenstatus
-   (string-to-number (frame-parameter nil 'window-id)) nil))
+  (let ((win-id (frame-parameter nil 'window-id)))
+    (when win-id
+      (tr-ime-modadv--setopenstatus (string-to-number win-id) nil))))
 
 ;;
 ;; define aliases
@@ -169,7 +201,7 @@ IME が off になる。
          (eq tr-ime-enabled-features 'advanced))
     #'tr-ime-openstatus--get-mode-advanced)
    ((fboundp #'w32-get-ime-open-status)
-    #'w32-get-ime-open-status)
+    #'tr-ime-openstatus--get-mode-emacs28)
    (t
     #'tr-ime-openstatus--get-mode-emacs27))
   "IME 状態を返す関数
