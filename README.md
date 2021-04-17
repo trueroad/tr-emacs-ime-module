@@ -395,6 +395,83 @@ MinGW と同様に化けなくなるようですが、そうすると Cygwin 由
 IME パッチが存在しないことを確認してから動作しますので、
 他の環境と共通の設定に書いていただいても大丈夫です。
 
+### デーモンモード
+
+Emacs をデーモンモードで使う（コマンドラインオプション `--daemon`）場合や、
+コンソールで使う（コマンドラインオプション `-nw`）場合は、
+選択されたフレームが w32 ではない状態で `~/.emacs.d/init.el`
+がロードされます。
+しかし tr-ime や w32-ime.el の設定は w32 であることを前提としているため、
+これまでのような単純な設定だとおかしくなってしまいます。
+また、デーモンモードで起動後に後から `emacsclient -c` などにより
+w32 フレームを作るとそれらの設定がされていない状態になってしまいます。
+これはフォントなど他の
+w32 フレームに対する設定についても同様のことが言えます。
+
+そこで、デーモンモードなどで使用したいのであれば、
+例えば以下ように w32 フレームに対する設定を関数化しておき、
+`emacsclient -c` で w32 フレームが作られたときに呼ばれるノーマルフック
+`server-after-make-frame-hook` に加えておくことで
+これらの問題を回避できます。
+
+```.el
+;; w32 フレームの設定をする関数
+(defun my-w32-frame-setup ()
+  (when (eq (framep (selected-frame)) 'w32)
+    ;; 1 回だけ設定すればよいので、今後は呼ばれないようにフックから外す
+    (remove-hook 'server-after-make-frame-hook #'my-w32-frame-setup)
+
+    ;; フォント設定
+    (set-frame-font "MS Gothic-12" nil t)
+    (modify-all-frames-parameters '((ime-font . "MS Gothic-12")))
+
+    ;; tr-ime
+    (tr-ime-advanced-install)
+
+    ;; w32-ime 設定
+    (when (featurep 'w32-ime)
+      ;; IM のデフォルトを IME に設定
+      (setq default-input-method "W32-IME")
+      ;; IME のモードライン表示設定
+      (setq-default w32-ime-mode-line-state-indicator "[--]")
+      (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
+      ;; IME 初期化
+      (w32-ime-initialize)
+      ;; IME 制御（yes/no などの入力の時に IME を off にする）
+      (wrap-function-to-control-ime 'universal-argument t nil)
+      (wrap-function-to-control-ime 'read-string nil nil)
+      (wrap-function-to-control-ime 'read-char nil nil)
+      (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+      (wrap-function-to-control-ime 'y-or-n-p nil nil)
+      (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+      (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+      (wrap-function-to-control-ime 'register-read-with-preview nil nil))))
+
+;; 選択されたフレームが w32（通常の起動）ならフレームの設定をする
+;; w32 でない（コンソールかデーモンモード）なら設定関数をフックへ追加する
+(if (eq (framep (selected-frame)) 'w32)
+    (my-w32-frame-setup)
+  (add-hook 'server-after-make-frame-hook #'my-w32-frame-setup))
+```
+
+MinGW Emacs は 1 つの Emacs プロセスでコンソールと w32
+を混在させることができない
+（フレームが一つも無い状態で `-c` 無しの `emacsclient` しても
+新しい w32 フレームが作られる、w32 フレームがある状態で
+`emacsclient -nw` しても新しい w32 フレームが作られる、
+コンソールで Emacs が起動している状態で `emacsclisent -c` しても
+元のコンソールの方で開かれる）
+ようなので、上記設定があれば特に問題なくなるのではないかと思います。
+Cygwin Emacs は混在させることができる
+（フレームが一つも無い状態で `-c` 無しの `emacsclient` すると
+そのコンソールで開かれる、w32 フレームがある状態で
+`emacsclient -nw` するとそのコンソールで開かれる、
+コンソールで Emacs が起動している状態で `emacsclisent -c` すると
+新しい w32 フレームが作られる）
+ようなのですが上記設定があっても混在は避けてください。
+tr-ime や w32-ime.el の設定をしてあると
+コンソール内での IME の扱いがおかしくなりそうです。
+
 ## autorebase 設定（Cygwin のみ）
 
 tr-ime はモジュール DLL を使うため、
