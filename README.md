@@ -365,14 +365,16 @@ MinGW と同様に化けなくなるようですが、そうすると Cygwin 由
 
 ```el
 (cond ((and (boundp 'tr-ime-enabled-features)
-        (eq tr-ime-enabled-features 'standard))
+            (eq tr-ime-enabled-features 'standard))
        ;; standard 環境用
        (message "tr-ime standard"))
       ((and (boundp 'tr-ime-enabled-features)
-        (eq tr-ime-enabled-features 'advanced))
+            (eq tr-ime-enabled-features 'advanced))
        ;; advanced 環境用
        (message "tr-ime advanced"))
-      ((subrp (symbol-function 'ime-get-mode))
+      ((or (subrp (symbol-function 'ime-get-mode))
+           (and (fboundp 'tr-ime-detect-ime-patch-p)
+                (tr-ime-detect-ime-patch-p)))
        ;; IME パッチ環境用
        (message "IME patched"))
       (t
