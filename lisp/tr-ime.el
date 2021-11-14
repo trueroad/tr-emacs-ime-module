@@ -1,6 +1,6 @@
 ;;; tr-ime.el --- Emulator of IME patch for Windows -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2021 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -95,6 +95,26 @@ If any features are not enabled, it is set to nil.")
 (declare-function tr-ime-download-mod-file "tr-ime-download"
                   (name &optional no-confirm))
 
+(defun tr-ime--c-function-p (symb)
+  "Return non-nil if SYMB is a function that is defined in a C source."
+  (and (fboundp symb)
+       (subrp (symbol-function symb))))
+
+(defun tr-ime--c-variable-p (symb)
+  "Return non-nil if SYMB is a variable that is defined in a C source."
+  (and (boundp symb)
+       (not (symbol-file symb 'defvar))))
+
+;;;###autoload
+(defun tr-ime-detect-ime-patch-p ()
+  "Return non-nil if an IME patch seems to be applied to Emacs."
+  (and (eq window-system 'w32)
+       (or (tr-ime--c-function-p 'ime-get-mode)
+           (tr-ime--c-function-p 'ime-force-on)
+           (tr-ime--c-function-p 'ime-force-off)
+           (tr-ime--c-variable-p 'set-selected-window-buffer-functions)
+           (tr-ime--c-variable-p 'select-window-functions))))
+
 ;;;###autoload
 (defun tr-ime-standard-install (&optional no-confirm)
   "Install tr-ime standard (stable but less functionality) DLL.
@@ -103,7 +123,7 @@ If NO-CONFIRM is non-nil, download the necessary module DLL without
 confirming the user."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
-             (not (fboundp 'ime-get-mode))
+             (not (tr-ime-detect-ime-patch-p))
              (string= module-file-suffix ".dll")
              (not (fboundp 'w32-get-ime-open-status))
              (not (locate-library tr-ime--mod-name)))
@@ -115,7 +135,7 @@ confirming the user."
 (defun tr-ime-standard-initialize ()
   "Initialize tr-ime standard (stable but less functionality) features."
   (when (and (eq window-system 'w32)
-             (not (fboundp 'ime-get-mode))
+             (not (tr-ime-detect-ime-patch-p))
              (string= module-file-suffix ".dll"))
     (setq tr-ime-enabled-features 'standard)
     (unless (fboundp 'w32-get-ime-open-status)
@@ -136,7 +156,7 @@ If NO-CONFIRM is non-nil, download the necessary module DLL without
 confirming the user."
   (tr-ime-uninitialize)
   (when (and (eq window-system 'w32)
-             (not (fboundp 'ime-get-mode))
+             (not (tr-ime-detect-ime-patch-p))
              (string= module-file-suffix ".dll")
              (not (locate-library tr-ime--modadv-name)))
     (require 'tr-ime-download)
@@ -147,7 +167,7 @@ confirming the user."
 (defun tr-ime-advanced-initialize ()
   "Initialize tr-ime advanced (experimental but more functionality) features."
   (when (and (eq window-system 'w32)
-             (not (fboundp 'ime-get-mode))
+             (not (tr-ime-detect-ime-patch-p))
              (string= module-file-suffix ".dll"))
     (setq tr-ime-enabled-features 'advanced)
     (require 'tr-ime-modadv tr-ime--modadv-name)
