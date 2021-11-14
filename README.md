@@ -89,22 +89,49 @@ MELPA を使う方法が簡単です。
 
 [MELPA](https://melpa.org/)
 の設定をしていないなら、まずは MELPA の設定をしてください。
+設定済なら次の「インストール」へ進んでください。
+
 とりあえず私は以下を `~/.emacs/init.el` に書いています。
 
 ```el
+(package-initialize)
 (customize-set-variable 'package-archives
                         `(,@package-archives
                           ("melpa" . "https://melpa.org/packages/")))
 ```
 
+余談ですが、Emacs 27 で何らかのパッケージがインストールされている場合、
+`~/.emacs/init.el` 開始時には既に `package-initialize`
+された（インストール済パッケージが有効化された）状態になっているようで、
+`package-initialize` を呼ぶ必要はありません。
+しかし、何もパッケージがインストールされていない場合は
+package.el すらロードされないため変数 `package-archives`
+に `customize-set-variable` しようとするとエラーになってしまいます。
+`package-initialize` は実行済みなら再度実行しても何もしませんし、
+package.el がロードされていなければ autoload してくれるので書いています
+（また、tr-ime は対応しませんが
+Emacs 26 だとパッケージがインストールされていても `~/.emacs/init.el`
+開始時には package.el がロードされていないので、Emacs 26 と 27
+で設定を共有するならやはり書いておいた方がよいと思います）。
+なお、変数 `package-archives` の値は `package-initialize`
+の動作には影響しないため、`package-initialize` の後で
+`package-archives` を変更しても問題ないと考えています。
+
 ### インストール
 
 MELPA が使えるようになっていれば、
+`M-x package-refresh-contents` で最新のパッケージ一覧を読み込んでから
 `M-x package-install` して `tr-ime` を入力すればインストールできます。
-あるいは、以下のようにしてもインストールできます。
+
+あるいは、`~/.emacs/init.el` で MELPA の設定の後へ以下のよう書いておくと、
+インストールされていなければ
+最新のパッケージ一覧を読み込んでからインストールする、
+という動作ができます。
 
 ```el
-(package-install 'tr-ime)
+(unless (package-installed-p 'tr-ime)
+  (package-refresh-contents)
+  (package-install 'tr-ime))
 ```
 
 ### tr-ime 設定
@@ -341,6 +368,10 @@ MinGW ではデフォルトで `cp932` なので化けないようです。
 Cygwin でもこれを `cp932` に設定してからフォント設定すれば
 MinGW と同様に化けなくなるようですが、そうすると Cygwin 由来の文字列は UTF-8
 のハズなので、こんどはそっちが化けてしまうのではないかと思っています。
+さらに蛇足ですが、これを何とかする[
+UTF-8 対応改善実験
+](https://gist.github.com/trueroad/d309d1931100634c2cd1058a0620c663)
+もあるにはありますがあくまでも実験なので常用はできないと思います。
 
 ### 全バッファ IME 状態同期
 
