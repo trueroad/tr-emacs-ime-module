@@ -108,12 +108,11 @@ If any features are not enabled, it is set to nil.")
 ;;;###autoload
 (defun tr-ime-detect-ime-patch-p ()
   "Return non-nil if an IME patch seems to be applied to Emacs."
-  (and (eq window-system 'w32)
-       (or (tr-ime--c-function-p 'ime-get-mode)
-           (tr-ime--c-function-p 'ime-force-on)
-           (tr-ime--c-function-p 'ime-force-off)
-           (tr-ime--c-variable-p 'set-selected-window-buffer-functions)
-           (tr-ime--c-variable-p 'select-window-functions))))
+  (or (tr-ime--c-function-p 'ime-get-mode)
+      (tr-ime--c-function-p 'ime-force-on)
+      (tr-ime--c-function-p 'ime-force-off)
+      (tr-ime--c-variable-p 'set-selected-window-buffer-functions)
+      (tr-ime--c-variable-p 'select-window-functions)))
 
 ;;;###autoload
 (defun tr-ime-standard-install (&optional no-confirm)
