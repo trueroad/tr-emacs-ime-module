@@ -47,16 +47,19 @@
 ;; Hook
 ;;
 
-(define-obsolete-variable-alias 'select-window-functions
-  'tr-ime-hook-select-window-functions "2020")
+(require 'tr-ime)
+(unless (tr-ime-detect-ime-patch-p)
+  (define-obsolete-variable-alias 'select-window-functions
+    'tr-ime-hook-select-window-functions "2020"))
 (defvar tr-ime-hook-select-window-functions nil
   "選択されたウィンドウが変更されると呼ばれるアブノーマルフック.
 
 IME パッチ特有のフックで、 IME パッチでは C 実装されているが、
 Lisp でエミュレーションする。")
 
-(define-obsolete-variable-alias 'set-selected-window-buffer-functions
-  'tr-ime-hook-set-selected-window-buffer-functions "2020")
+(unless (tr-ime-detect-ime-patch-p)
+  (define-obsolete-variable-alias 'set-selected-window-buffer-functions
+    'tr-ime-hook-set-selected-window-buffer-functions "2020"))
 (defvar tr-ime-hook-set-selected-window-buffer-functions nil
   "選択ウィンドウに紐づいたバッファが変更されると呼ばれるアブノーマルフック.
 
