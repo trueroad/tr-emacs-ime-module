@@ -1,6 +1,6 @@
 ;;; tr-ime-hook.el --- Hook emulation of IME patch -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2021 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -47,19 +47,27 @@
 ;; Hook
 ;;
 
+;; IME パッチ適用 Emacs ではコンフリクトを未然に防ぐため
+;; 明示的にエラーを出して動作を停止させる
 (require 'tr-ime)
-(unless (tr-ime-detect-ime-patch-p)
-  (define-obsolete-variable-alias 'select-window-functions
-    'tr-ime-hook-select-window-functions "2020"))
+(when (tr-ime-detect-ime-patch-p)
+  (error "%s" (concat "Emacs seems to have an IME patch applied. "
+                      "tr-ime cannot work on it.")))
+
+;; IME パッチ適用 Emacs だと変数 select-window-functions が
+;; C 実装なのでエイリアスにしようとするとエラーが発生する
+(define-obsolete-variable-alias 'select-window-functions
+  'tr-ime-hook-select-window-functions "2020")
 (defvar tr-ime-hook-select-window-functions nil
   "選択されたウィンドウが変更されると呼ばれるアブノーマルフック.
 
 IME パッチ特有のフックで、 IME パッチでは C 実装されているが、
 Lisp でエミュレーションする。")
 
-(unless (tr-ime-detect-ime-patch-p)
-  (define-obsolete-variable-alias 'set-selected-window-buffer-functions
-    'tr-ime-hook-set-selected-window-buffer-functions "2020"))
+;; IME パッチ適用 Emacs だと変数 set-selected-window-buffer-functions が
+;; C 実装なのでエイリアスにしようとするとエラーが発生する
+(define-obsolete-variable-alias 'set-selected-window-buffer-functions
+  'tr-ime-hook-set-selected-window-buffer-functions "2020")
 (defvar tr-ime-hook-set-selected-window-buffer-functions nil
   "選択ウィンドウに紐づいたバッファが変更されると呼ばれるアブノーマルフック.
 
