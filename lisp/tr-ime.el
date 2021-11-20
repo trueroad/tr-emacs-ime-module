@@ -121,21 +121,64 @@ If any features are not enabled, it is set to nil.")
 If NO-CONFIRM is non-nil, download the necessary module DLL without
 confirming the user."
   (tr-ime-uninitialize)
-  (when (and (eq window-system 'w32)
-             (not (tr-ime-detect-ime-patch-p))
-             (string= module-file-suffix ".dll")
-             (not (fboundp 'w32-get-ime-open-status))
-             (not (locate-library tr-ime--mod-name)))
+  (cond
+   ((not (eq window-system 'w32))
+    (display-warning 'tr-ime
+                     (concat
+                      "window-system is not w32. "
+                      "tr-ime cannot install standard DLL on it.")
+                     :warning))
+   ((tr-ime-detect-ime-patch-p)
+    (display-warning 'tr-ime
+                     (concat
+                      "Emacs seems to have an IME patch applied. "
+                      "tr-ime cannot work on it.")
+                     :warning))
+   ((fboundp 'w32-get-ime-open-status)
+    (display-warning 'tr-ime
+                     (concat
+                      "Function w32-get-ime-open-status exists. "
+                      "tr-ime standard DLL is not necessary.")
+                     :debug))
+   ((not (string= module-file-suffix ".dll"))
+    (display-warning 'tr-ime
+                     (concat
+                      "module-file-suffix is not \".dll\". "
+                      "Emacs cannot load tr-ime module DLLs.")
+                     :warning))
+   ((locate-library tr-ime--mod-name)
+    (display-warning 'tr-ime
+                     "tr-ime standard DLL already exists."
+                     :debug))
+   (t
     (require 'tr-ime-download)
-    (tr-ime-download-mod-file tr-ime--mod-name no-confirm))
+    (tr-ime-download-mod-file tr-ime--mod-name no-confirm)))
   (tr-ime-standard-initialize))
 
 ;;;###autoload
 (defun tr-ime-standard-initialize ()
   "Initialize tr-ime standard (stable but less functionality) features."
-  (when (and (eq window-system 'w32)
-             (not (tr-ime-detect-ime-patch-p))
-             (string= module-file-suffix ".dll"))
+  (cond
+   ((not (eq window-system 'w32))
+    (display-warning 'tr-ime
+                     (concat
+                      "window-system is not w32. "
+                      "tr-ime cannot initialize on it.")
+                     :warning))
+   ((tr-ime-detect-ime-patch-p)
+    (display-warning 'tr-ime
+                     (concat
+                      "Emacs seems to have an IME patch applied. "
+                      "tr-ime cannot work on it.")
+                     :warning))
+   ((and (not (fboundp 'w32-get-ime-open-status))
+         (not (string= module-file-suffix ".dll")))
+    (display-warning 'tr-ime
+                     (concat
+                      "module-file-suffix is not \".dll\". "
+                      "Emacs cannot load tr-ime module DLLs.")
+                     :warning))
+   (t
     (setq tr-ime-enabled-features 'standard)
     (unless (fboundp 'w32-get-ime-open-status)
       (require 'tr-ime-mod tr-ime--mod-name))
@@ -145,7 +188,7 @@ confirming the user."
     (require 'tr-ime-workaround-inconsistent)
     (define-key global-map [M-kanji] 'toggle-input-method)
     (define-key isearch-mode-map [M-kanji] 'isearch-toggle-input-method)
-    (require 'w32-ime)))
+    (require 'w32-ime))))
 
 ;;;###autoload
 (defun tr-ime-advanced-install (&optional no-confirm)
@@ -154,20 +197,57 @@ confirming the user."
 If NO-CONFIRM is non-nil, download the necessary module DLL without
 confirming the user."
   (tr-ime-uninitialize)
-  (when (and (eq window-system 'w32)
-             (not (tr-ime-detect-ime-patch-p))
-             (string= module-file-suffix ".dll")
-             (not (locate-library tr-ime--modadv-name)))
+  (cond
+   ((not (eq window-system 'w32))
+    (display-warning 'tr-ime
+                     (concat
+                      "window-system is not w32. "
+                      "tr-ime cannot install advanced DLL on it.")
+                     :warning))
+   ((tr-ime-detect-ime-patch-p)
+    (display-warning 'tr-ime
+                     (concat
+                      "Emacs seems to have an IME patch applied. "
+                      "tr-ime cannot work on it.")
+                     :warning))
+   ((not (string= module-file-suffix ".dll"))
+    (display-warning 'tr-ime
+                     (concat
+                      "module-file-suffix is not \".dll\". "
+                      "Emacs cannot load tr-ime module DLLs.")
+                     :warning))
+   ((locate-library tr-ime--modadv-name)
+    (display-warning 'tr-ime
+                     "tr-ime advanced DLL already exists."
+                     :debug))
+   (t
     (require 'tr-ime-download)
-    (tr-ime-download-mod-file tr-ime--modadv-name no-confirm))
+    (tr-ime-download-mod-file tr-ime--modadv-name no-confirm)))
   (tr-ime-advanced-initialize))
 
 ;;;###autoload
 (defun tr-ime-advanced-initialize ()
   "Initialize tr-ime advanced (experimental but more functionality) features."
-  (when (and (eq window-system 'w32)
-             (not (tr-ime-detect-ime-patch-p))
-             (string= module-file-suffix ".dll"))
+  (cond
+   ((not (eq window-system 'w32))
+    (display-warning 'tr-ime
+                     (concat
+                      "window-system is not w32. "
+                      "tr-ime cannot initialize on it.")
+                     :warning))
+   ((tr-ime-detect-ime-patch-p)
+    (display-warning 'tr-ime
+                     (concat
+                      "Emacs seems to have an IME patch applied. "
+                      "tr-ime cannot work on it.")
+                     :warning))
+   ((not (string= module-file-suffix ".dll"))
+    (display-warning 'tr-ime
+                     (concat
+                      "module-file-suffix is not \".dll\". "
+                      "Emacs cannot load tr-ime module DLLs.")
+                     :warning))
+   (t
     (setq tr-ime-enabled-features 'advanced)
     (require 'tr-ime-modadv tr-ime--modadv-name)
     (require 'tr-ime-openstatus)
@@ -184,7 +264,7 @@ confirming the user."
     (require 'tr-ime-documentfeed)
     (require 'tr-ime-debug)
     (define-key global-map [M-kanji] 'ignore)
-    (require 'w32-ime)))
+    (require 'w32-ime))))
 
 ;;;###autoload
 (defun tr-ime-uninitialize ()
