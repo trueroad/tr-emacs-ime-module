@@ -4,12 +4,16 @@
 
 # Emulator of GNU Emacs IME patch for Windows (tr-ime)
 
-※注意：バージョン 0.3.0 (2020-09-25) から 0.4.1 (2020-11-28) へかけて、
-パッケージ名、ファイル名、関数名、変数名、設定方法などを整理して変更しました。
-
 Windows 用 (MinGW/Cygwin) GNU Emacs でダイナミックモジュールの機構を利用し、
 IME パッチ無しの公式バイナリなどでも、
-IME による日本語入力を使いやすくする試みです。
+IME による日本語入力を使いやすくします。
+
+Emacs 28 以降で standard 版の tr-ime を使う場合は
+ダイナミックモジュールが不要となり Emacs Lisp のみで動作します。
+advanced 版の tr-ime を使う場合は引き続きダイナミックモジュールを利用します。
+
+※注意：バージョン 0.3.0 (2020-09-25) から 0.4.1 (2020-11-28) へかけて、
+パッケージ名、ファイル名、関数名、変数名、設定方法などを整理して変更しました。
 
 ## はじめに
 
@@ -70,12 +74,17 @@ standard 版は IME パッチの全機能を再現することはできません
         * GNU Emacs 27.1 からデフォルトで有効です
     * Cygwin 64 bit
       [emacs-w32](https://cygwin.com/packages/summary/emacs-w32.html)
-      27.2-1 で動作確認しています
+      28.1-1 で動作確認しています
+        * emacs-w32 28.1-2 でも動作するようですが、常用していないので
+          気が付いていない不具合があるかもしれません
+        * emacs-w32 27.2-1, 27.1-2, 27.1-1 でも動作していました
         * Cygwin 32 bit でも動作しましたが、常用していないので
           気が付いていない不具合があるかもしれません
-    * MinGW では
-      GNU 公式バイナリの 27.2 (64 bit/32 bit) や、GNU が配布する pretest の
-      28.0.50-snapshot-2021-01-15 (64 bit) バイナリで動作しました
+    * MinGW 64 bit では
+      GNU 公式バイナリの 28.1 や、GNU が配布する pretest の
+      29.0.50-snapshot-2022-04-02 バイナリで動作しました
+        * GNU 公式バイナリの 27.2 (64 bit/32 bit), 27.1 (64 bit/32 bit)
+          でも動作していました
         * MinGW は常用していないので
           気が付いていない不具合があるかもしれません
 
@@ -1344,7 +1353,7 @@ MinGW 32 bit の場合は `--host=x86_64-w64-mingw32`
 
 ## ライセンス
 
-Copyright (C) 2020, 2021 Masamichi Hosoda
+Copyright (C) 2020-2022 Masamichi Hosoda
 
 Emulator of GNU Emacs IME patch for Windows (tr-ime)
 is free software: you can redistribute it and/or modify
