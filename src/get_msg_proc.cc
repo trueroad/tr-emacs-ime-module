@@ -4,7 +4,7 @@
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
-// Copyright (C) 2020 Masamichi Hosoda
+// Copyright (C) 2020, 2022 Masamichi Hosoda
 //
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
@@ -50,6 +50,9 @@ get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
 
   DEBUG_MESSAGE ("enter\n");
 
+  // This can be called multiple times.
+  // So doesn't check whether PM_REMOVE or PM_NOREMOVE.
+
   auto msg = reinterpret_cast<MSG*> (lparam);
   bsubclassify_all_ = static_cast<bool> (msg->wParam);
 
@@ -87,6 +90,9 @@ get_msg_proc::wm_tr_ime_unsubclassify (int code, WPARAM wparam, LPARAM lparam)
   // because only the "post" ed message is passed to GetMsgProc ().
 
   DEBUG_MESSAGE ("enter\n");
+
+  // This can be called multiple times.
+  // So doesn't check whether PM_REMOVE or PM_NOREMOVE.
 
   auto msg = reinterpret_cast<MSG*> (lparam);
   auto bunsubclassify_all = static_cast<bool> (msg->wParam);
@@ -136,6 +142,13 @@ get_msg_proc::wm_tr_ime_exists_subclassified
 
   DEBUG_MESSAGE ("enter\n");
 
+  if (wparam != PM_REMOVE)
+    {
+      // Not processed because this may be called again.
+      DEBUG_MESSAGE_STATIC ("  wparam != PM_REMOVE\n");
+      return CallNextHookEx (nullptr, code, wparam, lparam);
+    }
+
   auto msg = reinterpret_cast<MSG*> (lparam);
   auto p = reinterpret_cast<std::promise<bool>*> (msg->wParam);
 
@@ -182,7 +195,15 @@ LRESULT
 get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
 {
   if (code < 0)
-    return CallNextHookEx (nullptr, code, wparam, lparam);
+    {
+      DEBUG_MESSAGE ("code < 0\n");
+      return CallNextHookEx (nullptr, code, wparam, lparam);
+    }
+  if (code != HC_ACTION)
+    {
+      DEBUG_MESSAGE ("code != HC_ACTION\n");
+      return CallNextHookEx (nullptr, code, wparam, lparam);
+    }
 
   auto msg = reinterpret_cast<MSG*> (lparam);
   if (!msg)
@@ -198,7 +219,7 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
   else if (msg->message == u_WM_TR_IME_EXISTS_SUBCLASSIFIED_)
     return wm_tr_ime_exists_subclassified (code, wparam, lparam);
 
-  if (!msg->hwnd)
+  if (!msg->hwnd && wparam == PM_REMOVE)
     {
       auto r = CallNextHookEx (nullptr, code, wparam, lparam);
       if (get_b_dispatch_thread_messages () && msg->message != WM_QUIT)
