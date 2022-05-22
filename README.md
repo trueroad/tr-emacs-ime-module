@@ -571,22 +571,19 @@ $ /etc/postinstall/0p_000_autorebase.dash
 
 ### モジュール DLL がホームディレクトリの下にある場合
 
-以下、Cygwin 64 bit （環境名 `x86_64-pc-cygwin`）で、
-`tr-ime-mod` の ABI バージョンが `1`、
-`tr-ime-modadv` の ABI バージョンが `1`、
-ユーザ名 `foobar` で、インストール先が `/home/foobar/.emacs.d/site-lisp`
+ユーザ名 `foobar` で、
+モジュール DLL を置いてあるディレクトリを
+`/home/foobar/.emacs.d/site-lisp/tr-ime`
 として説明します。適宜お使いの環境に読み替えてください。
 
-`/var/lib/rebase/user.d` にユーザ名のファイルを（なければ）作って、
-モジュール DLL の **ファイル名** をフルパスで書いた行を追加します。
+`/var/lib/rebase/userpath.d` にユーザ名のファイルが無ければ作って、
+モジュール DLL を置いてある **ディレクトリ**
+をフルパスで書いた 1 行を追加します。
 
 ```
-$ cd /var/lib/rebase/user.d
+$ cd /var/lib/rebase/userpath.d
 $ touch foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-mod-1-x86_64-pc-cygwin.dll' \
-    >> foobar
-$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime-modadv-1-x86_64-pc-cygwin.dll' \
-    >> foobar
+$ echo '/home/foobar/.emacs.d/site-lisp/tr-ime' >> tr-ime
 ```
 
 autorebase を手動で実行します。
