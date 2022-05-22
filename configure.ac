@@ -13,7 +13,7 @@ AC_CONFIG_MACRO_DIRS([m4])
 
 PACKAGE_FILEVERSION='0,4,1,0'
 PACKAGE_PRODUCTVERSION='0,4,1,0'
-PACKAGE_COPYRIGHT='Copyright (C) 2020 Masamichi Hosoda.'
+PACKAGE_COPYRIGHT='Copyright (C) 2020, 2022 Masamichi Hosoda.'
 PACKAGE_LICENSE='License: GPL3+'
 
 AC_DEFINE_UNQUOTED([PACKAGE_FILEVERSION], [$PACKAGE_FILEVERSION],
@@ -73,8 +73,9 @@ AC_SUBST([objdir])
 # Checks for header files.
 AC_ARG_WITH([emacs-module-hdir],
   AS_HELP_STRING([--with-emacs-module-hdir=DIR],
-    [directory of emacs-module.h]),
-  [CPPFLAGS="${CPPFLAGS} -I ${withval}"])
+    [directory of emacs-module.h (default: ${srcdir}/src/emacs-27.1)]),
+  [CPPFLAGS="${CPPFLAGS} -I ${withval}"],
+  [CPPFLAGS="${CPPFLAGS} -I ${PWD}/${srcdir}/src/emacs-27.1"])
 AC_CHECK_HEADERS([emacs-module.h],,
   AC_MSG_ERROR([emacs-module.h is not found.]))
 
