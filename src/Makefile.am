@@ -3,12 +3,18 @@
 #
 
 noinst_LTLIBRARIES = tr-ime-mod.la
-pkglisp_SCRIPTS = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
+pkgmoduleexec_SCRIPTS = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
 CLEANFILES = tr-ime-mod-$(MOD_ABI_VERSION)-$(host)$(SHREXT)
 
 noinst_LTLIBRARIES += tr-ime-modadv.la
-pkglisp_SCRIPTS += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
+pkgmoduleexec_SCRIPTS += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
 CLEANFILES += tr-ime-modadv-$(MODADV_ABI_VERSION)-$(host)$(SHREXT)
+
+#
+# Workaround for install-strip modules
+#
+
+INSTALL_SCRIPT = $(INSTALL_PROGRAM)
 
 #
 # For tr-ime-mod
@@ -21,7 +27,7 @@ tr_ime_mod_la_LIBADD = -limm32
 tr_ime_mod_la_LDFLAGS = -no-undefined
 tr_ime_mod_la_LDFLAGS += -module
 tr_ime_mod_la_LDFLAGS += -avoid-version
-tr_ime_mod_la_LDFLAGS += -rpath $(pkglispdir)
+tr_ime_mod_la_LDFLAGS += -rpath $(pkgmoduleexecdir)
 
 $(objdir)/tr-ime-mod$(SHREXT): tr-ime-mod.la
 
@@ -44,7 +50,7 @@ tr_ime_modadv_la_LIBADD = -lgdi32 -lcomctl32 -limm32
 tr_ime_modadv_la_LDFLAGS = -no-undefined
 tr_ime_modadv_la_LDFLAGS += -module
 tr_ime_modadv_la_LDFLAGS += -avoid-version
-tr_ime_modadv_la_LDFLAGS += -rpath $(pkglispdir)
+tr_ime_modadv_la_LDFLAGS += -rpath $(pkgmoduleexecdir)
 
 $(objdir)/tr-ime-modadv$(SHREXT): tr-ime-modadv.la
 

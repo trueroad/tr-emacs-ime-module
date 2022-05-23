@@ -57,10 +57,17 @@ AS_IF([test "x$WINDRES" = xno],
 AM_PATH_LISPDIR
 AC_ARG_WITH([pkglispdir],
   AS_HELP_STRING([--with-pkglispdir=DIR],
-    [where to install emacs dynamic modules (default lispdir/PACKAGE)]),
+    [where to install emacs lisp files (default lispdir/PACKAGE)]),
   [pkglispdir=${withval}], [pkglispdir='${lispdir}/${PACKAGE}'])
 AC_SUBST([pkglispdir])
-AC_MSG_NOTICE([where to install emacs dynamic modules is ${pkglispdir}])
+AC_MSG_NOTICE([where to install emacs lisp files is ${pkglispdir}])
+
+AC_ARG_WITH([pkgmoduledir],
+  AS_HELP_STRING([--with-pkgmoduledir=DIR],
+    [where to install emacs dynamic modules (default lispdir/PACKAGE)]),
+  [pkgmoduleexecdir=${withval}], [pkgmoduleexecdir='${lispdir}/${PACKAGE}'])
+AC_SUBST([pkgmoduleexecdir])
+AC_MSG_NOTICE([where to install emacs dynamic modules is ${pkgmoduleexecdir}])
 
 # Checks for libraries.
 LT_INIT([disable-static shared win32-dll])
