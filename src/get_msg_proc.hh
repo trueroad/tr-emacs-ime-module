@@ -4,7 +4,7 @@
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
-// Copyright (C) 2020 Masamichi Hosoda
+// Copyright (C) 2020, 2022 Masamichi Hosoda
 //
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
@@ -43,6 +43,10 @@ public:
   {
     ab_dispatch_thread_messages_.store (bset);
   }
+  static void set_b_dispatch_thread_wm_timer (bool bset)
+  {
+    ab_dispatch_thread_wm_timer_.store (bset);
+  }
 
   explicit get_msg_proc () = delete;
   ~get_msg_proc () = delete;
@@ -80,6 +84,10 @@ private:
   {
     return ab_dispatch_thread_messages_.load ();
   }
+  static bool get_b_dispatch_thread_wm_timer (void)
+  {
+    return ab_dispatch_thread_wm_timer_.load ();
+  }
 
   static LRESULT wm_tr_ime_subclassify (int, WPARAM, LPARAM);
   static LRESULT wm_tr_ime_unsubclassify (int, WPARAM, LPARAM);
@@ -93,6 +101,7 @@ private:
   static thread_local std::unordered_set<HWND> exclude_hwnds_;
 
   static std::atomic<bool> ab_dispatch_thread_messages_;
+  static std::atomic<bool> ab_dispatch_thread_wm_timer_;
 };
 
 #endif // INCLUDE_GUARD_GET_MSG_PROC_HH

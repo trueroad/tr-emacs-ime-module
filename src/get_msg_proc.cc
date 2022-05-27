@@ -41,6 +41,7 @@ thread_local bool get_msg_proc::bsubclassify_all_ {false};
 thread_local std::unordered_set<HWND> get_msg_proc::hwnds_;
 thread_local std::unordered_set<HWND> get_msg_proc::exclude_hwnds_;
 std::atomic<bool> get_msg_proc::ab_dispatch_thread_messages_ {false};
+std::atomic<bool> get_msg_proc::ab_dispatch_thread_wm_timer_ {false};
 
 LRESULT
 get_msg_proc::wm_tr_ime_subclassify (int code, WPARAM wparam, LPARAM lparam)
@@ -224,11 +225,21 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
       if (wparam != PM_REMOVE)
         return CallNextHookEx (nullptr, code, wparam, lparam);
 
-      auto r = CallNextHookEx (nullptr, code, wparam, lparam);
-      if (get_b_dispatch_thread_messages () && msg->message != WM_QUIT)
-        DispatchMessageW (msg);
+      if (msg->message == WM_TIMER && get_b_dispatch_thread_wm_timer ())
+        {
+          DispatchMessageW (msg);
+          msg->message = WM_NULL;
 
-      return r;
+          return CallNextHookEx (nullptr, code, wparam, lparam);
+        }
+      else
+        {
+          auto r = CallNextHookEx (nullptr, code, wparam, lparam);
+          if (get_b_dispatch_thread_messages () && msg->message != WM_QUIT)
+            DispatchMessageW (msg);
+
+          return r;
+        }
     }
 
   if (bsubclassify_all_ &&
