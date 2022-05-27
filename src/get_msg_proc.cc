@@ -219,8 +219,11 @@ get_msg_proc::proc (int code, WPARAM wparam, LPARAM lparam)
   else if (msg->message == u_WM_TR_IME_EXISTS_SUBCLASSIFIED_)
     return wm_tr_ime_exists_subclassified (code, wparam, lparam);
 
-  if (!msg->hwnd && wparam == PM_REMOVE)
+  if (!msg->hwnd)
     {
+      if (wparam != PM_REMOVE)
+        return CallNextHookEx (nullptr, code, wparam, lparam);
+
       auto r = CallNextHookEx (nullptr, code, wparam, lparam);
       if (get_b_dispatch_thread_messages () && msg->message != WM_QUIT)
         DispatchMessageW (msg);
