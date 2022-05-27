@@ -4,7 +4,7 @@
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
-// Copyright (C) 2020 Masamichi Hosoda
+// Copyright (C) 2020, 2022 Masamichi Hosoda
 //
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
@@ -308,6 +308,29 @@ Ftr_ime_modadv__set_dispatch_thread_message (emacs_env* env, ptrdiff_t nargs,
     }
 
   get_msg_proc::set_b_dispatch_thread_messages
+    (env->is_not_nil (env, args[0]));
+
+  return env->intern (env, "t");
+}
+
+const char *doc_tr_ime_modadv__set_dispatch_thread_wm_timer =
+  "Set whether or not to dispatch thread WM_TIMER messages.\n\n"
+  "If ARG1 is non-nil, a message hook dispatches the WM_TIMER messages\n"
+  "and removes them. Otherwise, it does not.";
+
+emacs_value
+Ftr_ime_modadv__set_dispatch_thread_wm_timer (emacs_env* env, ptrdiff_t nargs,
+                                              emacs_value args[], void*)
+{
+  DEBUG_MESSAGE ("enter\n");
+
+  if (nargs != 1)
+    {
+      WARNING_MESSAGE ("nargs != 1\n");
+      return env->intern (env, "nil");
+    }
+
+  get_msg_proc::set_b_dispatch_thread_wm_timer
     (env->is_not_nil (env, args[0]));
 
   return env->intern (env, "t");

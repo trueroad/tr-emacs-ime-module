@@ -4,7 +4,7 @@
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
-// Copyright (C) 2020 Masamichi Hosoda
+// Copyright (C) 2020, 2022 Masamichi Hosoda
 //
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
@@ -55,6 +55,11 @@ emacs_value
 Ftr_ime_modadv__set_dispatch_thread_message (emacs_env*, ptrdiff_t,
                                              emacs_value[], void*);
 extern const char *doc_tr_ime_modadv__set_dispatch_thread_message;
+
+emacs_value
+Ftr_ime_modadv__set_dispatch_thread_wm_timer (emacs_env*, ptrdiff_t,
+                                              emacs_value[], void*);
+extern const char *doc_tr_ime_modadv__set_dispatch_thread_wm_timer;
 
 emacs_value
 Ftr_ime_modadv__setopenstatus (emacs_env*, ptrdiff_t,
