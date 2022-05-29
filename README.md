@@ -722,23 +722,183 @@ Emacs のメッセージ処理を奪い取ることによって実現してい�
 #### スレッドメッセージをディスパッチするか否か (advanced)
 
 GNU Emacs 27 や 28 の UI スレッドでは、
-スレッドメッセージがディスパッチされません。
+スレッドメッセージ（hwnd が NULL のメッセージ）がディスパッチされません。
 これによって IME の動作に不具合が発生します
 （Windows 10 1909 の MS-IME で
 IME on/off してもタスクバーの IME 状態表示アイコンが変わらない等）。
 そこで、モジュールのメッセージフックで Emacs の代わりに
 スレッドメッセージをディスパッチするようにしています。
 
+tr-ime 0.4.x までは、すべてのスレッドメッセージをディスパッチしていましたが、
+それだと将来の Emacs でスレッドメッセージをディスパッチするようになったら
+一つのスレッドメッセージを二重にディスパッチすることになり、
+Emacs の動作がおかしくなる危険性があります。
+そこで tr-ime 0.5.0 よりスレッドメッセージでも WM_TIMER のみをディスパッチし、
+さらにそれを WM_NULL にすり替えて握りつぶすことで将来の
+Emacs での二重ディスパッチを防ぐ方法を新設し、
+デフォルト設定を変えました。
+
+大抵の場合は tr-ime 0.5.0 の新方式で問題ないと思いますが、
+問題が発生するようであれば tr-ime 0.4.x の旧方式に戻す設定も可能です。
 ただし、将来の Emacs でスレッドメッセージをディスパッチするようになったら、
-本設定でモジュールのディスパッチを停止してください。
+少なくとも旧方式は停止してください。
 そうしないと、一つのスレッドメッセージを二重にディスパッチすることになり、
 Emacs の動作がおかしくなると思います。
 
-停止したい場合は以下でできます。
+新方式を停止するのは以下でできます（デフォルトは有効）。
 
 ```el
-(custom-set-variables '(tr-ime-thread-message-dispatch-p nil))
+(custom-set-variables
+ '(tr-ime-thread-message-dispatch-wm-timer-p nil))
 ```
+
+旧方式を有効にするには以下でできます
+（デフォルトは tr-ime 0.5.0 より無効、tr-ime 0.4.x までは有効）。
+なお、新方式の設定が優先されるため、
+新方式が有効だと本設定をしても旧方式は有効になりません。
+
+```el
+(custom-set-variables '(tr-ime-thread-message-dispatch-p t))
+```
+
+技術的な背景を書いておきます。
+
+[
+Win32 のよくあるメッセージループのサンプル
+](https://github.com/MicrosoftDocs/win32/blob/2672d1093f09b84cd3291ecd81d385534d9c8d54/desktop-src/winmsg/about-messages-and-message-queues.md#message-loop)
+はどんなメッセージであっても中身を見ずにディスパッチ
+（`DispatchMessage ()` を呼ぶ）しています。
+Post されたメッセージはいったんこのメッセージループに現れ、
+ディスパッチされることでウィンドウプロシージャ `WindowProc ()` が呼ばれます
+（Send されたメッセージはメッセージループに現れず直接 `WindowProc ()`
+が呼ばれます）。
+しかし、スレッドメッセージは post されるのでメッセージループには現れますが、
+普通は `WindowProc ()` が呼ばれません。
+上記サンプルの説明にも
+"If the window handle is NULL, DispatchMessage does nothing with the message."
+と書いてあるように `DispatchMessage ()`
+はスレッドメッセージに対して何もしない、ので
+`WindowProc ()` も呼ばれないということです。
+`WindowProc ()` は hwnd （ウィンドウハンドル）ごとに設定されるので、
+hwnd が NULL のメッセージはどの `WindowProc ()`
+を呼んだらいいのかわからないから、ということだと思います。
+そういうこともあって[
+Emacs のメッセージループ
+（Emacs 的にはメッセージポンプという名前）
+](https://github.com/emacs-mirror/emacs/blob/emacs-28.1/src/w32fns.c#L3240)
+はスレッドメッセージをディスパッチしないのだと思います。
+
+しかし、例外がありました。[
+DispatchMessage () のドキュメント
+](https://github.com/MicrosoftDocs/sdk-api/blob/bbcbd47503653c4c54d69fd75d98ae7cb2537487/sdk-api-src/content/winuser/nf-winuser-dispatchmessage.md)
+には
+"If the lpmsg parameter points to a WM_TIMER message
+and the lParam parameter of the WM_TIMER message is not NULL,
+lParam points to a function that is called instead of the window procedure."
+とあります。メッセージが `WM_TIMER` で `lParam` が非 NULL だった時は
+`WindowProc ()` ではなく `lParam` が指す関数
+（タイマプロシージャ `TimerProc ()` ）を呼ぶ、ということです。[
+WM_TIMER のドキュメント
+](https://github.com/MicrosoftDocs/win32/blob/2672d1093f09b84cd3291ecd81d385534d9c8d54/desktop-src/winmsg/wm-timer.md#remarks)
+にも
+"DispatchMessage will call the TimerProc callback function specified
+in the call to the SetTimer function used to install the timer."
+とあり、同様のことが書いてあります。
+これはスレッドメッセージであっても `WM_TIMER` の場合
+`DispatchMessage ()` は何もしないのではなく`TimerProc ()`
+を呼ぶことがある、つまりスレッドメッセージをディスパッチしない場合は、
+呼ばれるはずだった `TimerProc ()` が呼ばれなくなってしまう、
+ということになります。
+恐らくこれが IME 不具合の真の原因ではないか、
+IME はスレッドメッセージの `WM_TIMER` を多用していて、
+呼ばれるハズの `TimerProc ()` が Emacs では呼ばれなくて
+不具合が起きているのではないか、と考えています。
+（UI スレッドで何か動かしたい場合は、
+`WM_TIMER` で `TimerProc ()` を呼ばせるのが簡単確実と考えたのではないか、
+とも思います。Emacs は見事にダメなわけですが。）
+逆に言うと Emacs の IME 不具合対策としては `WM_TIMER`
+だけディスパッチしてやり、
+それ以外のスレッドメッセージはディスパッチしなくてもよいのではないか、
+どうせディスパッチしても何もしないんだから、ということを考えました。
+
+もちろん何も考えずにスレッドメッセージを全部ディスパッチしてしまう方が
+楽なのは間違いないのですが、将来的に Emacs のメッセージポンプが修正されて
+スレッドメッセージをディスパッチするようになったら、
+二重にディスパッチされることになってしまい
+Emacs の動作がおかしくなってしまいます
+（設定で止められるようにはしてあるので止めればよいといえばよいのですが、
+気づかずにそのままにしているとどうなるか）。
+Emacs がディスパッチするか否かを検出して自動停止することも考えました。
+しかし、スレッドメッセージはメッセージフック（`WH_GETMESSAGE` でフックし
+`GetMsgProc ()` が呼ばれるもの）には現れますが、
+`WindowProc ()` が呼ばれないのでサブクラス化や他のフックには現れず、
+二重か否かの判定ができません
+（`WM_TIMER` で `TimerProc ()` を使えばできそうではありますが）。
+それよりは `WM_TIMER` だけディスパッチすればよいのであれば、
+ディスパッチ後に `WM_NULL` へすり替えて握りつぶしてしまえば
+二重ディスパッチしておかしくなる危険性もなくなります。
+（ただ、Emacs 27, 28 では無いですが、将来の Emacs 本体がスレッドメッセージの
+`WM_TIMER` を使うようになったらダメですね。
+あとは、考えにくいですが他のメッセージフックしている何かが `WM_TIMER`
+で何かすることがあるような場合もダメですね。）
+
+さて、ここで Windows 10 21H1 日本語版で
+「新しいバージョンの Microsoft IME」（Windows 10 2004 で導入されたもの）、
+「以前のバージョンの Microsoft IME」（Windows 10 1909 までと同等のもの）
+それぞれを使っていた場合に Emacs に対して
+どのようなスレッドメッセージが来ているのか調べてみると、
+Emacs 自身が使用するもの以外は `WM_TIMER` と
+`RegisterWindowMessage ()` で登録された `"MSUIM.Msg.Private"` の
+2 種類だけのようでした。
+（`RegisterWindowMessage ()` の名前空間はナゼか他のものと共用なので、
+メッセージが 0xc000 ～ 0xffff の場合は `GetClipboardFormatName ()`
+で文字列化できます。）
+`WM_TIMER` はディスパッチするとして、
+`"MSUIM.Msg.Private"` は完全に謎のメッセージで、
+どういう使い方をしているのかもわかりませんし、どう扱えばよいのかも不明です。
+ただ、IME が無い英語モードでも飛んでくることがあるようなので、
+何となく IME とは関係ないのではないかと推定できます。
+なお IME は `DefWindowProc ()` の先で
+`WM_IME_STARTCOMPOSITION` などを処理するために、
+フックか何かを使っていると思われます。
+しかし、スレッドメッセージである `"MSUIM.Msg.Private"` は
+`WindowProc ()` が呼ばれないので `DefWindowProc ()` が呼ばれることもなく、
+その先で IME が処理しているとは考えにくいです。
+`DispatchMessage ()` API そのものをフックして
+`"MSUIM.Msg.Private"` を捕まえて処理する構成だったら、
+ディスパッチしてやらないとおかしくなってしまいそうですが、
+そんなことするよりはメッセージフックで捕まえる方が楽だと思いますし、
+それなら `"MSUIM.Msg.Private"` はディスパッチしなくても、
+すり替えや握りつぶしをしなければ大丈夫、ということになります。
+
+あとは `DispatchMessage ()` は本当に `WM_TIMER` 以外の
+スレッドメッセージに対して何もしないのか、についてです。
+簡単なテストプログラムを作ってためしたところでは、
+スレッドメッセージを `DispatchMessage ()` した場合、
+たとえスレッドにウィンドウが 1 つだけであっても
+`WindowProc ()` は呼ばれませんでした。
+`WindowProc ()` を経由せずに直接 `DefWindowProc ()`
+を呼ぶ、とかだったりすると困ってしまいますが、それを確認するのは困難です。
+一応、念のため Wine のソースで確認してみました。すると[
+DispatchMessageA ()
+](https://github.com/wine-mirror/wine/blob/wine-7.9/dlls/user32/message.c#L859)
+は `WM_TIEMR` を、[
+DispatchMessageW ()
+](https://github.com/wine-mirror/wine/blob/wine-7.9/dlls/user32/message.c#L904)
+は `WM_TIMER` と `WM_SYSTIMER` を特別扱いして hwnd に関わらず
+`TimerProc ()` を呼んでいます。
+それ以外で呼ばれる[
+NtUserDispatchMessage ()
+](https://github.com/wine-mirror/wine/blob/wine-7.9/dlls/win32u/message.c#L2539)
+からさらに呼ばれる[
+dispatch_message ()
+](https://github.com/wine-mirror/wine/blob/wine-7.9/dlls/win32u/message.c#L2476)
+とたどっていくと、`WM_TIMER` と `WM_SYSTIMER` 以外の場合 hwnd が NULL
+だと単に 0 を返すだけで何もしていないことがわかります。
+つまり Wine なので本物ではないにしろ、想定と同様の処理になっていそうだ、
+ということです。
+なお、`WM_SYSTIMER` はドキュメントに記載もありませんし、
+飛んでくることもなさそうなのでディスパッチ対象にはしていません。
 
 #### UI スレッドからの通知を Lisp で受け取る (advanced)
 
