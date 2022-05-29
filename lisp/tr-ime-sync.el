@@ -1,6 +1,6 @@
 ;;; tr-ime-sync.el --- Sync IME openstatus -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -41,7 +41,7 @@
 ;;
 
 (defgroup tr-ime-sync nil
-  "IME 状態変更通知による IME/IM 状態同期 (advanced)"
+  "IME 状態変更通知による IME/IM 状態同期 (advanced)."
   :group 'tr-ime)
 
 ;;

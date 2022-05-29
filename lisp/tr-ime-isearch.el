@@ -1,6 +1,6 @@
 ;;; tr-ime-isearch.el --- Handle isearch-mode -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020, 2021 Masamichi Hosoda
+;; Copyright (C) 2020-2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,7 +34,7 @@
 ;;
 
 (defgroup tr-ime-isearch nil
-  "isearch-mode 設定 (advanced)"
+  "\"isearch-mode\" 設定 (advanced)."
   :group 'tr-ime)
 
 ;;

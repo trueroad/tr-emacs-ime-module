@@ -1,6 +1,6 @@
 ;;; tr-ime-workaround-inconsistent.el --- Fix inconsistent workaround -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -41,7 +41,7 @@
 ;;
 
 (defgroup tr-ime-workaround nil
-  "ワークアラウンド設定"
+  "ワークアラウンド設定."
   :group 'tr-ime)
 
 (defgroup tr-ime-workaround-inconsistent nil

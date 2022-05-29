@@ -1,6 +1,6 @@
 ;;; tr-ime-reconversion.el --- Reconversion -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,7 +34,7 @@
 ;;
 
 (defgroup tr-ime-reconversion nil
-  "再変換 (advanced)"
+  "再変換 (advanced)."
   :group 'tr-ime)
 
 ;;

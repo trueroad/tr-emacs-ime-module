@@ -34,13 +34,13 @@
 ;;
 
 (defgroup tr-ime-core nil
-  "コア機能設定
+  "コア機能設定.
 
 コア機能の設定です。通常は設定変更しないでください。"
   :group 'tr-ime)
 
 (defgroup tr-ime-thread-message nil
-  "スレッドメッセージ (advanced)"
+  "スレッドメッセージ (advanced)."
   :group 'tr-ime-core)
 
 ;;

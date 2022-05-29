@@ -1,6 +1,6 @@
 ;;; tr-ime-font.el --- Font handling -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -40,7 +40,7 @@
 ;;
 
 (defgroup tr-ime-font nil
-  "IME フォント（未確定文字列フォント）設定 (advanced)"
+  "IME フォント（未確定文字列フォント）設定 (advanced)."
   :group 'tr-ime)
 
 ;;

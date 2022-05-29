@@ -1,6 +1,6 @@
 ;;; tr-ime-debug.el --- Debug settings -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,7 +34,7 @@
 ;;
 
 (defgroup tr-ime-debug nil
-  "デバッグ設定 (advanced)"
+  "デバッグ設定 (advanced)."
   :group 'tr-ime)
 
 ;;

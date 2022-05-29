@@ -65,7 +65,7 @@
 ;;; Code:
 
 (defgroup tr-ime nil
-  "Emulator of GNU Emacs IME patch for Windows (tr-ime)"
+  "Emulator of GNU Emacs IME patch for Windows (tr-ime)."
   :group 'emacs)
 
 (defconst tr-ime--mod-abi-version 1

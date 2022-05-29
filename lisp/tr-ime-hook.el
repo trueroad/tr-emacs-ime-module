@@ -1,6 +1,6 @@
 ;;; tr-ime-hook.el --- Hook emulation of IME patch -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020, 2021 Masamichi Hosoda
+;; Copyright (C) 2020-2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,13 +34,13 @@
 ;;
 
 (defgroup tr-ime-core nil
-  "コア機能設定
+  "コア機能設定.
 
 コア機能の設定です。通常は設定変更しないでください。"
   :group 'tr-ime)
 
 (defgroup tr-ime-hook nil
-  "IME パッチ特有のアブノーマルフック"
+  "IME パッチ特有のアブノーマルフック."
   :group 'tr-ime-core)
 
 ;;

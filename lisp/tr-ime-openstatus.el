@@ -1,6 +1,6 @@
 ;;; tr-ime-openstatus.el --- IME openstatus functions -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020, 2021 Masamichi Hosoda
+;; Copyright (C) 2020-2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,13 +34,13 @@
 ;;
 
 (defgroup tr-ime-core nil
-  "コア機能設定
+  "コア機能設定.
 
 コア機能の設定です。通常は設定変更しないでください。"
   :group 'tr-ime)
 
 (defgroup tr-ime-openstatus nil
-  "IME 状態変更・状態取得"
+  "IME 状態変更・状態取得."
   :group 'tr-ime-core)
 
 ;;
@@ -51,8 +51,8 @@
   "GNU Emacs 28 の IME 状態変更関数使用後の状態確認回数上限 (standard).
 
 GNU Emacs 28 で standard の場合は
-IME 状態変更関数 w32-set-ime-open-status を使うが、
-これを呼んだ直後に IME 状態確認関数 w32-get-ime-open-status を呼んでも、
+IME 状態変更関数 \"w32-set-ime-open-status\" を使うが、
+これを呼んだ直後に IME 状態確認関数 \"w32-get-ime-open-status\" を呼んでも、
 状態変更前を示す返り値が得られることがある。
 そこで、ここで設定した回数を上限として状態変更が完了するまで確認する。
 例えば 3 に設定すると最大で 3 回確認するが、
@@ -67,7 +67,7 @@ IME 状態変更関数 w32-set-ime-open-status を使うが、
 (defun tr-ime-openstatus--get-mode-emacs28 ()
   "GNU Emacs 28 standard 向け ime-get-mode 実装.
 
-GNU Emacs 28 の w32-get-ime-open-status で
+GNU Emacs 28 の \"w32-get-ime-open-status\" で
 IME パッチの ime-force-on をエミュレーションする。
 選択されたフレームが w32 のときは、
 IME が OFF なら nil を、ON ならそれ以外を返す。
@@ -79,7 +79,7 @@ IME が OFF なら nil を、ON ならそれ以外を返す。
 (defun tr-ime-openstatus--force-on-emacs28 (&optional _dummy)
   "GNU Emacs 28 standard 向け ime-force-on 実装.
 
-GNU Emacs 28 の w32-set-ime-open-status で
+GNU Emacs 28 の \"w32-set-ime-open-status\" で
 IME パッチの ime-force-on をエミュレーションする。
 選択されたフレームが w32 のときは IME が on になる。
 非 w32 のときは何もしない。"
@@ -94,7 +94,7 @@ IME パッチの ime-force-on をエミュレーションする。
 (defun tr-ime-openstatus--force-off-emacs28 (&optional _dummy)
   "GNU Emacs 28 standard 向け ime-force-off 実装.
 
-GNU Emacs 28 の w32-set-ime-open-status で
+GNU Emacs 28 の \"w32-set-ime-open-status\" で
 IME パッチの ime-force-off をエミュレーションする。
 選択されたフレームが w32 のときは IME が off になる。
 非 w32 のときは何もしない。"
