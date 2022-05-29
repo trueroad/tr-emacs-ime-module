@@ -4,7 +4,7 @@
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
-;; Version: 0.4.1
+;; Version: 0.5.0
 ;; Package-Requires: ((emacs "27.1") (w32-ime "0.0.1"))
 
 ;; Emulator of GNU Emacs IME patch for Windows (tr-ime)
