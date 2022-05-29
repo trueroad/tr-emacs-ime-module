@@ -1209,7 +1209,9 @@ $ make
 
 のような感じでやればできます。オプションは適宜変更してください。
 
-その後は以下のようにしてインストールできます。
+その後は以下のようにしてインストールできます
+（同時に strip したい場合は `install` の代わりに `install-strip`
+を使えばできます）。
 
 ```
 $ make install
@@ -1236,7 +1238,7 @@ $ mkdir build
 $ cd build
 $ ../configure --prefix=/usr
 $ make
-$ make install DESTDIR=`pwd`/tmp
+$ make install-strip DESTDIR=`pwd`/tmp
 ```
 
 #### MinGW 64 bit / 32 bit
@@ -1265,7 +1267,7 @@ $ sed -i -e '/^archive_cmds=/s/\\$deplibs/-Wl,-Bstatic,-lstdc++,-lgcc,-lgcc_eh,-
          -e '/^postdeps=/s/-lgcc_s //g' \
          libtool
 $ make
-$ make install DESTDIR=`pwd`/tmp
+$ make install-strip DESTDIR=`pwd`/tmp
 ```
 
 なお、libwinpthread-1.dll は必要になっていますが、
