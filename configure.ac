@@ -26,7 +26,7 @@ AC_DEFINE_UNQUOTED([PACKAGE_LICENSE], ["$PACKAGE_LICENSE"],
   [Define to the license of this package.])
 
 MOD_ABI_VERSION='1'
-MODADV_ABI_VERSION='1'
+MODADV_ABI_VERSION='2'
 
 AC_DEFINE_UNQUOTED([MOD_ABI_VERSION], ["$MOD_ABI_VERSION"],
   [Define to the module ABI version of this package.])

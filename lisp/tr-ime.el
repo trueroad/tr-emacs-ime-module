@@ -1,6 +1,6 @@
 ;;; tr-ime.el --- Emulator of IME patch for Windows -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020, 2021 Masamichi Hosoda
+;; Copyright (C) 2020-2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -76,7 +76,7 @@
                                    system-configuration)
   "Module name of tr-ime-mod (standard).")
 
-(defconst tr-ime--modadv-abi-version 1
+(defconst tr-ime--modadv-abi-version 2
   "ABI version number of tr-ime-modadv DLL.")
 (defconst tr-ime--modadv-name (concat
                                "tr-ime-modadv-"
