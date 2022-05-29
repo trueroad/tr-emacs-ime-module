@@ -1171,13 +1171,6 @@ GNU 公式バイナリなどの MinGW の Emacs で使うなら MinGW 環境で�
 
 * C++14 対応コンパイラ、C99 対応コンパイラ
     * 最近の GCC など
-* emacs-module.h
-    * Emacs についているはずです
-        * Cygwin は emacs-w32 パッケージをインストールすると一緒に入ります
-        * MinGW は GNU 公式バイナリに入ってないようなので、
-          Emacs のソースから持ってきてください
-    * ビルド時に使った emacs-module.h の Emacs バージョンが新しくて、
-      動作環境の Emacs バージョンが古い場合は、動作しません
 * Autotools (autoconf, automake, libtool)
     * [本リポジトリ](https://github.com/trueroad/tr-emacs-ime-module)
       のソースを使ってビルドする場合に必要です
@@ -1210,9 +1203,8 @@ Cygwin 環境で MinGW 用バイナリをクロスコンパイルしたいよう
 $ ./autogen.sh
 $ mkdir build
 $ cd build
-$ cp /usr/include/emacs-module.h .
-$ ../configure --host=x86_64-w64-mingw32 --with-emacs-module-hdir=`pwd`
-# make
+$ ../configure --host=x86_64-w64-mingw32
+$ make
 ```
 
 のような感じでやればできます。オプションは適宜変更してください。
@@ -1266,9 +1258,7 @@ $ tar xfvz tr-ime-VERSION.tar.gz
 $ cd tr-ime-VERSION
 $ mkdir build
 $ cd build
-$ cp /usr/include/emacs-module.h .
-$ ../configure --host=x86_64-w64-mingw32 \
-    --with-emacs-module-hdir=`pwd`
+$ ../configure --host=x86_64-w64-mingw32
 $ sed -i -e '/^archive_cmds=/s/\\$deplibs/-Wl,-Bstatic,-lstdc++,-lgcc,-lgcc_eh,-Bdynamic \\$deplibs/' \
          -e '/^postdeps=/s/-lstdc++ //' \
          -e '/^postdeps=/s/-lgcc //g' \
