@@ -4,7 +4,7 @@
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // https://github.com/trueroad/tr-emacs-ime-module
 //
-// Copyright (C) 2020 Masamichi Hosoda
+// Copyright (C) 2020, 2022 Masamichi Hosoda
 //
 // Emulator of GNU Emacs IME patch for Windows (tr-ime)
 // is free software: you can redistribute it and/or modify
@@ -43,9 +43,9 @@ public:
     uninstall_all ();
   }
   get_msg_hook (const get_msg_hook &) = delete;
-  get_msg_hook (get_msg_hook &&) = default;
+  get_msg_hook (get_msg_hook &&) = delete;
   get_msg_hook& operator = (const get_msg_hook &) = delete;
-  get_msg_hook& operator = (get_msg_hook &&) = default;
+  get_msg_hook& operator = (get_msg_hook &&) = delete;
 
   bool install (DWORD thread_id);
   void uninstall (DWORD thread_id);
