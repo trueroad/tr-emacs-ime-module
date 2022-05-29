@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.69])
+AC_PREREQ([2.71])
 AC_INIT([Emulator of GNU Emacs IME patch for Windows], [0.4.1],, [tr-ime],
   [https://github.com/trueroad/tr-emacs-ime-module])
 AC_CANONICAL_TARGET
@@ -13,7 +13,7 @@ AC_CONFIG_MACRO_DIRS([m4])
 
 PACKAGE_FILEVERSION='0,4,1,0'
 PACKAGE_PRODUCTVERSION='0,4,1,0'
-PACKAGE_COPYRIGHT='Copyright (C) 2020, 2022 Masamichi Hosoda.'
+PACKAGE_COPYRIGHT='Copyright (C) 2020-2022 Masamichi Hosoda.'
 PACKAGE_LICENSE='License: GPL3+'
 
 AC_DEFINE_UNQUOTED([PACKAGE_FILEVERSION], [$PACKAGE_FILEVERSION],
@@ -39,7 +39,7 @@ AC_DEFINE_UNQUOTED([HOST_PLATFORM], ["$host"],
   [Define to the host platform name.])
 
 # Checks for programs.
-AC_PROG_CC_C99
+AC_PROG_CC
 AS_IF([test "x$ac_cv_prog_cc_c99" = xno],
   AC_MSG_ERROR([C99 compiler is not found.]))
 
