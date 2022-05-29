@@ -50,7 +50,7 @@ namespace
                    emacs_value (*function) (emacs_env *env,
                                             ptrdiff_t nargs,
                                             emacs_value args[],
-                                            void *),
+                                            void *) noexcept,
                    const char *documentation,
                    void *data)
   {

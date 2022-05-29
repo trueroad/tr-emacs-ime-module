@@ -29,71 +29,73 @@
 
 emacs_value
 Ftr_ime_modadv__install_message_hook_hwnd (emacs_env*, ptrdiff_t,
-                                           emacs_value[], void*);
+                                           emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__install_message_hook_hwnd;
 
 emacs_value
 Ftr_ime_modadv__uninstall_message_hook_hwnd (emacs_env*, ptrdiff_t,
-                                             emacs_value[], void*);
+                                             emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__uninstall_message_hook_hwnd;
 
 emacs_value
-Ftr_ime_modadv__subclassify_hwnd (emacs_env*, ptrdiff_t, emacs_value[], void*);
+Ftr_ime_modadv__subclassify_hwnd (emacs_env*, ptrdiff_t, emacs_value[], void*)
+  noexcept;
 extern const char *doc_tr_ime_modadv__subclassify_hwnd;
 
 emacs_value
 Ftr_ime_modadv__unsubclassify_hwnd (emacs_env*, ptrdiff_t,
-                                    emacs_value[], void*);
+                                    emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__unsubclassify_hwnd;
 
 emacs_value
 Ftr_ime_modadv__exists_subclassified (emacs_env*, ptrdiff_t,
-                                      emacs_value[], void*);
+                                      emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__exists_subclassified;
 
 emacs_value
 Ftr_ime_modadv__set_dispatch_thread_message (emacs_env*, ptrdiff_t,
-                                             emacs_value[], void*);
+                                             emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_dispatch_thread_message;
 
 emacs_value
 Ftr_ime_modadv__set_dispatch_thread_wm_timer (emacs_env*, ptrdiff_t,
-                                              emacs_value[], void*);
+                                              emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_dispatch_thread_wm_timer;
 
 emacs_value
 Ftr_ime_modadv__setopenstatus (emacs_env*, ptrdiff_t,
-                               emacs_value[], void*);
+                               emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__setopenstatus;
 
 emacs_value
 Ftr_ime_modadv__getopenstatus (emacs_env*, ptrdiff_t,
-                               emacs_value[], void*);
+                               emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__getopenstatus;
 
 emacs_value
 Ftr_ime_modadv__set_font (emacs_env*, ptrdiff_t,
-                          emacs_value[], void*);
+                          emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_font;
 
 emacs_value
 Ftr_ime_modadv__set_composition_window (emacs_env*, ptrdiff_t,
-                                        emacs_value[], void*);
+                                        emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_composition_window;
 
 emacs_value
 Ftr_ime_modadv__set_startcomposition_defsubclassproc (emacs_env*, ptrdiff_t,
-                                                      emacs_value[], void*);
+                                                      emacs_value[], void*)
+  noexcept;
 extern const char *doc_tr_ime_modadv__set_startcomposition_defsubclassproc;
 
 emacs_value
 Ftr_ime_modadv__set_prefix_keys (emacs_env*, ptrdiff_t,
-                                 emacs_value[], void*);
+                                 emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_prefix_keys;
 
 emacs_value
 Ftr_ime_modadv__resume_prefix_key (emacs_env*, ptrdiff_t,
-                                   emacs_value[], void*);
+                                   emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__resume_prefix_key;
 
 extern const char *doc_tr_ime_modadv__setopenstatus_hook;
@@ -102,49 +104,49 @@ extern const char *doc_tr_ime_modadv__documentfeed_hook;
 
 emacs_value
 Ftr_ime_modadv__language_change_handler (emacs_env*, ptrdiff_t,
-                                         emacs_value[], void*);
+                                         emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__language_change_handler;
 
 emacs_value
 Ftr_ime_modadv__notify_reconvert_string (emacs_env*, ptrdiff_t,
-                                         emacs_value[], void*);
+                                         emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__notify_reconvert_string;
 
 emacs_value
 Ftr_ime_modadv__set_reconversion (emacs_env*, ptrdiff_t,
-                                  emacs_value[], void*);
+                                  emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_reconversion;
 
 emacs_value
 Ftr_ime_modadv__set_documentfeed (emacs_env*, ptrdiff_t,
-                                  emacs_value[], void*);
+                                  emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_documentfeed;
 
 emacs_value
 Ftr_ime_modadv__get_dpi (emacs_env*, ptrdiff_t,
-                         emacs_value[], void*);
+                         emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__get_dpi;
 
 emacs_value
 Ftr_ime_modadv__set_verbose_level (emacs_env*, ptrdiff_t,
-                                   emacs_value[], void*);
+                                   emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__set_verbose_level;
 
 emacs_value
 Ftr_ime_modadv_unload_function (emacs_env*, ptrdiff_t,
-                                emacs_value[], void*);
+                                emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv_unload_function;
 
 #ifndef NDEBUG
 
 emacs_value
 Ftr_ime_modadv__debug_output (emacs_env*, ptrdiff_t,
-                              emacs_value[], void*);
+                              emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__debug_output;
 
 emacs_value
 Ftr_ime_modadv__debug_rectangle (emacs_env*, ptrdiff_t,
-                                 emacs_value[], void*);
+                                 emacs_value[], void*) noexcept;
 extern const char *doc_tr_ime_modadv__debug_rectangle;
 
 #endif // NDEBUG
