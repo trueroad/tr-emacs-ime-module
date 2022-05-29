@@ -68,3 +68,9 @@ WINDRESFLAGS = $(DEFAULT_INCLUDES)
 	$(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 		--tag=RC --mode=compile \
 		$(WINDRES) $(WINDRESFLAGS) -i $< -o $@
+
+#
+# emacs-module.h
+#
+
+EXTRA_DIST = emacs-27.1/emacs-module.h
