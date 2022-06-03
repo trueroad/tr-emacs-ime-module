@@ -1422,9 +1422,7 @@ $ mkdir build
 $ cd build
 $ ../configure --host=x86_64-w64-mingw32
 $ sed -i -e '/^archive_cmds=/s/\\$deplibs/-Wl,-Bstatic,-lstdc++,-lgcc,-lgcc_eh,-Bdynamic \\$deplibs/' \
-         -e '/^postdeps=/s/-lstdc++ //' \
-         -e '/^postdeps=/s/-lgcc //g' \
-         -e '/^postdeps=/s/-lgcc_s //g' \
+         -e '/^postdeps=/s/-lgcc_s /-lgcc_eh /g' \
          libtool
 $ make
 $ make install-strip DESTDIR=`pwd`/tmp
