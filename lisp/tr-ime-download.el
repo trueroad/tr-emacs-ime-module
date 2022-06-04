@@ -1,6 +1,6 @@
 ;;; tr-ime-download.el --- Download files -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020 Masamichi Hosoda
+;; Copyright (C) 2020, 2022 Masamichi Hosoda
 
 ;; Author: Masamichi Hosoda <trueroad@trueroad.jp>
 ;; URL: https://github.com/trueroad/tr-emacs-ime-module
@@ -34,7 +34,7 @@
 ;;
 
 (defconst tr-ime-download--url-prefix
-  "https://github.com/trueroad/tr-ime-dist/raw/v0.4.0/"
+  "https://github.com/trueroad/tr-ime-dist/raw/v0.5.0/"
   "ダウンロード先 URL のプレフィックス.")
 
 (defconst tr-ime-download--url-suffix ".gz"
@@ -42,21 +42,21 @@
 
 (defconst tr-ime-download--file-sum-alist
   '(("tr-ime-mod-1-i686-pc-cygwin.dll" .
-     "caf4a4984c9096bad185238e7db048b79387940eef9018d1d9effd56b25c8aa0")
+     "68c734d8b1c56abb089b05f0ece0fe1b2c47ed818ea118be1cadd678d7a2ceb1")
     ("tr-ime-mod-1-i686-w64-mingw32.dll" .
-     "ae2bd610a148ea8f8fbe7b799753ed5f70b293b3b0776712ba279a6efd8157ea")
+     "ba162d3f927d779fa42f6906b3c8ac1252dd3f7332938b28c41b0b1cfee646dd")
     ("tr-ime-mod-1-x86_64-pc-cygwin.dll" .
-     "1026535d39ee64644700bb8bc73dc04c1be38559ed25a08d3c52ffa0e384a892")
+     "f8362c23faa9835c6071de62967125a3683304718703f39296baec70bbdb0981")
     ("tr-ime-mod-1-x86_64-w64-mingw32.dll" .
-     "7cd7d8229d997d914eba0fbbf966013eea7d32519e6c7e8cb69e9aaeba308ebe")
-    ("tr-ime-modadv-1-i686-pc-cygwin.dll" .
-     "5a427a3b742c2c529e1ebc302c822f78bdee7ab702dbf714b7228779f596d0ff")
-    ("tr-ime-modadv-1-i686-w64-mingw32.dll" .
-     "42f3b26cc4c4b22c063a9f349a20eed992ab26a6dce3b009c2a457b89fa5115b")
-    ("tr-ime-modadv-1-x86_64-pc-cygwin.dll" .
-     "70d00e1b2a4854093e150fb3e52666c0db82051dcd87320afd7f1ac9422834f3")
-    ("tr-ime-modadv-1-x86_64-w64-mingw32.dll" .
-     "728a59ddf4cf8d621a8f262bf61bf4a6973b68e342b1219f0c43f79a12d7d65d"))
+     "92159ebcf946ec6d5a498d9bc473ec3788aaee0caea51f34435da3535f70f2bf")
+    ("tr-ime-modadv-2-i686-pc-cygwin.dll" .
+     "3a1dd0e3b114ee3ae1d9bc24f0723a11f4ac57dceaf0de6967262c611e80fe9f")
+    ("tr-ime-modadv-2-i686-w64-mingw32.dll" .
+     "9fc539e63601763f7e94fd82523c8b98ac5f2e49fb5ecc7040454488a1e77152")
+    ("tr-ime-modadv-2-x86_64-pc-cygwin.dll" .
+     "c3f6ec346293800268af2004053bf6ebde1fe513554e9755d1fa3b6662bd619b")
+    ("tr-ime-modadv-2-x86_64-w64-mingw32.dll" .
+     "d3492a55d6342351f38c3cb7c1c3afdc6cba36c58934786e7d2bc7ac999bc0c5"))
   "ダウンロードする DLL の sha256sum.")
 
 (defconst tr-ime-download--dir (file-name-directory load-file-name)
