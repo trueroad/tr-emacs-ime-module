@@ -25,6 +25,7 @@
 #include "get_msg_proc.hh"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <future>
 #include <unordered_set>
